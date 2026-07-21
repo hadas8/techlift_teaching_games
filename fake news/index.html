@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>חדר החדשות</title>
+<style>
+  :root{
+    --bg:#0f1220;
+    --bg2:#161a2e;
+    --card:#1d2238;
+    --card-border:#2c3356;
+    --ink:#f1f3fb;
+    --ink-dim:#a9aed0;
+    --accent:#ffb347;
+    --accent2:#5ee6c8;
+    --real:#4ade80;
+    --fake:#f87171;
+    --mislead:#facc15;
+    --danger:#ef4444;
+    --radius:18px;
+    font-family:"Segoe UI","Heebo",Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; min-height:100%;
+    background:radial-gradient(circle at 20% 0%, #23294a 0%, var(--bg) 55%);
+    color:var(--ink);
+  }
+  body{
+    display:flex; flex-direction:column; align-items:center;
+    min-height:100vh; padding:24px 16px 60px;
+  }
+  .wrap{width:100%; max-width:900px;}
+  h1,h2,h3{margin:0 0 8px;}
+  h1{font-size:2rem;}
+  h2{font-size:1.4rem;}
+  p{line-height:1.6;}
+  .muted{color:var(--ink-dim);}
+  .center{text-align:center;}
+  .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center;}
+  .row.center{justify-content:center;}
+  .btn{
+    border:none; cursor:pointer; border-radius:14px;
+    padding:14px 22px; font-size:1rem; font-weight:700;
+    background:var(--accent); color:#241a04;
+    transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+    box-shadow:0 4px 0 rgba(0,0,0,.25);
+  }
+  .btn:hover{transform:translateY(-2px);}
+  .btn:active{transform:translateY(1px); box-shadow:0 2px 0 rgba(0,0,0,.25);}
+  .btn.secondary{background:var(--card); color:var(--ink); border:1px solid var(--card-border); box-shadow:none;}
+  .btn.ghost{background:transparent; color:var(--ink-dim); box-shadow:none; border:1px dashed var(--card-border);}
+  .btn:disabled{opacity:.4; cursor:not-allowed; transform:none;}
+  .btn.real{background:var(--real); color:#052e12;}
+  .btn.fake{background:var(--fake); color:#3a0a0a;}
+  .btn.mislead{background:var(--mislead); color:#3a2e00;}
+
+  .card{
+    background:linear-gradient(180deg, var(--card), var(--bg2));
+    border:1px solid var(--card-border);
+    border-radius:var(--radius);
+    padding:24px;
+    margin:16px 0;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  .badge{
+    display:inline-flex; align-items:center; gap:6px;
+    background:rgba(255,255,255,.08); border:1px solid var(--card-border);
+    border-radius:999px; padding:4px 12px; font-size:.8rem; color:var(--ink-dim);
+    margin-bottom:10px;
+  }
+  .badge svg{width:14px; height:14px;}
+
+  .item-image-caption{
+    display:flex; gap:10px; align-items:center;
+    background:rgba(255,255,255,.05);
+    border:1px dashed var(--card-border);
+    border-radius:12px; padding:10px 14px; margin:12px 0;
+    color:var(--ink-dim); font-size:.9rem; font-style:italic;
+  }
+  .item-image-caption svg{flex-shrink:0; width:28px; height:28px; opacity:.7;}
+
+  .headline{font-size:1.3rem; font-weight:800; margin-bottom:10px; line-height:1.4;}
+  .body-text{font-size:1.02rem; line-height:1.75;}
+  .body-text mark.tellmark{
+    background:rgba(248,113,113,.28); color:var(--ink);
+    border-bottom:2px solid var(--fake); border-radius:4px; padding:1px 3px;
+    cursor:help; position:relative;
+  }
+  .body-text mark.tellmark.mislead-mark{
+    background:rgba(250,204,21,.25); border-bottom-color:var(--mislead);
+  }
+
+  .tell-note{
+    display:flex; gap:10px; align-items:flex-start;
+    background:rgba(255,179,71,.08); border:1px solid rgba(255,179,71,.35);
+    border-radius:12px; padding:10px 14px; margin-top:8px; font-size:.92rem;
+  }
+  .tell-note b{color:var(--accent);}
+  .tell-note svg{flex-shrink:0; width:20px; height:20px; margin-top:2px; color:var(--accent);}
+
+  .verdict-banner{
+    border-radius:12px; padding:12px 16px; font-weight:800; margin:14px 0;
+    display:flex; align-items:center; gap:10px;
+  }
+  .verdict-banner.correct{background:rgba(74,222,128,.15); color:var(--real); border:1px solid rgba(74,222,128,.4);}
+  .verdict-banner.wrong{background:rgba(248,113,113,.15); color:var(--fake); border:1px solid rgba(248,113,113,.4);}
+
+  .progress{display:flex; gap:6px; margin-bottom:18px;}
+  .progress .dot{
+    flex:1; height:6px; border-radius:3px; background:var(--card-border);
+  }
+  .progress .dot.done{background:var(--accent2);}
+  .progress .dot.current{background:var(--accent);}
+
+  .score-strip{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:10px; font-size:.9rem; color:var(--ink-dim);
+  }
+  .score-strip b{color:var(--accent2); font-size:1.1rem;}
+
+  textarea{
+    width:100%; min-height:120px; border-radius:12px; border:1px solid var(--card-border);
+    background:rgba(255,255,255,.04); color:var(--ink); padding:12px; font-size:1rem;
+    font-family:inherit; resize:vertical;
+  }
+  input[type=text]{
+    width:100%; border-radius:12px; border:1px solid var(--card-border);
+    background:rgba(255,255,255,.04); color:var(--ink); padding:12px; font-size:1rem;
+    font-family:inherit;
+  }
+  label{display:block; margin:12px 0 6px; font-weight:700; color:var(--ink-dim); font-size:.9rem;}
+
+  .checklist{list-style:none; padding:0; margin:0;}
+  .checklist li{
+    display:flex; gap:10px; align-items:center;
+    background:rgba(255,255,255,.04); border:1px solid var(--card-border);
+    border-radius:10px; padding:10px 12px; margin-bottom:8px; cursor:pointer;
+    transition:background .15s ease;
+  }
+  .checklist li:hover{background:rgba(255,255,255,.08);}
+  .checklist li.checked{background:rgba(94,230,200,.12); border-color:rgba(94,230,200,.4);}
+  .checklist li input{width:20px; height:20px; flex-shrink:0;}
+  .checklist li svg{width:20px; height:20px; flex-shrink:0; color:var(--accent2);}
+
+  .timer{
+    font-size:2.4rem; font-weight:900; text-align:center; color:var(--accent);
+    font-variant-numeric:tabular-nums;
+  }
+  .timer.low{color:var(--danger); animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:.5;}}
+
+  .tellmap{display:grid; grid-template-columns:1fr; gap:10px;}
+  .tellmap .row-item{
+    display:flex; align-items:center; gap:12px;
+    background:rgba(255,255,255,.04); border:1px solid var(--card-border);
+    border-radius:12px; padding:10px 14px;
+  }
+  .tellmap .row-item svg{width:22px; height:22px; flex-shrink:0;}
+  .tellmap .row-item.good svg{color:var(--real);}
+  .tellmap .row-item.bad svg{color:var(--fake);}
+  .tellmap .row-item .stat{margin-inline-start:auto; font-weight:700; color:var(--ink-dim); font-size:.85rem;}
+
+  .mode-select{display:flex; gap:16px; flex-wrap:wrap; justify-content:center;}
+  .mode-card{
+    flex:1; min-width:220px; max-width:320px;
+    background:var(--card); border:1px solid var(--card-border); border-radius:var(--radius);
+    padding:22px; text-align:center; cursor:pointer; transition:transform .15s ease, border-color .15s;
+  }
+  .mode-card:hover{transform:translateY(-4px); border-color:var(--accent);}
+  .mode-card svg{width:48px; height:48px; color:var(--accent); margin-bottom:10px;}
+
+  .team-setup input{margin-bottom:10px;}
+  .team-chip{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--card); border:1px solid var(--card-border);
+    border-radius:999px; padding:6px 14px; margin:4px;
+  }
+  .team-chip button{
+    background:none; border:none; color:var(--fake); cursor:pointer; font-size:1rem; font-weight:900; padding:0;
+  }
+
+  .footer-note{margin-top:30px; font-size:.85rem; color:var(--ink-dim); text-align:center;}
+  .swap-block{
+    border:1px solid var(--card-border); border-radius:12px; padding:16px; margin-bottom:14px;
+    background:rgba(255,255,255,.03);
+  }
+  .kicker{color:var(--accent2); font-weight:800; font-size:.85rem; letter-spacing:.5px; text-transform:uppercase; margin-bottom:6px;}
+  hr.sep{border:none; border-top:1px solid var(--card-border); margin:20px 0;}
+  .icon-inline{width:1em; height:1em; vertical-align:-0.15em; display:inline-block;}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+/* =========================================================
+   CONFIG — everything a facilitator would ever want to edit
+   ========================================================= */
+const CONFIG = {
+  meta: {
+    title: "חדר החדשות",
+    subtitle: "משחק זיהוי פייק ניוז",
+    intro: "בכל תא חדשות יש חדר אחד שבו בודקים אם הידיעה אמיתית לפני שהיא יוצאת לעולם. עכשיו זה התפקיד שלכם.",
+    debriefPrompt: "איזו טעות הכי הפתיעה אתכם — ומה תבדקו מעכשיו לפני שאתם משתפים משהו?",
+    handoff: "עוד מעט תבנו אפליקציה שאנשים אחרים ישתמשו בה. מי שבונה מוצר הוא גם מי שמפרסם — עכשיו אתם יודעים גם לזהות מניפולציה וגם לא לייצר אחת."
+  },
+
+  tells: [
+    { id: "no-source",   name: "אין מקור",              explain: "מי פרסם? אין שם, אין אתר, אין תאריך" },
+    { id: "no-name-expert", name: '"מומחים אומרים"',    explain: "מומחה בלי שם הוא לא מקור" },
+    { id: "emotion",     name: "לחץ רגשי",              explain: "כעס, פחד או דחיפות — \"שתפו עכשיו! לפני שימחק!\"" },
+    { id: "no-origin-number", name: "מספר בלי מקור",    explain: "נתון מדויק שאין לו מוצא — מי מדד את זה?" },
+    { id: "too-perfect", name: "מושלם מדי / מזעזע מדי", explain: "אם זה נשמע קיצוני מכדי להיות אמיתי — בדקו" },
+    { id: "headline-mismatch", name: "כותרת שלא תואמת לגוף", explain: "הכותרת צועקת, הטקסט ממלמל" },
+    { id: "old-as-new",  name: "ישן שנמכר כחדש",         explain: "אירוע אמיתי, אבל בתאריך שגוי או מוסתר" },
+    { id: "correlation", name: "מתאם שנמכר כסיבה",       explain: "שני דברים קרו יחד — זה לא אומר שאחד גרם לשני" },
+    { id: "unrelated-image", name: "תמונה לא קשורה",     explain: "התמונה ממקום או מזמן אחר לגמרי" }
+  ],
+
+  rounds: [
+    /* ---------------- ROUND 1 — easy, binary ---------------- */
+    {
+      id: 1,
+      title: "סיבוב 1 — אמיתי או פייק?",
+      instructions: "קראו כל ידיעה והצביעו: אמיתית או פייק. אחרי ההצבעה, נגלה את התשובה ואת מה שהיה צריך לשים לב אליו.",
+      verdicts: ["אמיתי", "פייק"],
+      items: [
+        {
+          headline: "מדענים מהמעבדה הסודית: שתייה של מיץ סחלב הופכת תלמידים לגאונים תוך יומיים",
+          body: "מומחים אומרים שתלמידים ששתו את המשקה החדש שיפרו את הזיכרון שלהם ב-400%. אל תחכו — הכמות מוגבלת ומי שלא ישתה היום יפספס את ההזדמנות של החיים! שתפו לפני שהמידע הזה יימחק מהרשת.",
+          image: "תמונה של כוס מיץ צהוב על רקע מוח מצויר בזוהר ירוק",
+          verdict: "פייק",
+          highlights: [
+            { text: "מומחים אומרים", tell: "no-name-expert" },
+            { text: "שיפרו את הזיכרון שלהם ב-400%", tell: "no-origin-number" },
+            { text: "אל תחכו", tell: "emotion" },
+            { text: "שתפו לפני שהמידע הזה יימחק מהרשת", tell: "emotion" }
+          ],
+          headlineHighlights: [
+            { text: "הופכת תלמידים לגאונים תוך יומיים", tell: "too-perfect" }
+          ],
+          revealNote: "אין שם לאף מומחה, אין מקור למספר, ויש לחץ דחיפות קלאסי. כשמשהו מבטיח פלא מהיר — זה דגל אדום."
+        },
+        {
+          headline: "עיריית כרמי-דן: שביל אופניים חדש נפתח ברחוב הדקל",
+          body: "דוברת עיריית כרמי-דן, רונית שגיא, מסרה כי שביל האופניים החדש ברחוב הדקל נפתח ביום שני האחרון. אורך השביל כ-800 מטר, והוא מחבר בין בית הספר היסודי לפארק המרכזי. תושבים מוזמנים לבדוק את השביל בשעות היום.",
+          image: "תמונה של שביל אספלט חדש עם קווי סימון לבנים",
+          verdict: "אמיתי",
+          highlights: [],
+          revealNote: "יש שם מלא ותפקיד לדוברת, תאריך ברור, ופרט משעמם ומדויק (800 מטר). זה בדיוק מה שידיעה אמיתית נראית כמו — קצת משעממת."
+        },
+        {
+          headline: "בהלה בעיר: אפליקציית \"סטאדיפיי\" גונבת את כל התמונות מהטלפון שלכם",
+          body: "לפי מקורות בלתי מזוהים, האפליקציה החדשה שכל בני הנוער מורידים סורקת את כל התמונות במכשיר ושולחת אותן לשרת חשאי. איש לא יודע איפה השרת נמצא. מומחה אבטחה אמר שזה \"קטסטרופה\". מחקו את האפליקציה מיד לפני שיהיה מאוחר מדי!",
+          image: "אין תמונה מצורפת",
+          verdict: "פייק",
+          highlights: [
+            { text: "מקורות בלתי מזוהים", tell: "no-source" },
+            { text: "מומחה אבטחה אמר", tell: "no-name-expert" },
+            { text: "איש לא יודע איפה השרת נמצא", tell: "too-perfect" },
+            { text: "מחקו את האפליקציה מיד לפני שיהיה מאוחר מדי", tell: "emotion" }
+          ],
+          revealNote: "\"מקורות בלתי מזוהים\" ו\"מומחה\" בלי שם זה אותו טריק פעמיים. וכשאף אחד לא יודע כלום, למה שמישהו יהיה בטוח שזו קטסטרופה?"
+        },
+        {
+          headline: "מועצת התלמידים של תיכון גליל-ים אישרה תקציב לטיול שנתי לצפון",
+          body: "בישיבה שהתקיימה ביום רביעי, אישרה מועצת התלמידים תקציב של 42,000 שקלים לטיול השנתי, שייצא בתאריך 14 למאי. יושב ראש המועצה, עומר לוי, מסר כי הפרטים המלאים יפורסמו בקבוצת הכיתה בשבוע הבא.",
+          image: "תמונה של לוח מודעות בית ספרי עם מודעה מודפסת",
+          verdict: "אמיתי",
+          highlights: [],
+          revealNote: "שם מלא, תאריך מדויק, סכום ספציפי, והפניה למקור נוסף (קבוצת הכיתה). זו ידיעה שאפשר לבדוק — וזה הסימן הכי טוב לאמינות."
+        },
+        {
+          headline: "תגלית מזעזעת: תלמיד בן 14 המציא מכשיר שממיר אוויר לדלק — והממשלה מסתירה את זה!",
+          body: "ההמצאה המהפכנית שתחסל את משבר האנרגיה העולמי כבר קיימת, אבל 'הגורמים המעוניינים' לא רוצים שתדעו עליה. התלמיד, ששמו נשמר בסוד מטעמי ביטחון, פיתח את המכשיר במוסך של סבא שלו. שתפו כדי שהאמת תצא לאור!",
+          image: "תמונה מטושטשת של קופסת מתכת מחוברת לצינורות",
+          verdict: "פייק",
+          highlights: [
+            { text: "הגורמים המעוניינים", tell: "no-source" },
+            { text: "ששמו נשמר בסוד מטעמי ביטחון", tell: "no-source" },
+            { text: "שתפו כדי שהאמת תצא לאור", tell: "emotion" },
+            { text: "תחסל את משבר האנרגיה העולמי", tell: "too-perfect" }
+          ],
+          revealNote: "אין שם לתלמיד, אין שם ל\"גורמים\", ויש טענת קונספירציה ענקית בלי שום דרך לבדוק אותה. ככל שההבטחה גדולה יותר, כך צריך יותר הוכחות — וכאן אין אף אחת."
+        }
+      ]
+    },
+
+    /* ---------------- ROUND 2 — the grey zone ---------------- */
+    {
+      id: 2,
+      title: "סיבוב 2 — הדרגה האפורה",
+      instructions: "עכשיו יש שלוש אפשרויות: אמיתי, מטעה או פייק. יש כאן ידיעות אמיתיות, ידיעות מזויפות לגמרי — ובאמצע, ידיעות מטעות: העובדה נכונה, אבל הצורה שבה היא מוצגת מרמה. קראו טוב לפני שאתם מצביעים — לא הכול מטעה.",
+      verdicts: ["אמיתי", "מטעה", "פייק"],
+      items: [
+        {
+          headline: "מחקר חדש: 90% מהתלמידים בכרמי-דן משתמשים באפליקציית \"צ'אטלי\"",
+          body: "המחקר, שנערך על ידי חברת האפליקציה עצמה, סקר 20 תלמידים מכיתה אחת בבית ספר אחד. החברה מפרסמת את הנתון כהוכחה לכך ש\"כל הנוער בישראל\" משתמש במוצר שלה.",
+          image: "תמונה של גרף עוגה כחול עם המספר 90% מודגש",
+          verdict: "מטעה",
+          highlights: [
+            { text: "סקר 20 תלמידים מכיתה אחת בבית ספר אחד", tell: "no-origin-number", cls: "mislead-mark" },
+            { text: "כל הנוער בישראל", tell: "too-perfect", cls: "mislead-mark" }
+          ],
+          revealNote: "המספר 90% נכון טכנית — לתוך המדגם הקטן שלו. הבעיה היא ההכללה: 20 תלמידים הם לא \"כל הנוער בישראל\". זה קלישת-מספר (cherry-picking) שמנסה להיראות כמו מחקר ארצי."
+        },
+        {
+          headline: "תיכון גליל-ים דורג המוסד המוביל בישראל בלימודי בינה מלאכותית",
+          body: "לפי גורמים בתחום החינוך, בית הספר קפץ למקום הראשון בדירוג הארצי עם ציון של 98 מתוך 100. הדירוג, שפרטיו לא פורסמו, מבוסס על נתונים שנאספו ממקור שלא ניתן לחשוף. בבית הספר טרם הגיבו.",
+          image: "תמונה של שלט בית ספר עם הכיתוב \"מקום ראשון\"",
+          verdict: "פייק",
+          highlights: [
+            { text: "לפי גורמים בתחום החינוך", tell: "no-name-expert" },
+            { text: "ציון של 98 מתוך 100", tell: "no-origin-number" },
+            { text: "שפרטיו לא פורסמו", tell: "no-source" },
+            { text: "ממקור שלא ניתן לחשוף", tell: "no-source" }
+          ],
+          revealNote: "הידיעה נשמעת רשמית, אבל אם בודקים — כל מקור בה אנונימי: \"גורמים בתחום\", דירוג בלי פרטים, ומספר שאי אפשר לאמת. כשאי אפשר לאמת שום דבר, זו לא ידיעה אמיתית אלא פייק שמחופש לרשמי."
+        },
+        {
+          headline: "עמותת \"קול צעיר\" חנכה מרכז נוער חדש בשכונת הפרחים",
+          body: "בטקס שנערך אמש, נחנך מרכז הנוער החדש בניהולה של העמותה. המרכז יציע חוגי מוזיקה, רובוטיקה ואמנות, ויפעל בימים א'-ה' בין השעות 16:00-20:00. ראש העמותה, שירה בן-דוד, מסרה כי הרישום ייפתח בשבוע הבא.",
+          image: "תמונה של חדר פעילות עם ציוד מוזיקלי מסודר על מדפים",
+          verdict: "אמיתי",
+          highlights: [],
+          revealNote: "שם מלא ותפקיד, שעות פעולה מדויקות, ותהליך המשך ברור (רישום בשבוע הבא). אין כאן שום ניסיון להגזים או לעוות — פשוט דיווח נקי. גם בסיבוב הקשה יש ידיעות אמיתיות."
+        },
+        {
+          headline: "זעזוע: תלמיד תיכון גורם לקריסה מוחלטת של מערכת בית הספר",
+          body: "תלמיד מתיכון נאות-שקד שכח לסגור חלון בשיעור מחשבים, מה שגרם למחשב אחד להתחמם ולכבות באופן זמני. מערכת המיזוג באגף המחשבים חזרה לפעול כרגיל תוך עשר דקות.",
+          image: "תמונה של כיתת מחשבים ריקה",
+          verdict: "מטעה",
+          highlights: [
+            { text: "מחשב אחד להתחמם ולכבות באופן זמני", tell: "headline-mismatch", cls: "mislead-mark" }
+          ],
+          headlineHighlights: [
+            { text: "זעזוע: תלמיד תיכון גורם לקריסה מוחלטת של מערכת בית הספר", tell: "headline-mismatch" }
+          ],
+          revealNote: "הכותרת מדברת על \"קריסה מוחלטת\" — אבל הגוף מתאר מחשב אחד שכבה לעשר דקות בגלל חלון פתוח. הפרטים נכונים, אבל הכותרת מנפחת אותם. כשהכותרת דרמטית בהרבה מהתוכן, זה תמרור אזהרה."
+        },
+        {
+          headline: "אפליקציית \"לימודון\" תשלם 500 שקל לכל תלמיד שיעבור מבחן — ההצעה נסגרת מחר",
+          body: "לפי הודעה שהופצה בקבוצות, האפליקציה החדשה מציעה תשלום על ציונים גבוהים. באפליקציה אין פרטי חברה, כתובת או איש קשר. \"ההצעה תקפה עד מחר בלבד\", נכתב, \"הירשמו לפני שייסגר\".",
+          image: "אין תמונה מצורפת",
+          verdict: "פייק",
+          highlights: [
+            { text: "לפי הודעה שהופצה בקבוצות", tell: "no-source" },
+            { text: "אין פרטי חברה, כתובת או איש קשר", tell: "no-source" },
+            { text: "הירשמו לפני שייסגר", tell: "emotion" }
+          ],
+          headlineHighlights: [
+            { text: "500 שקל לכל תלמיד שיעבור מבחן", tell: "too-perfect" }
+          ],
+          revealNote: "הבטחה מפתה (כסף על ציונים), דחיפות (\"עד מחר\"), ואפס פרטים על מי עומד מאחורי זה. אפליקציה אמיתית לא מסתתרת בלי שם, כתובת או איש קשר."
+        },
+        {
+          headline: "בית הספר \"אורות הנגב\" זכה בתחרות רובוטיקה אזורית",
+          body: "קבוצת הרובוטיקה של בית הספר, בהנחיית המורה דנה כרמלי, זכתה במקום הראשון בתחרות האזורית שנערכה באולם הספורט של העיר. חברי הקבוצה, בני 15-16, עבדו על הרובוט במשך ארבעה חודשים. התחרות הבאה תיערך בעוד שלושה שבועות.",
+          image: "תמונה של קבוצת תלמידים מחזיקה גביע ליד רובוט מתכת",
+          verdict: "אמיתי",
+          highlights: [],
+          revealNote: "שם המורה, מיקום ברור, משך זמן ריאלי, ומועד להמשך הסיפור. שימו לב: יש כאן \"מקום ראשון\" בדיוק כמו בידיעת הפייק על ה-AI — אבל כאן יש שם, מקום ומועד לבדוק. ההבדל הוא המקור."
+        },
+        {
+          headline: "העירייה: מכירת גלידה בקיוסק המרכזי עלתה ב-30% מאז הצבת פסל חדש בכיכר",
+          body: "בעל הקיוסק המקומי מדווח כי מכירות הגלידה עלו מאז שהוצב פסל חדש בכיכר הסמוכה לפני חודש. הכתבה מציעה כי הפסל הוא ה\"גורם\" לעלייה במכירות, מבלי להזכיר שהעלייה חלה בדיוק עם תחילת החופש הגדול וגל החום של אמצע הקיץ.",
+          image: "תמונה של קיוסק גלידה בכיכר עירונית",
+          verdict: "מטעה",
+          highlights: [
+            { text: "הפסל הוא ה\"גורם\" לעלייה במכירות", tell: "correlation", cls: "mislead-mark" },
+            { text: "מבלי להזכיר שהעלייה חלה בדיוק עם תחילת החופש הגדול וגל החום", tell: "correlation", cls: "mislead-mark" }
+          ],
+          revealNote: "שני דברים קרו באותו זמן — הפסל הוצב, והמכירות עלו. אבל יש הסבר הרבה יותר סביר (חום וחופש), שהכתבה בכלל לא מזכירה. מתאם הוא לא סיבה."
+        }
+      ]
+    }
+  ]
+};
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const STATE = {
+  mode: null,          // 'team' (single device, no roster) | 'board' (shared, multi-team roster)
+  teams: [],            // board mode only
+  screen: 'welcome',
+  roundIdx: 0,
+  itemIdx: 0,
+  revealed: false,
+  currentVote: null,    // team mode: this device's vote on the current item
+  currentVotes: {},     // board mode: teamName -> verdict on the current item
+  soloScore: 0,          // team mode score
+  scores: {},           // board mode: teamName -> score
+  tellStats: {}         // tellId -> {seen, caught}
+};
+
+function initTellStats(){
+  CONFIG.tells.forEach(t=>{ STATE.tellStats[t.id] = {seen:0, caught:0}; });
+}
+initTellStats();
+
+/* =========================================================
+   ICONS (inline SVG, no emojis)
+   ========================================================= */
+const ICONS = {
+  newspaper: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h13a2 2 0 0 1 2 2v13a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2V4Z"/><path d="M19 8h1a1 1 0 0 1 1 1v10a2 2 0 0 1-2 2H7"/><path d="M7 8h8M7 12h8M7 16h5"/></svg>`,
+  users: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14c2.7.2 4.9 2.3 5 5.6"/></svg>`,
+  monitor: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>`,
+  search: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>`,
+  image: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.7"/><path d="m4 17 5-5 4 4 3-3 4 4"/></svg>`,
+  check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>`,
+  x: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg>`,
+  warn: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4"/><circle cx="12" cy="17" r=".6" fill="currentColor" stroke="none"/></svg>`,
+  clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`,
+  pencil: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m4 20 1-4L16 5l3 3L8 19l-4 1Z"/></svg>`,
+  swap: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg>`,
+  map: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 4 4 6v14l5-2 6 2 5-2V4l-5 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg>`,
+  target: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".7" fill="currentColor" stroke="none"/></svg>`
+};
+
+function icon(name, cls=""){ return `<span class="${cls}" style="display:inline-flex">${ICONS[name]||""}</span>`; }
+
+/* =========================================================
+   RENDER ROOT
+   ========================================================= */
+const app = document.getElementById('app');
+function render(){
+  switch(STATE.screen){
+    case 'welcome': return renderWelcome();
+    case 'teamSetup': return renderTeamSetup();
+    case 'roundIntro': return renderRoundIntro();
+    case 'item': return renderItem();
+    case 'roundEnd': return renderRoundEnd();
+    case 'end': return renderEnd();
+    default: app.innerHTML = '<p>מסך לא נמצא</p>';
+  }
+}
+
+/* ---------------- WELCOME ---------------- */
+function renderWelcome(){
+  app.innerHTML = `
+    <div class="center" style="margin-bottom:20px;">
+      <div class="badge">${icon('newspaper')} מדיה־ליטרסי</div>
+      <h1>${CONFIG.meta.title}</h1>
+      <p class="muted">${CONFIG.meta.subtitle}</p>
+    </div>
+    <div class="card">
+      <p>${CONFIG.meta.intro}</p>
+    </div>
+    <h2 class="center" style="margin-top:26px;">איך משחקים?</h2>
+    <div class="mode-select">
+      <div class="mode-card" id="mode-team">
+        ${icon('monitor')}
+        <h3>מסלול צוות</h3>
+        <p class="muted">המחשב הזה הוא הקבוצה שלכם. משחקים בקצב עצמאי, בלי הגדרת שמות.</p>
+      </div>
+      <div class="mode-card" id="mode-board">
+        ${icon('users')}
+        <h3>מסלול לוח</h3>
+        <p class="muted">מוקרן, כמה קבוצות סביב אותו לוח. כל קבוצה מצביעה בנפרד לפני שנחשף הפתרון.</p>
+      </div>
+    </div>
+  `;
+  document.getElementById('mode-team').onclick = ()=>{
+    STATE.mode='team';
+    STATE.teams=[];
+    STATE.soloScore=0;
+    STATE.roundIdx=0; STATE.itemIdx=0; STATE.revealed=false; STATE.currentVote=null;
+    STATE.screen='roundIntro';
+    render();
+  };
+  document.getElementById('mode-board').onclick = ()=>{ STATE.mode='board'; STATE.screen='teamSetup'; render(); };
+}
+
+/* ---------------- TEAM SETUP ---------------- */
+function renderTeamSetup(){
+  app.innerHTML = `
+    <div class="card team-setup">
+      <h2>${icon('users')} מי משחק?</h2>
+      <p class="muted">הוסיפו את שמות הקבוצות שמשתתפות סביב הלוח. בכל ידיעה כל קבוצה תצביע בנפרד, והתשובה תיחשף רק אחרי שכולן הצביעו.</p>
+      <div class="row">
+        <input type="text" id="team-name-input" placeholder="שם קבוצה, לדוגמה: הכרישים">
+        <button class="btn secondary" id="add-team-btn">הוסף</button>
+      </div>
+      <div id="team-chips" style="margin-top:12px;"></div>
+      <div class="row" style="margin-top:20px;">
+        <button class="btn" id="start-game-btn">בואו נתחיל</button>
+        <button class="btn ghost" id="back-btn">חזרה</button>
+      </div>
+    </div>
+  `;
+  function refreshChips(){
+    const box = document.getElementById('team-chips');
+    box.innerHTML = STATE.teams.map((t,i)=>`
+      <span class="team-chip">${t}<button data-i="${i}">${'×'}</button></span>
+    `).join('') || '<span class="muted">עדיין לא נוספו קבוצות</span>';
+    box.querySelectorAll('button[data-i]').forEach(b=>{
+      b.onclick = ()=>{ STATE.teams.splice(+b.dataset.i,1); refreshChips(); };
+    });
+  }
+  refreshChips();
+  const input = document.getElementById('team-name-input');
+  function addTeam(){
+    const v = input.value.trim();
+    if(!v) return;
+    STATE.teams.push(v);
+    STATE.scores[v] = 0;
+    input.value='';
+    refreshChips();
+  }
+  document.getElementById('add-team-btn').onclick = addTeam;
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); addTeam(); } });
+  document.getElementById('start-game-btn').onclick = ()=>{
+    if(STATE.teams.length===0){ STATE.teams.push('קבוצה 1'); STATE.scores['קבוצה 1']=0; }
+    STATE.roundIdx = 0; STATE.itemIdx = 0; STATE.revealed=false; STATE.currentVotes={};
+    STATE.screen='roundIntro';
+    render();
+  };
+  document.getElementById('back-btn').onclick = ()=>{ STATE.screen='welcome'; render(); };
+}
+
+/* ---------------- ROUND INTRO ---------------- */
+function renderRoundIntro(){
+  const round = CONFIG.rounds[STATE.roundIdx];
+  app.innerHTML = `
+    <div class="card center">
+      <div class="badge">${icon('search')} סיבוב ${round.id} מתוך ${CONFIG.rounds.length}</div>
+      <h2>${round.title}</h2>
+      <p>${round.instructions}</p>
+      <div class="row center" style="margin-top:16px;">
+        ${round.verdicts.map(v=>`<span class="badge">${v}</span>`).join('')}
+      </div>
+      <div style="margin-top:22px;">
+        <button class="btn" id="begin-round-btn">להתחיל</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('begin-round-btn').onclick = ()=>{
+    STATE.itemIdx = 0; STATE.revealed=false; STATE.currentVote=null; STATE.currentVotes={};
+    STATE.screen='item'; render();
+  };
+}
+
+/* ---------------- ITEM (vote + reveal) ---------------- */
+function markUp(text, highlights){
+  if(!highlights || highlights.length===0) return escapeHtml(text);
+  let html = escapeHtml(text);
+  highlights.forEach(h=>{
+    const esc = escapeHtml(h.text);
+    const cls = h.cls ? h.cls : '';
+    const safeIdx = html.indexOf(esc);
+    if(safeIdx>=0){
+      html = html.slice(0,safeIdx) + `<mark class="tellmark ${cls}" data-tell="${h.tell}">${esc}</mark>` + html.slice(safeIdx+esc.length);
+    }
+  });
+  return html;
+}
+function highlightBody(item){ return markUp(item.body, item.highlights); }
+function highlightHeadline(item){ return markUp(item.headline, item.headlineHighlights); }
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function tellById(id){ return CONFIG.tells.find(t=>t.id===id); }
+
+function tellNoteHtml(item){
+  if(!((item.highlights && item.highlights.length) || (item.headlineHighlights && item.headlineHighlights.length))) return '';
+  const all = [...(item.headlineHighlights||[]), ...(item.highlights||[])];
+  const seenTells = new Set();
+  const rows = all.filter(h=>{
+    if(seenTells.has(h.tell)) return false;
+    seenTells.add(h.tell); return true;
+  }).map(h=>{
+    const t = tellById(h.tell);
+    return `<div style="margin-bottom:6px;"><b>${t.name}</b> — ${t.explain}</div>`;
+  }).join('');
+  return `
+    <div class="tell-note">
+      ${icon('warn')}
+      <div>${rows}</div>
+    </div>
+  `;
+}
+
+function scoreLineHtml(){
+  if(STATE.mode==='team'){
+    return `<div class="score-strip"><span>ניקוד</span><span><b>${STATE.soloScore||0}</b></span></div>`;
+  }
+  return `<div class="score-strip"><span>ניקוד מצטבר</span>
+    <span>${STATE.teams.map(t=>`${escapeHtml(t)}: <b>${STATE.scores[t]||0}</b>`).join(' &nbsp;|&nbsp; ')}</span></div>`;
+}
+
+function verdictBtnClass(v){
+  return v==='אמיתי' ? 'real' : (v==='פייק' ? 'fake' : 'mislead');
+}
+
+function renderItem(){
+  const round = CONFIG.rounds[STATE.roundIdx];
+  const item = round.items[STATE.itemIdx];
+  const totalItems = round.items.length;
+
+  const progressDots = round.items.map((_,i)=>{
+    let cls = 'dot';
+    if(i < STATE.itemIdx) cls += ' done';
+    else if(i === STATE.itemIdx) cls += ' current';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+
+  let bodyHtml = STATE.mode==='team' ? renderItemSolo(round, item, totalItems) : renderItemBoard(round, item, totalItems);
+
+  app.innerHTML = `
+    <div class="row" style="justify-content:space-between; align-items:center;">
+      <h2 style="margin:0;">${round.title}</h2>
+    </div>
+    <div class="progress">${progressDots}</div>
+    ${scoreLineHtml()}
+    ${bodyHtml}
+  `;
+
+  if(STATE.mode==='team') wireItemSolo(round, item, totalItems);
+  else wireItemBoard(round, item, totalItems);
+}
+
+/* ---- team (solo) mode: one vote, immediate reveal ---- */
+function renderItemSolo(round, item, totalItems){
+  if(!STATE.revealed){
+    return `
+      <div class="card">
+        <div class="badge">${icon('newspaper')} ידיעה ${STATE.itemIdx+1} מתוך ${totalItems}</div>
+        <div class="headline">${escapeHtml(item.headline)}</div>
+        <p class="body-text">${escapeHtml(item.body)}</p>
+        ${item.image ? `<div class="item-image-caption">${icon('image')}<span>${escapeHtml(item.image)}</span></div>` : ''}
+        <hr class="sep">
+        <p class="muted center">מה ההצבעה שלכם?</p>
+        <div class="row center" id="vote-buttons">
+          ${round.verdicts.map(v=>`<button class="btn ${verdictBtnClass(v)}" data-verdict="${v}">${v}</button>`).join('')}
+        </div>
+      </div>
+    `;
+  }
+  const correct = STATE.currentVote === item.verdict;
+  return `
+    <div class="card">
+      <div class="badge">${icon('newspaper')} ידיעה ${STATE.itemIdx+1} מתוך ${totalItems}</div>
+      <div class="headline">${highlightHeadline(item)}</div>
+      <p class="body-text">${highlightBody(item)}</p>
+      ${item.image ? `<div class="item-image-caption">${icon('image')}<span>${escapeHtml(item.image)}</span></div>` : ''}
+      <div class="verdict-banner ${correct?'correct':'wrong'}">
+        ${icon(correct?'check':'x')}
+        <span>ההצבעה שלכם: ${STATE.currentVote} — התשובה הנכונה: <span class="badge">${item.verdict}</span> ${correct? '(נכון!)':'(לא הפעם)'}</span>
+      </div>
+      ${tellNoteHtml(item)}
+      <hr class="sep">
+      <p>${escapeHtml(item.revealNote)}</p>
+      <div class="row center" style="margin-top:16px;">
+        <button class="btn" id="next-item-btn">${STATE.itemIdx+1 < totalItems ? 'לידיעה הבאה' : 'סיום הסיבוב'}</button>
+      </div>
+    </div>
+  `;
+}
+
+function wireItemSolo(round, item, totalItems){
+  if(!STATE.revealed){
+    document.querySelectorAll('#vote-buttons button').forEach(b=>{
+      b.onclick = ()=>{
+        STATE.currentVote = b.dataset.verdict;
+        applyScoreSolo(item);
+        STATE.revealed = true;
+        render();
+      };
+    });
+  } else {
+    document.getElementById('next-item-btn').onclick = ()=>{
+      if(STATE.itemIdx+1 < totalItems){
+        STATE.itemIdx++; STATE.revealed=false; STATE.currentVote=null;
+        render();
+      } else {
+        STATE.screen='roundEnd'; render();
+      }
+    };
+  }
+}
+
+function applyScoreSolo(item){
+  const correct = STATE.currentVote === item.verdict;
+  const points = item.verdict === 'מטעה' ? 2 : 1;
+  if(correct) STATE.soloScore = (STATE.soloScore||0) + points;
+  const tellIdsInItem = new Set();
+  (item.highlights||[]).forEach(h=> tellIdsInItem.add(h.tell));
+  (item.headlineHighlights||[]).forEach(h=> tellIdsInItem.add(h.tell));
+  tellIdsInItem.forEach(id=>{
+    STATE.tellStats[id].seen++;
+    if(correct) STATE.tellStats[id].caught++;
+  });
+}
+
+/* ---- board mode: every team votes independently before reveal ---- */
+function renderItemBoard(round, item, totalItems){
+  if(!STATE.revealed){
+    const allVoted = STATE.teams.length>0 && STATE.teams.every(t=> STATE.currentVotes[t] !== undefined);
+    const rows = STATE.teams.map((t,i)=>{
+      const currentVote = STATE.currentVotes[t];
+      return `
+        <div class="swap-block">
+          <div class="kicker">${escapeHtml(t)}${currentVote ? ' — הצביעו: ' + currentVote : ' — טרם הצביעו'}</div>
+          <div class="row" data-team-idx="${i}">
+            ${round.verdicts.map(v=>{
+              const selected = currentVote===v;
+              return `<button class="btn ${verdictBtnClass(v)}" data-team-idx="${i}" data-verdict="${v}" style="${selected?'outline:3px solid #fff; outline-offset:2px;':''}">${v}</button>`;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }).join('');
+    return `
+      <div class="card">
+        <div class="badge">${icon('newspaper')} ידיעה ${STATE.itemIdx+1} מתוך ${totalItems}</div>
+        <div class="headline">${escapeHtml(item.headline)}</div>
+        <p class="body-text">${escapeHtml(item.body)}</p>
+        ${item.image ? `<div class="item-image-caption">${icon('image')}<span>${escapeHtml(item.image)}</span></div>` : ''}
+        <hr class="sep">
+        <p class="muted center">כל קבוצה מצביעה בנפרד:</p>
+        <div id="team-vote-rows">${rows}</div>
+        <div class="row center" style="margin-top:16px;">
+          <button class="btn" id="reveal-btn" ${allVoted?'':'disabled'}>לגלות את התשובה</button>
+          ${allVoted ? '' : `<button class="btn ghost" id="force-reveal-btn">גלו בכל זאת (לא כולם הצביעו)</button>`}
+        </div>
+      </div>
+    `;
+  }
+  const points = item.verdict === 'מטעה' ? 2 : 1;
+  const teamRows = STATE.teams.map(t=>{
+    const v = STATE.currentVotes[t];
+    if(v===undefined) return `<div class="row-item">${icon('warn')}<span>${escapeHtml(t)} — לא הצביעו</span></div>`;
+    const correct = v===item.verdict;
+    return `<div class="row-item ${correct?'good':'bad'}">${icon(correct?'check':'x')}<span>${escapeHtml(t)}: ${v}</span><span class="stat">${correct? '+'+points+' נק׳' : '+0'}</span></div>`;
+  }).join('');
+  return `
+    <div class="card">
+      <div class="badge">${icon('newspaper')} ידיעה ${STATE.itemIdx+1} מתוך ${totalItems}</div>
+      <div class="headline">${highlightHeadline(item)}</div>
+      <p class="body-text">${highlightBody(item)}</p>
+      ${item.image ? `<div class="item-image-caption">${icon('image')}<span>${escapeHtml(item.image)}</span></div>` : ''}
+      <div class="badge">התשובה הנכונה: ${item.verdict}</div>
+      <div class="tellmap">${teamRows}</div>
+      ${tellNoteHtml(item)}
+      <hr class="sep">
+      <p>${escapeHtml(item.revealNote)}</p>
+      <div class="row center" style="margin-top:16px;">
+        <button class="btn" id="next-item-btn">${STATE.itemIdx+1 < totalItems ? 'לידיעה הבאה' : 'סיום הסיבוב'}</button>
+      </div>
+    </div>
+  `;
+}
+
+function wireItemBoard(round, item, totalItems){
+  if(!STATE.revealed){
+    document.querySelectorAll('#team-vote-rows button').forEach(b=>{
+      b.onclick = ()=>{
+        const team = STATE.teams[+b.dataset.teamIdx];
+        STATE.currentVotes[team] = b.dataset.verdict;
+        render();
+      };
+    });
+    const revealBtn = document.getElementById('reveal-btn');
+    if(revealBtn) revealBtn.onclick = ()=>{ applyScoreBoard(item); STATE.revealed=true; render(); };
+    const forceBtn = document.getElementById('force-reveal-btn');
+    if(forceBtn) forceBtn.onclick = ()=>{ applyScoreBoard(item); STATE.revealed=true; render(); };
+  } else {
+    document.getElementById('next-item-btn').onclick = ()=>{
+      if(STATE.itemIdx+1 < totalItems){
+        STATE.itemIdx++; STATE.revealed=false; STATE.currentVotes={};
+        render();
+      } else {
+        STATE.screen='roundEnd'; render();
+      }
+    };
+  }
+}
+
+function applyScoreBoard(item){
+  const points = item.verdict === 'מטעה' ? 2 : 1;
+  const tellIdsInItem = new Set();
+  (item.highlights||[]).forEach(h=> tellIdsInItem.add(h.tell));
+  (item.headlineHighlights||[]).forEach(h=> tellIdsInItem.add(h.tell));
+  STATE.teams.forEach(t=>{
+    const vote = STATE.currentVotes[t];
+    if(vote===undefined) return;
+    const correct = vote===item.verdict;
+    if(correct) STATE.scores[t] = (STATE.scores[t]||0) + points;
+    tellIdsInItem.forEach(id=>{
+      STATE.tellStats[id].seen++;
+      if(correct) STATE.tellStats[id].caught++;
+    });
+  });
+}
+
+/* ---------------- ROUND END ---------------- */
+function renderRoundEnd(){
+  const round = CONFIG.rounds[STATE.roundIdx];
+  const isLast = STATE.roundIdx+1 >= CONFIG.rounds.length;
+  app.innerHTML = `
+    <div class="card center">
+      <div class="badge">${icon('check')} סוף ${round.title}</div>
+      <h2>כל הכבוד!</h2>
+      <div class="score-strip" style="justify-content:center; gap:20px;">
+        ${STATE.mode==='team'
+          ? `<span>ניקוד: <b>${STATE.soloScore||0}</b></span>`
+          : STATE.teams.map(t=>`<span>${escapeHtml(t)}: <b>${STATE.scores[t]||0}</b></span>`).join('')}
+      </div>
+      <div style="margin-top:18px;">
+        <button class="btn" id="continue-btn">${isLast ? 'לסיכום ולמפת הטריקים' : 'לסיבוב הבא'}</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('continue-btn').onclick = ()=>{
+    if(isLast){
+      STATE.screen='end';
+    } else {
+      STATE.roundIdx++;
+      STATE.screen='roundIntro';
+    }
+    render();
+  };
+}
+
+/* ---------------- END SCREEN ---------------- */
+function renderEnd(){
+  const entries = Object.entries(STATE.tellStats)
+    .filter(([id,s])=> s.seen>0)
+    .map(([id,s])=>({id, name: tellById(id).name, ratio: s.caught/s.seen, seen:s.seen, caught:s.caught}));
+  entries.sort((a,b)=> b.ratio - a.ratio);
+  const good = entries.filter(e=>e.ratio>=0.5);
+  const bad = entries.filter(e=>e.ratio<0.5);
+
+  app.innerHTML = `
+    <div class="card center">
+      <div class="badge">${icon('map')} מפת הטריקים שלכם</div>
+      <h2>סיימתם את חדר החדשות</h2>
+      <div class="score-strip" style="justify-content:center; gap:20px;">
+        ${STATE.mode==='team'
+          ? `<span>ניקוד: <b>${STATE.soloScore||0}</b> נקודות</span>`
+          : STATE.teams.map(t=>`<span>${escapeHtml(t)}: <b>${STATE.scores[t]||0}</b> נקודות</span>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <h3>${icon('check','icon-inline')} טריקים שאתם כבר תופסים היטב</h3>
+      <div class="tellmap">
+        ${good.length ? good.map(e=>`
+          <div class="row-item good">${icon('check')}<span>${e.name}</span><span class="stat">${e.caught}/${e.seen}</span></div>
+        `).join('') : '<p class="muted">עוד אין מספיק נתונים — זה בסדר, המשיכו לתרגל.</p>'}
+      </div>
+    </div>
+    <div class="card">
+      <h3>${icon('warn','icon-inline')} טריקים שכדאי להתאמן עליהם עוד</h3>
+      <div class="tellmap">
+        ${bad.length ? bad.map(e=>`
+          <div class="row-item bad">${icon('warn')}<span>${e.name}</span><span class="stat">${e.caught}/${e.seen}</span></div>
+        `).join('') : '<p class="muted">כל הכבוד — לא נשאר הרבה לתפוס!</p>'}
+      </div>
+    </div>
+    <div class="card">
+      <h3>לסיום — שיחה קצרה</h3>
+      <p style="font-size:1.1rem;">${CONFIG.meta.debriefPrompt}</p>
+      <hr class="sep">
+      <p class="muted">${CONFIG.meta.handoff}</p>
+    </div>
+    <div class="row center" style="margin-top:10px;">
+      <button class="btn secondary" id="restart-btn">משחק חדש</button>
+    </div>
+  `;
+  document.getElementById('restart-btn').onclick = ()=>{
+    STATE.mode=null; STATE.teams=[]; STATE.screen='welcome';
+    STATE.roundIdx=0; STATE.itemIdx=0; STATE.revealed=false; STATE.currentVote=null;
+    STATE.currentVotes={}; STATE.soloScore=0; STATE.scores={};
+    initTellStats();
+    render();
+  };
+}
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ספארי באגים</title>
+<style>
+:root{
+  --bg:#0f1226; --bg2:#161a3a; --panel:#1e2350; --panel2:#272c66;
+  --ink:#f4f6ff; --muted:#a6acd8; --line:#353a7a;
+  --accent:#ffcc33; --accent2:#ff7a59; --good:#3ddc97; --bad:#ff6b6b;
+  --sev3:#ff6b6b; --sev2:#ffcc33; --sev1:#7aa2ff;
+  --phone:#fbfbfe; --phoneink:#1a1c2e; --phonemuted:#6b6f8c; --phoneline:#e3e4ef;
+  --radius:18px; --shadow:0 12px 40px rgba(0,0,0,.35);
+  font-family:"Assistant","Rubik","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:radial-gradient(1200px 800px at 80% -10%,#232a63 0%,transparent 60%),
+             radial-gradient(1000px 700px at -10% 110%,#2a1c4a 0%,transparent 55%),
+             var(--bg);
+  color:var(--ink); overflow-x:hidden;
+}
+button{font-family:inherit}
+.wrap{max-width:1100px;margin:0 auto;padding:22px 20px 60px}
+.hidden{display:none !important}
+
+/* Top bar */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.brand h1{font-size:26px;margin:0;letter-spacing:.5px}
+.brand .sub{color:var(--muted);font-size:13px;margin-top:2px}
+.logo{width:44px;height:44px;flex:0 0 auto}
+.pill{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:14px;display:flex;align-items:center;gap:8px}
+.timer{font-variant-numeric:tabular-nums;font-weight:700;font-size:18px}
+.timer.warn{color:var(--accent)}
+.timer.crit{color:var(--bad);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.5}}
+
+/* Cards & buttons */
+.card{background:linear-gradient(180deg,var(--panel) 0%,var(--bg2) 120%);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px}
+.btn{border:none;border-radius:14px;padding:13px 22px;font-size:16px;font-weight:700;cursor:pointer;transition:transform .08s,filter .15s;display:inline-flex;align-items:center;gap:9px}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);color:#241800}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.ghost:hover{background:var(--panel2)}
+.btn.big{padding:16px 30px;font-size:18px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+h2{font-size:24px;margin:0 0 6px}
+h3{font-size:18px;margin:0 0 10px}
+p.lead{color:var(--muted);font-size:16px;line-height:1.6;margin:6px 0 18px}
+
+/* Mode select */
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px}
+.mode-card{cursor:pointer;text-align:right;transition:transform .12s,border-color .15s}
+.mode-card:hover{transform:translateY(-3px);border-color:var(--accent)}
+.mode-card .tag{display:inline-block;background:var(--panel2);color:var(--accent);border-radius:999px;padding:4px 12px;font-size:12px;font-weight:700;margin-bottom:10px}
+.mode-card ul{color:var(--muted);font-size:14px;line-height:1.7;padding-inline-start:20px;margin:10px 0 0}
+
+/* Briefing */
+.brief-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+.brief-item{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:16px}
+.brief-item .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;gap:7px}
+.brief-item .v{font-size:17px;font-weight:600;line-height:1.5}
+.audience{grid-column:1/-1;border-color:var(--accent)}
+.audience .v{color:var(--accent)}
+.typelist{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.typechip{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-size:13px}
+
+/* Hunt layout */
+.hunt{display:grid;grid-template-columns:340px 1fr;gap:26px;align-items:start}
+@media(max-width:900px){.hunt{grid-template-columns:1fr}}
+
+/* Phone frame */
+.phone-wrap{position:sticky;top:16px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.phone{width:320px;height:600px;background:#0b0d1c;border-radius:38px;padding:12px;box-shadow:0 20px 60px rgba(0,0,0,.5),inset 0 0 0 2px #2a2f5e;position:relative}
+.phone::before{content:"";position:absolute;top:20px;left:50%;transform:translateX(-50%);width:90px;height:6px;background:#2a2f5e;border-radius:99px}
+.screen{position:absolute;inset:12px;top:34px;background:var(--phone);border-radius:26px;overflow:hidden;color:var(--phoneink);display:flex;flex-direction:column}
+.screen-scroll{overflow-y:auto;flex:1;padding:16px}
+.screen-scroll::-webkit-scrollbar{width:5px}
+.screen-scroll::-webkit-scrollbar-thumb{background:#ccd;border-radius:9px}
+.nav-hint{color:var(--muted);font-size:13px;text-align:center}
+
+/* Fake app internals */
+.fa-head{display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--phoneline);margin-bottom:14px;position:relative}
+.fa-logo{width:30px;height:30px;flex:0 0 auto;color:var(--accent2)}
+.fa-title{font-size:19px;font-weight:800;color:var(--phoneink)}
+.fa-tagline{font-size:12px;color:var(--phonemuted);line-height:1.5;margin-bottom:16px}
+.fa-btn{width:100%;border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,#ff7a59,#ff5c8a);color:#fff;margin-top:6px}
+.fa-btn.sec{background:#eef0fb;color:var(--phoneink)}
+.fa-input{width:100%;border:1px solid var(--phoneline);border-radius:10px;padding:11px 12px;font-size:14px;margin-bottom:10px;font-family:inherit;background:#fff;color:var(--phoneink)}
+.fa-label{font-size:13px;font-weight:700;margin-bottom:5px;display:block;color:var(--phoneink)}
+.fa-field{margin-bottom:14px}
+.fa-card{border:1px solid var(--phoneline);border-radius:12px;padding:12px;margin-bottom:10px;cursor:pointer;background:#fff}
+.fa-card:hover{border-color:#ff7a59}
+.fa-card .rtitle{font-weight:800;font-size:15px}
+.fa-card .rmeta{font-size:12px;color:var(--phonemuted);margin-top:3px}
+.fa-row{display:flex;gap:8px;align-items:center}
+.fa-back{background:none;border:none;cursor:pointer;color:var(--phonemuted);font-size:14px;display:flex;align-items:center;gap:5px;padding:4px}
+.fa-select{width:100%;border:1px solid var(--phoneline);border-radius:10px;padding:11px;font-size:14px;font-family:inherit;background:#fff;color:var(--phoneink);margin-bottom:12px}
+.fa-tiny-search{position:absolute;top:0;left:0;background:none;border:none;cursor:pointer;color:var(--phonemuted);padding:4px}
+.fa-toast{position:absolute;bottom:18px;left:16px;right:16px;background:var(--good);color:#062;border-radius:12px;padding:12px;text-align:center;font-weight:800;box-shadow:0 8px 20px rgba(0,0,0,.2);animation:rise .3s}
+@keyframes rise{from{transform:translateY(12px);opacity:0}}
+.fa-logo-overlap{position:absolute;right:-4px;top:-2px;width:46px;height:46px;opacity:.9;color:var(--accent2)}
+
+/* Screen tabs */
+.screentabs{display:flex;gap:8px;flex-wrap:wrap}
+.screentab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px;color:var(--ink);cursor:pointer}
+.screentab.active{background:var(--accent);color:#241800;border-color:var(--accent);font-weight:700}
+
+/* Log panel */
+.log-panel h3{display:flex;align-items:center;gap:8px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:14px;font-weight:600;margin-bottom:7px;color:var(--ink)}
+.field .req{color:var(--accent2)}
+select,textarea,input[type=text]{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--ink);font-size:15px;font-family:inherit}
+textarea{resize:vertical;min-height:64px}
+select:focus,textarea:focus,input:focus{outline:2px solid var(--accent)}
+.hint{font-size:12px;color:var(--muted);margin-top:5px}
+.findings-list{margin-top:16px;display:flex;flex-direction:column;gap:8px;max-height:240px;overflow-y:auto}
+.finding-item{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;position:relative}
+.finding-item .ftype{font-weight:700;color:var(--accent)}
+.finding-item .floc{color:var(--muted);font-size:12px}
+.finding-item .fdel{position:absolute;left:8px;top:8px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;line-height:1}
+.counter{background:var(--panel2);border-radius:999px;padding:3px 11px;font-size:13px;font-weight:700}
+
+/* Reveal */
+.score-hero{display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.score-num{font-size:56px;font-weight:800;color:var(--accent);line-height:1}
+.stat-row{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
+.stat{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px 18px;text-align:center;min-width:110px}
+.stat .n{font-size:28px;font-weight:800}
+.stat .l{font-size:12px;color:var(--muted);margin-top:3px}
+.stat.found .n{color:var(--good)} .stat.miss .n{color:var(--bad)} .stat.sharp .n{color:var(--sev1)}
+
+.typemap{margin:22px 0}
+.typemap-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.tm-bar{height:12px;background:var(--panel2);border-radius:9px;overflow:hidden;position:relative;margin-top:6px}
+.tm-fill{height:100%;background:linear-gradient(90deg,var(--good),#7fe);border-radius:9px;transition:width .8s}
+.tm-name{font-size:14px;font-weight:600}
+.tm-frac{font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;white-space:nowrap}
+.tm-blind .tm-frac{color:var(--bad)}
+
+.buglist{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.bug{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--panel);border-inline-start-width:5px}
+.bug.s3{border-inline-start-color:var(--sev3)} .bug.s2{border-inline-start-color:var(--sev2)} .bug.s1{border-inline-start-color:var(--sev1)}
+.bug .bug-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.bug .bstat{font-size:12px;font-weight:800;border-radius:999px;padding:3px 10px}
+.bstat.found{background:rgba(61,220,151,.18);color:var(--good)}
+.bstat.miss{background:rgba(255,107,107,.16);color:var(--bad)}
+.bug .bwhere{font-weight:700;font-size:15px}
+.bug .btype{font-size:12px;color:var(--muted)}
+.bug .bwhy{font-size:14px;color:var(--muted);line-height:1.55;margin-top:8px}
+.bug .bfix{font-size:13px;margin-top:8px;background:var(--panel2);border-radius:9px;padding:8px 11px}
+.bug .bfix b{color:var(--good)}
+.sev-badge{font-size:11px;font-weight:800;border-radius:6px;padding:2px 8px}
+.sev-badge.s3{background:rgba(255,107,107,.2);color:var(--sev3)}
+.sev-badge.s2{background:rgba(255,204,51,.2);color:var(--sev2)}
+.sev-badge.s1{background:rgba(122,162,255,.2);color:var(--sev1)}
+
+.sharp-box{background:rgba(122,162,255,.1);border:1px solid var(--sev1);border-radius:14px;padding:14px 16px;margin-top:16px}
+.sharp-box h3{color:var(--sev1)}
+.sharp-box .si{font-size:14px;padding:6px 0;border-bottom:1px dashed var(--line)}
+
+/* Debrief */
+.debrief-q{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
+.debrief-q .qnum{color:var(--accent);font-weight:800;font-size:14px;margin-bottom:8px}
+.debrief-q .qtext{font-size:17px;line-height:1.6}
+.handoff{background:linear-gradient(135deg,rgba(255,204,51,.12),rgba(255,122,89,.12));border:1px solid var(--accent);border-radius:16px;padding:20px;margin-top:20px;font-size:16px;line-height:1.7}
+
+/* Board mode */
+.board-stage{text-align:center}
+.board-screens{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
+.board-progress{color:var(--muted);font-size:14px;margin-bottom:14px}
+.board-reveal .bug{text-align:right}
+
+.foot{text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
+.center{text-align:center}
+.mt{margin-top:18px}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+.tap-flash{animation:tapf .4s}
+@keyframes tapf{0%{box-shadow:0 0 0 0 rgba(255,204,51,.6)}100%{box-shadow:0 0 0 14px rgba(255,204,51,0)}}
+.warnmsg{color:var(--accent2);font-size:13px;font-weight:600;margin-top:6px;min-height:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="22" fill="#1e2350" stroke="#ffcc33" stroke-width="2"/>
+        <circle cx="20" cy="22" r="9" fill="none" stroke="#ff7a59" stroke-width="2.5"/>
+        <line x1="27" y1="29" x2="36" y2="38" stroke="#ff7a59" stroke-width="3" stroke-linecap="round"/>
+        <ellipse cx="20" cy="22" rx="4" ry="3" fill="#3ddc97"/>
+        <circle cx="18.5" cy="21.5" r="1" fill="#0f1226"/><circle cx="21.5" cy="21.5" r="1" fill="#0f1226"/>
+      </svg>
+      <div>
+        <h1 id="topTitle">ספארי באגים</h1>
+        <div class="sub">מְאַלְּפִים עיניים של בודקים</div>
+      </div>
+    </div>
+    <div id="topRight" class="pill hidden">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <span class="timer" id="timer">08:00</span>
+    </div>
+  </div>
+
+  <!-- ============ START / MODE SELECT ============ -->
+  <div id="viewStart" class="view">
+    <div class="card">
+      <h2>ברוכים הבאים לספארי</h2>
+      <p class="lead">עוד רגע תבדקו אפליקציה אמיתית של צוות אחר — אבל קודם, בואו נאמן את העין. לפניכם אפליקציה מזויפת ובה באגים שתלנו בכוונה. תפקידכם: לצוד אותם. בחרו מסלול:</p>
+      <div class="modes">
+        <div class="card mode-card" onclick="startTeam()">
+          <span class="tag">מומלץ</span>
+          <h3>מסלול צוות</h3>
+          <p style="color:var(--muted);font-size:14px;line-height:1.6;margin:0">כל צוות במחשב שלו. חוקרים את האפליקציה, מתעדים ממצאים, ובסוף מגלים מה שתלנו ומקבלים מפת סוגי-בעיות.</p>
+          <ul><li>ציד עצמאי נגד השעון</li><li>תיעוד ממצאים עם הצעת שיפור</li><li>חשיפה + ניקוד + תחקיר</li></ul>
+        </div>
+        <div class="card mode-card" onclick="startBoard()">
+          <span class="tag" style="color:var(--sev1)">לוח</span>
+          <h3>מסלול לוח</h3>
+          <p style="color:var(--muted);font-size:14px;line-height:1.6;margin:0">להקרנה למנחה. עוברים מסך-מסך, הכיתה קוראת בעיות בהצבעת ידיים, ואז חושפים את הרשימה עם דרגות החומרה.</p>
+          <ul><li>בלי מכשירים לכל צוות</li><li>בלי שעון ובלי תיעוד</li><li>אותו תוכן, בהובלת מנחה</li></ul>
+        </div>
+      </div>
+    </div>
+    <div class="foot">מוצר מדף · הכול נטען מ‑CONFIG בראש הקובץ · ללא שרת, ללא חשבון</div>
+  </div>
+
+  <!-- ============ BRIEFING ============ -->
+  <div id="viewBrief" class="view hidden">
+    <div class="card">
+      <h2>התדריך לפני הכניסה</h2>
+      <p class="lead">שפטו את האפליקציה לפי <b>הקהל שלה</b> — לא לפי מה שנוח לכם. חלק מהבאגים הם באגים <b>רק</b> בשביל הקהל הזה.</p>
+      <div class="brief-grid">
+        <div class="brief-item">
+          <div class="k"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M9 8h6M9 12h6"/></svg>שם האפליקציה</div>
+          <div class="v" id="brName"></div>
+        </div>
+        <div class="brief-item">
+          <div class="k"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg>למה היא נועדה</div>
+          <div class="v" id="brPurpose"></div>
+        </div>
+        <div class="brief-item audience">
+          <div class="k"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M4 20c0-3 2.5-5 5-5s5 2 5 5M14.5 20c0-2 1-3.5 2.5-3.5s2.5 1.5 2.5 3.5"/></svg>קהל היעד — שפטו בשבילם</div>
+          <div class="v" id="brAudience"></div>
+        </div>
+      </div>
+      <h3 class="mt">סוגי הבעיות שמחפשים</h3>
+      <p style="color:var(--muted);font-size:13px;margin:0 0 4px">אלה הקטגוריות. כשתמצאו בעיה, תשייכו אותה לאחת מהן.</p>
+      <div class="typelist" id="brTypes"></div>
+      <div class="actions">
+        <button class="btn primary big" onclick="beginHunt()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M16 16l4 4"/></svg>
+          יוצאים לציד
+        </button>
+        <button class="btn ghost" onclick="show('viewStart')">חזרה</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ HUNT ============ -->
+  <div id="viewHunt" class="view hidden">
+    <div class="hunt">
+      <div class="phone-wrap">
+        <div class="screentabs" id="screenTabs"></div>
+        <div class="phone"><div class="screen"><div class="screen-scroll" id="fakeApp"></div></div></div>
+        <div class="nav-hint">טפו על אלמנטים באפליקציה — חלקם מנווטים בין מסכים</div>
+      </div>
+      <div class="log-panel">
+        <div class="card">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
+            תיעוד ממצא
+            <span class="counter" style="margin-inline-start:auto">נמצאו: <span id="findCount">0</span></span>
+          </h3>
+          <div class="field">
+            <label>באיזה מסך?</label>
+            <select id="fScreen"></select>
+          </div>
+          <div class="field">
+            <label>איזה סוג בעיה? <span class="req">*</span></label>
+            <select id="fType"><option value="">בחרו סוג...</option></select>
+          </div>
+          <div class="field">
+            <label>מה לא בסדר? <span class="req">*</span></label>
+            <textarea id="fWhat" placeholder="למשל: לא ברור מה יקרה כשלוחצים על הכפתור..."></textarea>
+          </div>
+          <div class="field">
+            <label>מה הייתם משנים? <span class="req">*</span></label>
+            <textarea id="fFix" placeholder="חובה! ממצא בלי הצעת שיפור לא נספר."></textarea>
+            <div class="hint">בבדיקה טובה תמיד באים גם עם פתרון, לא רק עם תלונה.</div>
+          </div>
+          <div class="warnmsg" id="logWarn"></div>
+          <button class="btn primary" style="width:100%" onclick="logFinding()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            הוסיפו ממצא
+          </button>
+          <div class="findings-list" id="findingsList"></div>
+          <button class="btn ghost mt" style="width:100%" onclick="confirmFinish()">סיימנו — לחשיפה</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ REVEAL / SCORE ============ -->
+  <div id="viewReveal" class="view hidden">
+    <div class="card">
+      <div class="score-hero">
+        <div>
+          <div class="score-num" id="scoreNum">0</div>
+          <div style="color:var(--muted);font-size:13px">נקודות (חוסם 3 · מבלבל 2 · קוסמטי 1)</div>
+        </div>
+        <div style="flex:1;min-width:200px">
+          <h2 style="margin-bottom:4px">החשיפה</h2>
+          <p style="color:var(--muted);font-size:14px;margin:0;line-height:1.6">הניקוד נחמד — אבל תסתכלו על <b>מפת הסוגים</b>. הלקח הוא הנקודות העיוורות, לא המספר.</p>
+        </div>
+      </div>
+      <div class="stat-row">
+        <div class="stat found"><div class="n" id="stFound">0</div><div class="l">נמצא</div></div>
+        <div class="stat miss"><div class="n" id="stMiss">0</div><div class="l">פוספס</div></div>
+        <div class="stat sharp"><div class="n" id="stSharp">0</div><div class="l">עין חדה</div></div>
+      </div>
+
+      <div class="typemap">
+        <h3>מפת סוגי הבעיות — איפה חידדתם ואיפה פספסתם</h3>
+        <div id="typeMap"></div>
+      </div>
+
+      <div id="sharpBox" class="sharp-box hidden">
+        <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px"><circle cx="12" cy="12" r="3.5"/><path d="M12 4v3M12 17v3M4 12h3M17 12h3"/></svg> עין חדה</h3>
+        <p style="font-size:14px;margin:6px 0 10px;color:var(--muted)">מצאתם דברים שאנחנו לא שתלנו — בבדיקות אמיתיות אין רשימה סודית. אם זה מפריע למשתמש, זה ממצא לכל דבר. כל הכבוד.</p>
+        <div id="sharpList"></div>
+      </div>
+
+      <h3 class="mt">כל מה ששתלנו</h3>
+      <div class="buglist" id="bugList"></div>
+
+      <div class="actions">
+        <button class="btn primary big" onclick="show('viewDebrief')">לתחקיר</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ DEBRIEF ============ -->
+  <div id="viewDebrief" class="view hidden">
+    <div class="card">
+      <h2>תחקיר — בקול רם, בלי להקליד</h2>
+      <p class="lead">דברו ביניכם. שני דברים לנסח כצוות:</p>
+      <div class="debrief-q">
+        <div class="qnum">שאלה 1</div>
+        <div class="qtext" id="dq1"></div>
+      </div>
+      <div class="debrief-q">
+        <div class="qnum">שאלה 2</div>
+        <div class="qtext" id="dq2"></div>
+      </div>
+      <div class="handoff" id="handoffText"></div>
+      <div class="actions">
+        <button class="btn ghost" onclick="restart()">התחלה מחדש</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ BOARD MODE ============ -->
+  <div id="viewBoard" class="view hidden">
+    <div class="card board-stage">
+      <div id="boardBrief">
+        <h2>מסלול לוח — למנחה</h2>
+        <p class="lead" style="max-width:640px;margin-inline:auto">נעבור מסך‑מסך. בכל מסך, <b>שחקו עם האפליקציה</b> — לחצו על כפתורים, נסו למלא ולנווט — כי חלק מהבאגים מתגלים רק כשמתנסים בהם. תנו לכיתה דקה לקרוא בקול את כל הבעיות שהם מוצאים (הצבעת ידיים), ואז חשפו את מה ששתלנו. אין שעון ואין תיעוד.</p>
+        <div class="brief-grid" style="max-width:640px;margin-inline:auto;text-align:right">
+          <div class="brief-item"><div class="k">האפליקציה</div><div class="v" id="bbName"></div></div>
+          <div class="brief-item"><div class="k">מטרה</div><div class="v" id="bbPurpose"></div></div>
+          <div class="brief-item audience"><div class="k">קהל היעד</div><div class="v" id="bbAudience"></div></div>
+        </div>
+        <div class="actions" style="justify-content:center">
+          <button class="btn primary big" onclick="boardStart()">מתחילים</button>
+          <button class="btn ghost" onclick="show('viewStart')">חזרה</button>
+        </div>
+      </div>
+
+      <div id="boardWalk" class="hidden">
+        <div class="board-progress" id="boardProg"></div>
+        <div class="phone" style="margin:0 auto 18px"><div class="screen"><div class="screen-scroll" id="boardApp"></div></div></div>
+        <h3 id="boardScreenName" style="text-align:center"></h3>
+        <div id="boardRevealBox" class="hidden board-reveal">
+          <p style="color:var(--muted);font-size:14px">מה שתלנו במסך הזה:</p>
+          <div class="buglist" id="boardBugs" style="text-align:right;max-width:640px;margin-inline:auto"></div>
+        </div>
+        <div class="actions" style="justify-content:center">
+          <button class="btn primary" id="boardRevealBtn" onclick="boardReveal()">חשפו את הבאגים</button>
+          <button class="btn primary hidden" id="boardNextBtn" onclick="boardNext()">המסך הבא</button>
+        </div>
+      </div>
+
+      <div id="boardEnd" class="hidden">
+        <h2>סיכום</h2>
+        <p class="lead" style="max-width:640px;margin-inline:auto">עברנו על כל הבאגים. עכשיו הכיתה יודעת מה לחפש.</p>
+        <div class="handoff" id="boardHandoff" style="max-width:680px;margin-inline:auto;text-align:right"></div>
+        <div class="actions" style="justify-content:center"><button class="btn ghost" onclick="restart()">התחלה מחדש</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — הכול כאן. לשנות משחק = לערוך את זה בלבד.
+   ============================================================ */
+const CONFIG = {
+  meta: { title: "ספארי באגים", timerSeconds: 480, warnAt: 120, critAt: 30 },
+
+  app: {
+    name: "מצא‑חוג",
+    purpose: "עוזרת לילדים למצוא חוג אחרי הצהריים שמתאים להם",
+    audience: "בני 10–12 שמחפשים חוג לבד, בלי עזרה מההורים",
+    screens: [
+      { id:"home",    title:"מסך בית" },
+      { id:"search",  title:"מסך חיפוש" },
+      { id:"results", title:"מסך תוצאות" },
+      { id:"register",title:"מסך הרשמה" }
+    ]
+  },
+
+  // אוצר המילים שהמשחק מלמד
+  types: [
+    "כפתור/תווית לא ברורים",
+    "פעולה מוסתרת או קטנה מדי",
+    "מבוי סתום — לוחצים וכלום לא קורה",
+    "משוב משקר",
+    "ברירת מחדל שגויה",
+    "חוסר עקביות בשמות ובעיצוב",
+    "חסר מידע שצריך כדי להחליט",
+    "לא מתאים לקהל היעד (שפה/תוכן/פרטיות)",
+    "ליטוש חזותי (קוסמטי)"
+  ],
+
+  // severity: 3=חוסם, 2=מבלבל, 1=קוסמטי
+  bugs: [
+    { id:"start-label", screen:"home", type:"כפתור/תווית לא ברורים", severity:2,
+      where:"כפתור 'התחל' במסך הבית",
+      whyItHurts:"הכפתור לא מרמז מה יקרה — ילד לא יודע אם זה מתחיל חיפוש, הרשמה או משהו אחר.",
+      betterVersion:"במקום 'התחל' לכתוב 'מצאו חוג עכשיו'." },
+    { id:"logo-overlap", screen:"home", type:"ליטוש חזותי (קוסמטי)", severity:1,
+      where:"הלוגו נדחף על הכותרת בראש המסך",
+      whyItHurts:"הלוגו יושב על הכותרת ומקשה לקרוא את שם האפליקציה — נראה מרושל.",
+      betterVersion:"להזיז את הלוגו הצידה ולתת לכותרת מרווח." },
+    { id:"tagline-hard", screen:"home", type:"לא מתאים לקהל היעד (שפה/תוכן/פרטיות)", severity:3,
+      where:"משפט התיאור מתחת לכותרת",
+      whyItHurts:"'פלטפורמה לאיתור פעילויות העשרה חוץ‑בית‑ספריות' — ילד בן 10 לא מבין את המילים, אז הוא לא מבין למה האפליקציה טובה בשבילו.",
+      betterVersion:"'בא לך חוג חדש? בוא נמצא לך אחד מגניב.'" },
+
+    { id:"hidden-search", screen:"search", type:"פעולה מוסתרת או קטנה מדי", severity:3,
+      where:"כפתור החיפוש — אייקון זעיר בפינה",
+      whyItHurts:"הפעולה הכי חשובה במסך מוסתרת כאייקון קטן; רוב הילדים פשוט לא ימצאו איך לחפש.",
+      betterVersion:"כפתור 'חפש' גדול וברור באמצע." },
+    { id:"dup-filter", screen:"search", type:"חוסר עקביות בשמות ובעיצוב", severity:2,
+      where:"שני מסננים: 'תחום' ו'קטגוריה'",
+      whyItHurts:"שני שמות שונים לאותו דבר מבלבלים — הילד חושב שהם שני דברים ולא יודע מה למלא.",
+      betterVersion:"להשאיר מסנן אחד בשם אחד." },
+    { id:"age-default", screen:"search", type:"ברירת מחדל שגויה", severity:2,
+      where:"מסנן הגיל שמוגדר כברירת מחדל ל'מבוגרים'",
+      whyItHurts:"הקהל הוא ילדים, אבל הגיל מתחיל ב'מבוגרים' — התוצאות יהיו לא רלוונטיות עד שישימו לב לשנות.",
+      betterVersion:"ברירת מחדל '10–12' או בלי ברירת מחדל בכלל." },
+
+    { id:"dead-result", screen:"results", type:"מבוי סתום — לוחצים וכלום לא קורה", severity:3,
+      where:"לחיצה על תוצאה ברשימה",
+      whyItHurts:"לוחצים על חוג כדי לראות פרטים — ולא קורה כלום. הילד תקוע ולא יכול להתקדם.",
+      betterVersion:"לפתוח מסך פרטים עם תיאור, מחיר, מיקום וכפתור הרשמה." },
+    { id:"missing-info", screen:"results", type:"חסר מידע שצריך כדי להחליט", severity:2,
+      where:"כרטיסי התוצאות",
+      whyItHurts:"אין מחיר ואין מיקום — בדיוק שני הדברים שילד צריך כדי להחליט אם החוג בכלל אפשרי בשבילו.",
+      betterVersion:"להוסיף לכל כרטיס מחיר, מרחק/שכונה ושעה." },
+    { id:"card-heights", screen:"results", type:"ליטוש חזותי (קוסמטי)", severity:1,
+      where:"גובה הכרטיסים לא אחיד",
+      whyItHurts:"הכרטיסים בגבהים שונים בלי סיבה — נראה שבור ולא מקצועי.",
+      betterVersion:"גובה אחיד לכל הכרטיסים." },
+
+    { id:"lying-submit", screen:"register", type:"משוב משקר", severity:3,
+      where:"כפתור 'שלח' עם שדות ריקים",
+      whyItHurts:"לוחצים 'שלח' בלי למלא כלום ומקבלים 'הצלחה!' — האפליקציה משקרת, ובאמת שום הרשמה לא נשלחה.",
+      betterVersion:"לבדוק שהשדות מלאים, ולהראות הצלחה רק כשבאמת נשלח." },
+    { id:"phone-why", screen:"register", type:"לא מתאים לקהל היעד (שפה/תוכן/פרטיות)", severity:2,
+      where:"שדה מספר טלפון בלי הסבר",
+      whyItHurts:"מבקשים מילד מספר טלפון בלי להסביר למה — לא נעים ולא מתאים לפרטיות של ילדים.",
+      betterVersion:"להסביר למה צריך, או לוותר על השדה לגיל הזה." },
+    { id:"back-inconsistent", screen:"register", type:"חוסר עקביות בשמות ובעיצוב", severity:1,
+      where:"כפתור 'חזרה' שנראה אחרת מכל מסך אחר",
+      whyItHurts:"כפתור החזרה כאן נראה שונה משאר האפליקציה — הילד מתקשה לזהות אותו.",
+      betterVersion:"אותו עיצוב לכפתור חזרה בכל המסכים." }
+  ],
+
+  scoring: { 3:3, 2:2, 1:1 },
+
+  debrief: {
+    q1: "איזה סוג בעיה פספסתם לגמרי — ומה תחפשו במיוחד כשתבדקו אפליקציה אמיתית עוד רגע?",
+    q2: "בחרו ממצא אחד שלכם ונסחו אותו כמשוב טוב: מה הבעיה, למי היא מפריעה, ומה הייתם משנים."
+  },
+
+  handoff: "עכשיו יש לכם עיניים של בודקים. בעוד רגע תבדקו אפליקציה אמיתית של צוות אחר — חפשו את אותם סוגי בעיות, שפטו לפי הקהל *שלהם*, ותמיד תגידו גם מה הייתם משנים. ומשהו אחרון: כשמישהו מוצא באג אצלכם — זו מתנה, לא עלבון."
+};
+
+const SEV_NAME = {3:"חוסם", 2:"מבלבל", 1:"קוסמטי"};
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let state = {
+  currentScreen: "home",
+  findings: [],
+  timerId: null,
+  timeLeft: CONFIG.meta.timerSeconds,
+  registerSubmitted: false
+};
+
+/* ============================================================
+   VIEW ROUTING
+   ============================================================ */
+function show(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  const showTimer = id==='viewHunt';
+  document.getElementById('topRight').classList.toggle('hidden', !showTimer);
+  window.scrollTo(0,0);
+}
+
+/* ============================================================
+   FAKE APP RENDERING — screens defined here, driven by config data
+   ============================================================ */
+function screenTitle(id){ return CONFIG.app.screens.find(s=>s.id===id).title; }
+
+function renderScreen(id, container){
+  state.currentScreen = id;
+  let html = "";
+  if(id==="home"){
+    html = `
+      <div class="fa-head">
+        <svg class="fa-logo fa-logo-overlap" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.5 5 5.5.8-4 3.9 1 5.5L12 14.5 7 17.2l1-5.5-4-3.9L9.5 7z"/></svg>
+        <div class="fa-title">מצא‑חוג</div>
+      </div>
+      <div class="fa-tagline">פלטפורמה לאיתור פעילויות העשרה חוץ‑בית‑ספריות</div>
+      <div style="height:8px"></div>
+      <button class="fa-btn" onclick="faNav('search')">התחל</button>
+      <button class="fa-btn sec" onclick="faNav('results')">חוגים פופולריים</button>
+    `;
+  }
+  else if(id==="search"){
+    html = `
+      <div class="fa-head" style="justify-content:space-between">
+        <button class="fa-back fa-tiny-search" onclick="faNav('results')" title="חפש">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M16 16l4 4"/></svg>
+        </button>
+        <div class="fa-title" style="margin-inline-start:auto">חיפוש חוג</div>
+      </div>
+      <label class="fa-label">תחום</label>
+      <select class="fa-select"><option>ספורט</option><option>מוזיקה</option><option>אמנות</option></select>
+      <label class="fa-label">קטגוריה</label>
+      <select class="fa-select"><option>ספורט</option><option>מוזיקה</option><option>אמנות</option></select>
+      <label class="fa-label">גיל</label>
+      <select class="fa-select"><option selected>מבוגרים</option><option>נוער</option><option>ילדים 10–12</option></select>
+      <div style="height:6px"></div>
+      <button class="fa-btn sec" onclick="faNav('results')">הצג חוגים</button>
+    `;
+  }
+  else if(id==="results"){
+    const cards = [
+      {t:"כדורסל צעירים", h:78},
+      {t:"גיטרה למתחילים", h:58},
+      {t:"ציור וקומיקס", h:92},
+      {t:"רובוטיקה", h:64}
+    ];
+    html = `
+      <div class="fa-head"><div class="fa-title">תוצאות</div></div>
+      ${cards.map(c=>`
+        <div class="fa-card" style="min-height:${c.h}px" onclick="faDeadEnd()">
+          <div class="rtitle">${c.t}</div>
+          <div class="rmeta">חוג שבועי · לפרטים לחצו</div>
+        </div>`).join("")}
+      <div style="height:6px"></div>
+      <button class="fa-btn sec" onclick="faNav('register')">להרשמה</button>
+    `;
+  }
+  else if(id==="register"){
+    html = `
+      <div class="fa-head" style="justify-content:space-between">
+        <button onclick="faNav('results')" style="background:#ff7a59;color:#fff;border:none;border-radius:20px;padding:6px 14px;cursor:pointer;font-weight:800;font-size:13px">‹ חזרה</button>
+        <div class="fa-title" style="margin-inline-start:auto">הרשמה</div>
+      </div>
+      <div class="fa-field"><label class="fa-label">שם מלא</label><input class="fa-input" placeholder="שם"></div>
+      <div class="fa-field"><label class="fa-label">מספר טלפון</label><input class="fa-input" placeholder="טלפון"></div>
+      <div class="fa-field"><label class="fa-label">חוג</label><input class="fa-input" placeholder="שם החוג"></div>
+      <button class="fa-btn" onclick="faSubmit(event)">שלח</button>
+    `;
+  }
+  container.innerHTML = html;
+}
+
+function faNav(id){ renderScreen(id, document.getElementById('fakeApp')); syncTabs(); }
+function faDeadEnd(){ /* מבוי סתום מכוון — לא קורה כלום */ }
+function faSubmit(e){
+  // משוב משקר: מציג "הצלחה!" גם עם שדות ריקים
+  const scr = e.target.closest('.screen'); // works in both hunt and board frames
+  if(!scr) return;
+  const t = document.createElement('div');
+  t.className='fa-toast'; t.textContent='הצלחה! נרשמת לחוג.';
+  scr.appendChild(t);
+  setTimeout(()=>t.remove(), 1900);
+}
+
+/* Screen tabs (quick nav) */
+function syncTabs(){
+  const tabs = document.getElementById('screenTabs');
+  tabs.innerHTML = CONFIG.app.screens.map(s=>
+    `<button class="screentab ${s.id===state.currentScreen?'active':''}" onclick="faNav('${s.id}')">${s.title}</button>`
+  ).join("");
+}
+
+/* ============================================================
+   TEAM MODE FLOW
+   ============================================================ */
+function startTeam(){
+  document.getElementById('brName').textContent = CONFIG.app.name;
+  document.getElementById('brPurpose').textContent = CONFIG.app.purpose;
+  document.getElementById('brAudience').textContent = CONFIG.app.audience;
+  document.getElementById('brTypes').innerHTML = CONFIG.types.map(t=>`<span class="typechip">${t}</span>`).join("");
+  show('viewBrief');
+}
+
+function beginHunt(){
+  // reset
+  state.findings = [];
+  state.timeLeft = CONFIG.meta.timerSeconds;
+  renderFindings();
+  document.getElementById('findCount').textContent = 0;
+
+  // log form selects
+  const scrSel = document.getElementById('fScreen');
+  scrSel.innerHTML = CONFIG.app.screens.map(s=>`<option value="${s.id}">${s.title}</option>`).join("");
+  const typeSel = document.getElementById('fType');
+  typeSel.innerHTML = `<option value="">בחרו סוג...</option>` + CONFIG.types.map(t=>`<option value="${t}">${t}</option>`).join("");
+
+  faNav('home');
+  show('viewHunt');
+  startTimer();
+}
+
+function startTimer(){
+  clearInterval(state.timerId);
+  updateTimerUI();
+  state.timerId = setInterval(()=>{
+    state.timeLeft--;
+    updateTimerUI();
+    if(state.timeLeft<=0){ clearInterval(state.timerId); finishHunt(); }
+  },1000);
+}
+function updateTimerUI(){
+  const m = Math.floor(state.timeLeft/60), s = state.timeLeft%60;
+  const el = document.getElementById('timer');
+  el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.className = 'timer' + (state.timeLeft<=CONFIG.meta.critAt?' crit':state.timeLeft<=CONFIG.meta.warnAt?' warn':'');
+}
+
+function logFinding(){
+  const screen = document.getElementById('fScreen').value;
+  const type = document.getElementById('fType').value;
+  const what = document.getElementById('fWhat').value.trim();
+  const fix = document.getElementById('fFix').value.trim();
+  const warn = document.getElementById('logWarn');
+  if(!type){ warn.textContent='בחרו סוג בעיה.'; return; }
+  if(!what){ warn.textContent='כתבו מה לא בסדר.'; return; }
+  if(!fix){ warn.textContent='חובה למלא "מה הייתם משנים" — אין שיפור, אין ממצא.'; return; }
+  warn.textContent='';
+  state.findings.push({screen, type, what, fix});
+  document.getElementById('fType').value='';
+  document.getElementById('fWhat').value='';
+  document.getElementById('fFix').value='';
+  document.getElementById('findCount').textContent = state.findings.length;
+  renderFindings();
+}
+
+function renderFindings(){
+  const list = document.getElementById('findingsList');
+  if(!state.findings.length){ list.innerHTML=''; return; }
+  list.innerHTML = state.findings.map((f,i)=>`
+    <div class="finding-item">
+      <button class="fdel" onclick="delFinding(${i})" title="מחק">×</button>
+      <div><span class="ftype">${f.type}</span> <span class="floc">· ${screenTitle(f.screen)}</span></div>
+      <div style="margin-top:3px">${f.what}</div>
+    </div>`).join("");
+}
+function delFinding(i){ state.findings.splice(i,1); document.getElementById('findCount').textContent=state.findings.length; renderFindings(); }
+
+function confirmFinish(){
+  if(confirm('לסיים את הציד ולעבור לחשיפה?')) finishHunt();
+}
+function finishHunt(){
+  clearInterval(state.timerId);
+  computeReveal();
+  show('viewReveal');
+}
+
+/* ============================================================
+   MATCHING & REVEAL — generous: match by screen + type
+   ============================================================ */
+function computeReveal(){
+  const bugs = CONFIG.bugs.map(b=>({...b, found:false}));
+  const usedFindings = new Array(state.findings.length).fill(false);
+
+  // match each finding to an unmatched bug on same screen+type (generous)
+  state.findings.forEach((f,fi)=>{
+    const bi = bugs.findIndex(b=>!b.found && b.screen===f.screen && b.type===f.type);
+    if(bi>=0){ bugs[bi].found=true; usedFindings[fi]=true; }
+  });
+
+  // second pass — generous: same screen (right area, close enough) counts too,
+  // but cap at ONE pass-two credit per screen so a team spamming one screen
+  // with mistyped logs can't inflate its score against bugs it never saw.
+  const passTwoUsedScreen = new Set();
+  state.findings.forEach((f,fi)=>{
+    if(usedFindings[fi]) return;
+    if(passTwoUsedScreen.has(f.screen)) return;
+    const bi = bugs.findIndex(b=>!b.found && b.screen===f.screen);
+    if(bi>=0){ bugs[bi].found=true; usedFindings[fi]=true; passTwoUsedScreen.add(f.screen); }
+  });
+
+  const found = bugs.filter(b=>b.found);
+  const missed = bugs.filter(b=>!b.found);
+  const sharp = state.findings.filter((f,i)=>!usedFindings[i]);
+
+  // score
+  let score = 0;
+  found.forEach(b=> score += CONFIG.scoring[b.severity]||0);
+
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('stFound').textContent = found.length;
+  document.getElementById('stMiss').textContent = missed.length;
+  document.getElementById('stSharp').textContent = sharp.length;
+
+  renderTypeMap(bugs);
+  renderSharp(sharp);
+  renderBugList(bugs);
+  fillDebrief(missed);
+}
+
+function renderTypeMap(bugs){
+  const byType = {};
+  CONFIG.types.forEach(t=> byType[t]={total:0,found:0});
+  bugs.forEach(b=>{ if(!byType[b.type]) byType[b.type]={total:0,found:0}; byType[b.type].total++; if(b.found) byType[b.type].found++; });
+  const rows = Object.entries(byType).filter(([_,v])=>v.total>0);
+  // sort: blind spots (0 found) first
+  rows.sort((a,b)=> (a[1].found/a[1].total) - (b[1].found/b[1].total));
+  document.getElementById('typeMap').innerHTML = rows.map(([type,v])=>{
+    const pct = Math.round(v.found/v.total*100);
+    const blind = v.found===0;
+    return `<div class="typemap-row ${blind?'tm-blind':''}">
+      <div>
+        <div class="tm-name">${type}</div>
+        <div class="tm-bar"><div class="tm-fill" style="width:${pct}%"></div></div>
+      </div>
+      <div class="tm-frac">${v.found}/${v.total}</div>
+    </div>`;
+  }).join("");
+}
+
+function renderSharp(sharp){
+  const box = document.getElementById('sharpBox');
+  if(!sharp.length){ box.classList.add('hidden'); return; }
+  box.classList.remove('hidden');
+  document.getElementById('sharpList').innerHTML = sharp.map(f=>
+    `<div class="si"><b>${f.type}</b> · ${screenTitle(f.screen)} — ${f.what} <span style="color:var(--muted)">(השינוי שהצעתם: ${f.fix})</span></div>`
+  ).join("");
+}
+
+function renderBugList(bugs){
+  // order by screen then severity desc
+  const order = CONFIG.app.screens.map(s=>s.id);
+  const sorted = [...bugs].sort((a,b)=> order.indexOf(a.screen)-order.indexOf(b.screen) || b.severity-a.severity);
+  document.getElementById('bugList').innerHTML = sorted.map(b=>`
+    <div class="bug s${b.severity}">
+      <div class="bug-top">
+        <div>
+          <span class="bwhere">${b.where}</span>
+          <span class="sev-badge s${b.severity}">${SEV_NAME[b.severity]}</span>
+        </div>
+        <span class="bstat ${b.found?'found':'miss'}">${b.found?'נמצא':'פוספס'}</span>
+      </div>
+      <div class="btype">${b.type} · ${screenTitle(b.screen)}</div>
+      <div class="bwhy">${b.whyItHurts}</div>
+      <div class="bfix"><b>שיפור:</b> ${b.betterVersion}</div>
+    </div>`).join("");
+}
+
+function fillDebrief(missed){
+  document.getElementById('dq1').textContent = CONFIG.debrief.q1;
+  document.getElementById('dq2').textContent = CONFIG.debrief.q2;
+  document.getElementById('handoffText').textContent = CONFIG.handoff;
+}
+
+/* ============================================================
+   BOARD MODE FLOW
+   ============================================================ */
+let boardIdx = 0;
+function startBoard(){
+  document.getElementById('bbName').textContent = CONFIG.app.name;
+  document.getElementById('bbPurpose').textContent = CONFIG.app.purpose;
+  document.getElementById('bbAudience').textContent = CONFIG.app.audience;
+  document.getElementById('boardBrief').classList.remove('hidden');
+  document.getElementById('boardWalk').classList.add('hidden');
+  document.getElementById('boardEnd').classList.add('hidden');
+  show('viewBoard');
+}
+function boardStart(){
+  boardIdx = 0;
+  document.getElementById('boardBrief').classList.add('hidden');
+  document.getElementById('boardWalk').classList.remove('hidden');
+  boardShow();
+}
+function boardShow(){
+  const scr = CONFIG.app.screens[boardIdx];
+  renderScreen(scr.id, document.getElementById('boardApp'));
+  document.getElementById('boardScreenName').textContent = scr.title;
+  document.getElementById('boardProg').textContent = `מסך ${boardIdx+1} מתוך ${CONFIG.app.screens.length} — שחקו עם המסך ונסו למצוא את כל הבאגים, ואז חשפו`;
+  document.getElementById('boardRevealBox').classList.add('hidden');
+  document.getElementById('boardRevealBtn').classList.remove('hidden');
+  document.getElementById('boardNextBtn').classList.add('hidden');
+}
+function boardReveal(){
+  const scr = CONFIG.app.screens[boardIdx];
+  const bugs = CONFIG.bugs.filter(b=>b.screen===scr.id).sort((a,b)=>b.severity-a.severity);
+  document.getElementById('boardBugs').innerHTML = bugs.map(b=>`
+    <div class="bug s${b.severity}">
+      <div class="bug-top"><div><span class="bwhere">${b.where}</span> <span class="sev-badge s${b.severity}">${SEV_NAME[b.severity]}</span></div></div>
+      <div class="btype">${b.type}</div>
+      <div class="bwhy">${b.whyItHurts}</div>
+      <div class="bfix"><b>שיפור:</b> ${b.betterVersion}</div>
+    </div>`).join("");
+  document.getElementById('boardRevealBox').classList.remove('hidden');
+  document.getElementById('boardRevealBtn').classList.add('hidden');
+  document.getElementById('boardNextBtn').classList.remove('hidden');
+  document.getElementById('boardNextBtn').textContent = boardIdx < CONFIG.app.screens.length-1 ? 'המסך הבא' : 'לסיכום';
+}
+function boardNext(){
+  if(boardIdx < CONFIG.app.screens.length-1){ boardIdx++; boardShow(); }
+  else {
+    document.getElementById('boardWalk').classList.add('hidden');
+    document.getElementById('boardEnd').classList.remove('hidden');
+    document.getElementById('boardHandoff').textContent = CONFIG.handoff;
+  }
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+function restart(){
+  clearInterval(state.timerId);
+  state.findings=[];
+  show('viewStart');
+}
+document.getElementById('topTitle').textContent = CONFIG.meta.title;
+document.title = CONFIG.meta.title;
+show('viewStart');
+</script>
+</body>
+</html>

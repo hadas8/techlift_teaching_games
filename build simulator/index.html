@@ -1,0 +1,1456 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>סימולטור הבנייה</title>
+<style>
+/* ============================================================
+   סימולטור הבנייה — The Build Simulator
+   Single-file, config-driven, RTL Hebrew vibe-coding game.
+   All game content lives in CONFIG (see <script>). The engine
+   below is scenario-agnostic: new scenarios = pure config.
+   ============================================================ */
+
+:root{
+  --bg:#0b1020;
+  --bg-2:#0e1428;
+  --panel:#141b31;
+  --panel-2:#1b2340;
+  --panel-3:#232d52;
+  --line:#2a3560;
+  --text:#eef2ff;
+  --muted:#98a4c6;
+  --muted-2:#6f7ba3;
+
+  --green:#35d07f;   /* advance / small step */
+  --blue:#4aa8ff;    /* discipline */
+  --red:#ff5c6c;     /* setback / repair */
+  --amber:#ffb547;   /* greedy / warning / comic */
+  --purple:#b98cff;  /* vague */
+
+  --green-dim:rgba(53,208,127,.14);
+  --blue-dim:rgba(74,168,255,.14);
+  --red-dim:rgba(255,92,108,.14);
+  --amber-dim:rgba(255,181,71,.14);
+  --purple-dim:rgba(185,140,255,.14);
+
+  /* neutral prompt categories (NO good/bad valence) */
+  --indigo:#8aa0ff;  --indigo-dim:rgba(138,160,255,.15);
+  --teal:#3fd3c6;    --teal-dim:rgba(63,211,198,.15);
+  --slate:#9aa4c6;
+
+  --radius:16px;
+  --radius-sm:11px;
+  --shadow:0 18px 50px rgba(0,0,0,.45);
+  --font:"Segoe UI","Assistant","Heebo","Arial",system-ui,sans-serif;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:var(--font);
+  color:var(--text);
+  background:
+    radial-gradient(1100px 600px at 85% -10%, #182247 0%, transparent 60%),
+    radial-gradient(900px 500px at 0% 110%, #14224a 0%, transparent 55%),
+    var(--bg);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+button{font-family:inherit}
+::selection{background:rgba(74,168,255,.35)}
+
+.wrap{max-width:1280px;margin:0 auto;padding:18px clamp(12px,3vw,28px) 40px}
+
+/* ---------- shared bits ---------- */
+.icon{width:1em;height:1em;display:inline-block;vertical-align:-.14em;flex:none}
+.pill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 11px;border-radius:999px;font-size:13px;font-weight:600;
+  border:1px solid var(--line);background:var(--panel-2);color:var(--muted);
+}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700}
+/* prompt-category tags — neutral, describe SCOPE not correctness */
+.tag.broad{background:var(--indigo-dim);color:var(--indigo)}
+.tag.focused{background:var(--teal-dim);color:var(--teal)}
+
+/* ============================================================
+   START SCREEN
+   ============================================================ */
+.screen{animation:fadeUp .45s cubic-bezier(.2,.7,.3,1)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.hero{
+  text-align:center;padding:34px 18px 8px;max-width:820px;margin:0 auto;
+}
+.hero .kicker{color:var(--blue);font-weight:800;letter-spacing:.14em;font-size:13px;text-transform:uppercase}
+.hero h1{
+  font-size:clamp(34px,6.4vw,60px);line-height:1.02;margin:12px 0 6px;font-weight:900;
+  background:linear-gradient(120deg,#fff 10%,#bcd0ff 55%,#8fb6ff 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero .lead{color:var(--muted);font-size:clamp(15px,2.4vw,19px);line-height:1.55;margin:8px auto 0;max-width:640px}
+.golden{
+  display:inline-flex;gap:9px;align-items:center;margin-top:20px;
+  background:linear-gradient(90deg,var(--amber-dim),transparent);
+  border:1px solid rgba(255,181,71,.35);color:#ffe0a8;
+  padding:10px 16px;border-radius:999px;font-weight:700;font-size:14.5px;
+}
+.golden .icon{color:var(--amber)}
+
+.setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:30px auto 0;max-width:960px}
+@media(max-width:760px){.setup-grid{grid-template-columns:1fr}}
+.setup-card{
+  background:linear-gradient(180deg,var(--panel),var(--bg-2));
+  border:1px solid var(--line);border-radius:var(--radius);padding:20px 20px 18px;
+}
+.setup-card h3{margin:0 0 4px;font-size:16px;display:flex;align-items:center;gap:8px}
+.setup-card h3 .icon{color:var(--blue)}
+.setup-card p.sub{margin:0 0 14px;color:var(--muted-2);font-size:13px}
+
+.opt{
+  width:100%;text-align:right;cursor:pointer;color:var(--text);
+  background:var(--panel-2);border:1.5px solid var(--line);border-radius:var(--radius-sm);
+  padding:14px 15px;margin-top:10px;display:flex;gap:13px;align-items:flex-start;
+  transition:.16s ease;
+}
+.opt:hover{border-color:var(--panel-3);background:var(--panel-3);transform:translateY(-1px)}
+.opt.on{border-color:var(--blue);background:linear-gradient(180deg,var(--blue-dim),var(--panel-2));box-shadow:0 0 0 3px rgba(74,168,255,.13)}
+.opt .oico{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:var(--panel);border:1px solid var(--line);font-size:19px;color:var(--blue);flex:none}
+.opt .otxt b{display:block;font-size:15px;margin-bottom:2px}
+.opt .otxt span{color:var(--muted);font-size:12.5px;line-height:1.45}
+.opt.on .oico{color:#fff;background:var(--blue);border-color:var(--blue)}
+
+.start-row{display:flex;justify-content:center;margin:28px 0 6px}
+.btn-primary{
+  cursor:pointer;border:none;border-radius:14px;padding:15px 34px;font-size:17px;font-weight:800;color:#08122b;
+  background:linear-gradient(180deg,#7fd0ff,var(--blue));box-shadow:0 12px 30px rgba(74,168,255,.35);
+  display:inline-flex;align-items:center;gap:10px;transition:.16s ease;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 38px rgba(74,168,255,.45)}
+.btn-primary:active{transform:translateY(0)}
+.btn-primary.green{background:linear-gradient(180deg,#7ff0b6,var(--green));box-shadow:0 12px 30px rgba(53,208,127,.32);color:#052616}
+.how{max-width:760px;margin:14px auto 0;color:var(--muted-2);font-size:13px;text-align:center;line-height:1.6}
+
+/* ============================================================
+   GAME LAYOUT
+   ============================================================ */
+.topbar{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  background:linear-gradient(180deg,var(--panel),var(--bg-2));
+  border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;margin-bottom:16px;
+}
+.topbar .brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:17px}
+.topbar .brand .logo{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--blue),#7fd0ff);color:#08122b}
+.topbar .spacer{flex:1}
+.goal-chip{
+  display:flex;align-items:center;gap:9px;background:var(--panel-2);border:1px solid var(--line);
+  border-radius:12px;padding:8px 13px;max-width:min(46vw,420px)
+}
+.goal-chip .icon{color:var(--green);font-size:17px;flex:none}
+.goal-chip .gl{font-size:11px;color:var(--muted-2);font-weight:700}
+.goal-chip .gt{font-size:13.5px;font-weight:700;line-height:1.2}
+.turns-chip{display:flex;align-items:center;gap:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:7px 8px 7px 14px}
+.turns-num{font-size:28px;font-weight:900;line-height:1;min-width:34px;text-align:center;color:var(--text);font-variant-numeric:tabular-nums}
+.turns-chip.low .turns-num{color:var(--amber)}
+.turns-chip.crit .turns-num{color:var(--red)}
+.turns-chip .tl{font-size:11px;color:var(--muted-2);font-weight:700;line-height:1.15}
+.turns-chip .bolt{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:var(--panel);border:1px solid var(--line);color:var(--amber);font-size:18px}
+.mode-tag{font-size:12px;font-weight:800;padding:5px 10px;border-radius:999px;border:1px solid var(--line)}
+.mode-tag.team{background:var(--green-dim);color:var(--green)}
+.mode-tag.board{background:var(--amber-dim);color:var(--amber)}
+.ghost-btn{cursor:pointer;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);
+  border-radius:10px;padding:8px 12px;font-size:13px;font-weight:700;display:inline-flex;gap:7px;align-items:center;transition:.15s}
+.ghost-btn:hover{color:var(--text);border-color:var(--panel-3);background:var(--panel-3)}
+
+.board-banner{
+  display:none;align-items:center;gap:10px;margin-bottom:14px;
+  background:linear-gradient(90deg,var(--amber-dim),transparent);
+  border:1px solid rgba(255,181,71,.3);border-radius:12px;padding:9px 15px;color:#ffe0a8;font-weight:700;font-size:14px
+}
+body.board .board-banner{display:flex}
+.board-banner .icon{color:var(--amber)}
+
+.game{display:grid;grid-template-columns:minmax(300px,400px) 1fr;gap:20px;align-items:start}
+@media(max-width:900px){.game{grid-template-columns:1fr}}
+
+/* ---------- app pane (phone) ---------- */
+.phone-col{position:sticky;top:14px}
+@media(max-width:900px){.phone-col{position:static}}
+.phone{
+  width:100%;max-width:360px;margin:0 auto;
+  background:linear-gradient(180deg,#20263e,#171c30);
+  border-radius:38px;padding:12px;border:1px solid #313a5f;
+  box-shadow:var(--shadow), inset 0 0 0 2px rgba(255,255,255,.02);
+}
+.phone .notch{width:120px;height:22px;background:#0b0f1d;border-radius:0 0 14px 14px;margin:0 auto 6px}
+.screen-frame{
+  position:relative;background:#f6f7fb;border-radius:28px;overflow:hidden;
+  height:min(560px,64vh);min-height:420px;display:flex;flex-direction:column;
+  color:#1b2340;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);
+}
+.screen-frame.animating .app-screen{animation:screenIn .42s cubic-bezier(.2,.75,.3,1)}
+@keyframes screenIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+.screen-tick{height:30px;background:#fff;display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;font-size:12px;color:#6b7591;border-bottom:1px solid #eef0f6;font-weight:700}
+.app-screen{flex:1;overflow:auto;display:flex;flex-direction:column}
+.tested-flag{
+  position:absolute;top:38px;inset-inline-start:10px;z-index:5;
+  background:var(--red);color:#fff;font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;
+  display:none;align-items:center;gap:5px;box-shadow:0 6px 16px rgba(255,92,108,.4)
+}
+.screen-frame.show-test .tested-flag{display:inline-flex}
+
+/* discipline bar under phone */
+.disc-bar{margin:14px auto 0;max-width:360px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.disc-btn{
+  cursor:pointer;background:var(--panel);border:1.5px solid var(--line);border-radius:12px;
+  padding:11px 6px 9px;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:5px;transition:.15s;text-align:center
+}
+.disc-btn:hover:not(:disabled){border-color:var(--blue);background:var(--blue-dim);transform:translateY(-2px)}
+.disc-btn:disabled{opacity:.4;cursor:not-allowed}
+.disc-btn .icon{font-size:20px;color:var(--blue)}
+.disc-btn b{font-size:13px}
+.disc-btn small{font-size:10.5px;color:var(--muted-2);font-weight:700}
+.save-slot{
+  margin:12px auto 0;max-width:360px;background:var(--panel-2);border:1px dashed var(--line);
+  border-radius:12px;padding:10px 13px;display:flex;align-items:center;gap:11px;font-size:13px
+}
+.save-slot .sico{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:var(--panel);border:1px solid var(--line);color:var(--muted-2)}
+.save-slot.has .sico{color:var(--blue);border-color:rgba(74,168,255,.5);background:var(--blue-dim)}
+.save-slot .sl{color:var(--muted-2);font-weight:700;font-size:11px}
+.save-slot .sn{font-weight:800}
+
+/* ---------- prompt pane ---------- */
+.prompt-head{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+.prompt-head h2{margin:0;font-size:19px;font-weight:900}
+.prompt-head .hint{color:var(--muted-2);font-size:13px}
+.reveal{
+  margin:12px 0 16px;border-radius:14px;padding:14px 16px;border:1px solid var(--line);
+  background:var(--panel-2);display:flex;gap:12px;align-items:flex-start;min-height:20px;
+  animation:fadeUp .4s ease
+}
+.reveal .ric{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none;font-size:18px}
+/* reveals are AFTER the choice — coloring by outcome here is fine (not a pre-choice tell) */
+.reveal.advance{border-color:rgba(53,208,127,.4)}.reveal.advance .ric{background:var(--green-dim);color:var(--green)}
+.reveal.setback{border-color:rgba(255,92,108,.45)}.reveal.setback .ric{background:var(--red-dim);color:var(--red)}
+.reveal.discipline{border-color:rgba(74,168,255,.42)}.reveal.discipline .ric{background:var(--blue-dim);color:var(--blue)}
+.reveal .rtxt{font-size:14.5px;line-height:1.5}
+.reveal .rtxt .lesson{display:block;margin-top:6px;color:var(--muted);font-size:13px;font-style:italic}
+.reveal.placeholder{border-style:dashed;color:var(--muted-2)}
+.reveal.placeholder .ric{background:var(--panel);color:var(--muted-2)}
+
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+@media(max-width:560px){.cards{grid-template-columns:1fr}}
+body.board .cards{grid-template-columns:1fr}
+.card{
+  cursor:pointer;text-align:right;color:var(--text);position:relative;
+  background:linear-gradient(180deg,var(--panel),var(--bg-2));
+  border:1.5px solid var(--line);border-radius:var(--radius);padding:16px 16px 15px;
+  transition:.16s ease;overflow:hidden;display:flex;flex-direction:column;gap:9px
+}
+.card::before{content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:4px;background:var(--line)}
+/* accent bar = neutral scope category, carries no good/bad meaning */
+.card.broad::before{background:var(--indigo)} .card.focused::before{background:var(--teal)}
+.card:hover{transform:translateY(-3px);border-color:var(--panel-3);box-shadow:0 14px 30px rgba(0,0,0,.35)}
+.card:hover.broad{border-color:rgba(138,160,255,.55)}
+.card:hover.focused{border-color:rgba(63,211,198,.55)}
+.card .card-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card .promptline{display:flex;gap:9px;align-items:flex-start}
+.card .qico{color:var(--muted-2);font-size:16px;margin-top:2px;flex:none}
+.card .lbl{font-size:15px;font-weight:700;line-height:1.4}
+/* factual "asks for" line — describes scope, not correctness */
+.card .asks{display:flex;gap:7px;align-items:flex-start;color:var(--slate);font-size:12.5px;font-weight:600;
+  background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:7px 10px;line-height:1.4}
+.card .asks .icon{font-size:14px;margin-top:1px;flex:none;color:var(--muted-2)}
+body.board .card .asks{font-size:13.5px}
+.card .cost{font-size:11.5px;color:var(--muted-2);font-weight:800;display:inline-flex;align-items:center;gap:4px;
+  background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px 8px;flex:none}
+body.board .card{padding:20px}
+body.board .card .lbl{font-size:17px}
+.vote-badge{display:none}
+body.board .vote-badge{
+  display:inline-flex;align-items:center;gap:6px;margin-top:4px;color:var(--amber);font-weight:800;font-size:12.5px
+}
+
+/* ============================================================
+   MOCK APP STYLES (scoped to .app-screen) — reusable by config
+   ============================================================ */
+.app-screen{font-family:var(--font);font-size:14px}
+.app-screen .a-pad{padding:16px}
+.app-screen .a-head{padding:16px 16px 10px}
+.app-screen .a-logo{font-size:19px;font-weight:900;color:#111a3a;letter-spacing:-.01em;display:flex;align-items:center;gap:7px}
+.app-screen .a-logo .dot{width:10px;height:10px;border-radius:3px;background:linear-gradient(135deg,#4aa8ff,#7fd0ff)}
+.app-screen .a-sub{color:#7b86a6;font-size:12.5px;margin-top:3px}
+.app-screen .a-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;width:100%;
+  background:linear-gradient(180deg,#5ab0ff,#2f7fe0);color:#fff;border:none;border-radius:12px;
+  padding:13px;font-weight:800;font-size:15px;font-family:inherit;box-shadow:0 8px 18px rgba(47,127,224,.3)
+}
+.app-screen .a-btn.ghost{background:#eef1f9;color:#38507e;box-shadow:none}
+.app-screen .a-chip{display:inline-block;background:#eef1f9;color:#48587f;border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:700;margin:0 0 6px 6px}
+.app-screen .a-card{background:#fff;border:1px solid #e9ecf5;border-radius:14px;padding:13px;margin-bottom:10px;box-shadow:0 4px 12px rgba(20,30,60,.05)}
+.app-screen .a-card .t{font-weight:800;color:#1a244a;font-size:14.5px}
+.app-screen .a-card .d{color:#7b86a6;font-size:12.5px;margin-top:3px}
+.app-screen .a-field{background:#fff;border:1.5px solid #e3e7f2;border-radius:11px;padding:12px;color:#9aa4bd;font-size:13.5px;margin-bottom:10px}
+.app-screen .a-label{font-weight:800;font-size:13px;color:#33406a;margin:2px 2px 7px}
+.app-screen .a-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#aab2c9;padding:30px;text-align:center}
+.app-screen .a-empty .big{width:66px;height:66px;border-radius:18px;background:#eef1f9;display:grid;place-items:center;color:#c2cadd}
+.app-screen .a-empty .big .icon{font-size:30px}
+.app-screen .a-empty b{color:#7b86a6;font-weight:800;font-size:14px}
+.app-screen .a-empty span{font-size:12.5px}
+.app-screen .a-nav{margin-top:auto;display:flex;border-top:1px solid #eef0f6;background:#fff}
+.app-screen .a-nav div{flex:1;text-align:center;padding:9px 0 8px;color:#aab2c9;font-size:10.5px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px}
+.app-screen .a-nav div .icon{font-size:18px}
+.app-screen .a-nav div.on{color:#2f7fe0}
+.app-screen .a-toast{background:#e6f8ef;color:#177a4b;border:1px solid #b6e6cd;border-radius:11px;padding:10px 12px;font-weight:700;font-size:13px;margin:0 16px 12px;display:flex;gap:8px;align-items:center}
+/* glitch / broken helpers */
+.app-screen .a-glitch{position:relative}
+.app-screen .a-broken{background:#fff4f5;border:1px dashed #ffb3bb;color:#c23b48}
+.app-screen .a-overlap{position:relative}
+.app-screen .a-overlap .a-btn{position:relative}
+.app-screen .a-overlap .a-btn:nth-child(2){transform:translate(6px,-8px) rotate(-1.5deg);opacity:.96}
+.app-screen .a-overlap .a-btn:nth-child(3){transform:translate(-8px,-18px) rotate(2deg);opacity:.9}
+.app-screen .a-warn{background:#fff7e8;color:#a5701a;border:1px solid #ffe0a8;border-radius:11px;padding:9px 12px;font-size:12.5px;font-weight:700;margin-bottom:10px;display:flex;gap:7px;align-items:flex-start}
+.app-screen .a-dead{color:#b9c0d2 !important;pointer-events:none}
+.app-screen .a-messy .a-card{transform:rotate(-.6deg)}
+.app-screen .a-messy .a-card:nth-child(even){transform:rotate(.7deg) translateX(4px)}
+.app-screen .a-ugly .a-logo{color:#d14bd1;text-shadow:1px 1px 0 #ffd0ff}
+.app-screen .a-ugly{background:repeating-linear-gradient(45deg,#fff,#fff 10px,#fbf0ff 10px,#fbf0ff 20px)}
+
+/* ============================================================
+   END SCREEN
+   ============================================================ */
+.end{max-width:900px;margin:0 auto}
+.end-head{text-align:center;padding:16px 10px 4px}
+.end-head .rico{width:74px;height:74px;border-radius:22px;display:inline-grid;place-items:center;font-size:38px;margin-bottom:6px}
+.end-head.win .rico{background:var(--green-dim);color:var(--green)}
+.end-head.lose .rico{background:var(--red-dim);color:var(--red)}
+.end-head h1{font-size:clamp(26px,5vw,40px);margin:6px 0 4px;font-weight:900}
+.end-head p{color:var(--muted);font-size:16px;margin:0}
+.panel{background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin-top:16px}
+.panel h3{margin:0 0 4px;font-size:16px;display:flex;align-items:center;gap:8px}
+.panel h3 .icon{color:var(--blue)}
+.panel .psub{color:var(--muted-2);font-size:13px;margin:0 0 14px}
+
+/* turn-history map */
+.map{display:flex;flex-wrap:wrap;gap:9px}
+.map .step{
+  flex:1 1 132px;min-width:120px;border-radius:12px;padding:10px 12px;border:1px solid var(--line);background:var(--panel-2);
+  display:flex;gap:10px;align-items:flex-start;position:relative
+}
+.map .step .n{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font-size:12px;font-weight:900;flex:none;color:#08122b}
+.map .step.advance{border-color:rgba(53,208,127,.4)} .map .step.advance .n{background:var(--green)}
+.map .step.setback{border-color:rgba(255,92,108,.4)} .map .step.setback .n{background:var(--red)}
+.map .step.discipline{border-color:rgba(74,168,255,.4)} .map .step.discipline .n{background:var(--blue)}
+.map .step .delta{font-weight:900;font-size:11px;margin-inline-start:6px}
+.map .step.advance .delta{color:var(--green)} .map .step.setback .delta{color:var(--red)} .map .step.discipline .delta{color:var(--muted-2)}
+.map .step .st{font-size:12px;font-weight:700;line-height:1.3}
+.map .step .sc{font-size:10.5px;color:var(--muted-2);font-weight:800;margin-top:3px}
+.map-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12.5px;color:var(--muted)}
+.map-legend span{display:inline-flex;align-items:center;gap:6px}
+.map-legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.map-legend .g{background:var(--green)}.map-legend .r{background:var(--red)}.map-legend .b{background:var(--blue)}
+
+.tally{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+.tally .t{flex:1 1 120px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tally .t .num{font-size:26px;font-weight:900;line-height:1}
+.tally .t.g .num{color:var(--green)}.tally .t.r .num{color:var(--red)}.tally .t.b .num{color:var(--blue)}
+.tally .t .lb{color:var(--muted);font-size:12.5px;font-weight:700;margin-top:3px}
+
+.progbar{height:14px;border-radius:999px;background:var(--panel-3);overflow:hidden;margin-top:6px;border:1px solid var(--line)}
+.progbar i{display:block;height:100%;background:linear-gradient(90deg,var(--green),#7ff0b6);border-radius:999px;transition:width .8s cubic-bezier(.2,.7,.3,1)}
+.prog-lbl{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-top:7px;font-weight:700}
+
+.payoff{background:linear-gradient(120deg,var(--green-dim),transparent);border:1px solid rgba(53,208,127,.35);color:#c8f7de}
+.payoff h3 .icon{color:var(--green)}
+.debrief-list{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:10px}
+.debrief-list li{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:13px 15px;font-size:14.5px;display:flex;gap:11px;align-items:flex-start}
+.debrief-list li .qm{color:var(--purple);font-weight:900;font-size:18px;flex:none;line-height:1.2}
+.handoff{background:linear-gradient(120deg,var(--blue-dim),transparent);border:1px solid rgba(74,168,255,.4);text-align:center;font-size:16px;line-height:1.55;font-weight:600}
+.handoff .icon{color:var(--blue)}
+.end-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:22px 0 4px}
+
+.hidden{display:none !important}
+.foot{text-align:center;color:var(--muted-2);font-size:12px;margin-top:26px}
+</style>
+</head>
+<body>
+<div class="wrap" id="root"></div>
+
+<!-- ============================================================
+     SVG ICON SPRITE (inline, no emojis)
+     ============================================================ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path fill="currentColor" d="M13 2 4.5 13.2c-.5.7 0 1.8.9 1.8H11l-1.2 6.7c-.2.9 1 1.5 1.6.8L20 10.8c.5-.7 0-1.8-.9-1.8H13.6l1.6-6.2c.2-.9-1-1.5-1.6-.8Z"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path fill="currentColor" d="M5 3a1 1 0 0 1 1 1v.5l1.9-.5c1.7-.4 3.5-.3 5.1.3 1.4.5 3 .6 4.5.2l1.2-.3c.7-.2 1.3.3 1.3 1v8.2c0 .5-.3.8-.7 1l-1.5.4c-1.7.4-3.5.3-5.1-.3-1.4-.5-3-.6-4.5-.2L6 15.9V21a1 1 0 1 1-2 0V4a1 1 0 0 1 1-1Z"/></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24"><path fill="currentColor" d="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm2 2v5h8V5H7Zm5 6a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></symbol>
+    <symbol id="i-test" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5l-8-3Zm-1 13-3.5-3.5 1.4-1.4L11 12.2l4.1-4.1 1.4 1.4L11 15Z"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24"><path fill="currentColor" d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7Z"/></symbol>
+    <symbol id="i-step" viewBox="0 0 24 24"><path fill="currentColor" d="M9 6 7.6 7.4 11.2 11H4v2h7.2l-3.6 3.6L9 18l6-6-6-6Z"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2 2 7l10 5 10-5-10-5Zm0 7.5L4.7 6 12 4l7.3 2L12 9.5ZM2 12l10 5 10-5-2-1-8 4-8-4-2 1Zm0 5 10 5 10-5-2-1-8 4-8-4-2 1Z"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path fill="currentColor" d="M11 2c.3 3.2 1.6 4.5 4.8 4.8-3.2.3-4.5 1.6-4.8 4.8-.3-3.2-1.6-4.5-4.8-4.8C9.4 6.5 10.7 5.2 11 2Zm7 9c.2 1.9 1 2.7 2.9 2.9-1.9.2-2.7 1-2.9 2.9-.2-1.9-1-2.7-2.9-2.9 1.9-.2 2.7-1 2.9-2.9ZM6 13c.2 2 1 2.8 3 3-2 .2-2.8 1-3 3-.2-2-1-2.8-3-3 2-.2 2.8-1 3-3Z"/></symbol>
+    <symbol id="i-q" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm.2 15.8a1.3 1.3 0 1 1 0-2.6 1.3 1.3 0 0 1 0 2.6Zm1.9-6c-.8.6-1 .9-1 1.6v.3h-1.9v-.4c0-1.3.5-2 1.4-2.6.8-.6 1-.9 1-1.5 0-.7-.5-1.2-1.4-1.2-.8 0-1.4.4-1.6 1.3l-1.8-.5c.4-1.7 1.7-2.6 3.5-2.6 2 0 3.4 1.1 3.4 2.9 0 1.2-.5 1.9-1 2.7Z"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path fill="currentColor" d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2c-3.3 0-6 1.8-6 4v2h12v-2c0-2.2-2.7-4-6-4Zm8-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm0 2c-.6 0-1.2.1-1.7.2 1 .9 1.7 2.1 1.7 3.8v2h5v-2c0-2.2-2.7-4-5-4Z"/></symbol>
+    <symbol id="i-screen" viewBox="0 0 24 24"><path fill="currentColor" d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-6v2h3v2H7v-2h3v-2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm0 2v11h16V5H4Z"/></symbol>
+    <symbol id="i-warn" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2 1 21h22L12 2Zm0 6c.7 0 1.2.6 1.1 1.3l-.4 5.2a.7.7 0 0 1-1.4 0l-.4-5.2A1.15 1.15 0 0 1 12 8Zm0 9.2a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4Z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2Z"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path fill="currentColor" d="m12 10.6 5-5L18.4 7l-5 5 5 5L17 18.4l-5-5-5 5L5.6 17l5-5-5-5L7 5.6l5 5Z"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path fill="currentColor" d="M12 21s-7.5-4.7-10-9.4C.6 8.5 2 5 5.3 5c2 0 3.4 1.2 4.2 2.5C10.3 6.2 11.7 5 13.7 5 17 5 18.4 8.5 17 11.6 14.5 16.3 12 21 12 21Z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path fill="currentColor" d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5Z"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 5h-2v6l5 3 1-1.7-4-2.3V7Z"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><path fill="currentColor" d="M7 2v2H5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7ZM5 9h14v10H5V9Z"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a1.5 1.5 0 0 1 1.5 1.5V11h1V5a1.5 1.5 0 0 1 3 0v6h1V7.5a1.5 1.5 0 0 1 3 0V15c0 3.9-3.1 7-7 7h-1.6c-2 0-3.9-.9-5.2-2.4l-3.4-4c-.8-.9-.1-2.3 1.1-2.3.5 0 1 .2 1.3.6L9 15.5V3.5A1.5 1.5 0 0 1 10.5 2h1.5Z"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><path fill="currentColor" d="M15 4 9 6 3.6 4.2C3 4 2.5 4.5 2.5 5v14c0 .4.3.7.6.8L9 22l6-2 5.4 1.8c.6.2 1.1-.3 1.1-.8V6c0-.4-.3-.7-.6-.8L15 4Zm-6 2.1 6 2v11.8l-6-2V6.1Z"/></symbol>
+    <symbol id="i-rocket" viewBox="0 0 24 24"><path fill="currentColor" d="M14 3c3 0 6 3 6 6 0 3-2 6-5 8l-1 4-3-3-3-3 4-1c2-3 5-5 8-5m-9 9-2 5 5-2m-1-6a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path fill="currentColor" d="M14 5v3H4v8h10v3l7-7-7-7Z"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1 5h2v2h-2V7Zm0 4h2v6h-2v-6Z"/></symbol>
+  </defs>
+</svg>
+
+<script>
+"use strict";
+/* svg helper */
+function ic(id){return '<svg class="icon" aria-hidden="true"><use href="#i-'+id+'"/></svg>';}
+
+/* ============================================================
+   CONFIG — THE ENTIRE GAME LIVES HERE.
+   To make a new scenario: add an object to CONFIG.scenarios.
+   Engine below never needs to change.
+   ------------------------------------------------------------
+   state:  { id, name, progress(0-100), looksFine, mock(HTML),
+             testReveal, choices:[...] }
+   choice: { label, type:'small'|'greedy'|'vague',
+             to, cost=1, reveal, lesson?, comicBeat?, outcome? }
+     outcome (for the end-screen map) is inferred from type when
+     omitted: small->advance, greedy/vague->repair. Set it
+     explicitly for "small repair" steps (untangling) => 'repair'.
+   Discipline moves (save / test / restore) are engine-level and
+   available every turn from the bar under the phone.
+   ============================================================ */
+const CONFIG = {
+  meta:{
+    title:"סימולטור הבנייה",
+    kicker:"מחנה יזמות · בנייה עם AI",
+    lead:"אתם צוות שבונה אפליקציה עם AI. כל תור אתם בוחרים את הפרומפט הבא — והמסך משתנה לפי מה שביקשתם. המטרה: להגיע למסך ראשון שעובד לפני שנגמרים התורים.",
+    golden:"החוק הזהב: בהתחלה — הקשר מלא בבת אחת. מרגע שמשהו עובד — צעד ממוקד, בדיקה, שמירה.",
+    turns:9,
+    disciplineCost:1
+  },
+  ui:{
+    turnsLabel:"תורים נותרו", goalLabel:"המטרה",
+    save:"שמור גרסה", saveSub:"שמור מצב נוכחי",
+    test:"בדוק מה עובד", testSub:"חשוף תקלות נסתרות",
+    restore:"חזור לגרסה", restoreSub:"שחזר מצב שמור",
+    slotEmpty:"אין גרסה שמורה", slotLabel:"גרסה שמורה",
+    promptTitle:"מה הפרומפט הבא שלכם?",
+    promptHint:"קראו והחליטו — הבחירה הנכונה תלויה בשלב הבנייה, לא בסוג הכרטיס. כל בחירה עולה תור.",
+    revealPlaceholder:"בחרו פרומפט וה-AI יבנה. מה שיקרה יופיע כאן.",
+    boardBanner:"מסלול לוח — הכיתה מצביעה בהצבעת ידיים, המנחה לוחץ על הכרטיס שזכה.",
+    voteHint:"הצביעו בהרמת יד",
+    costTurn:"תור",
+    testGenericFine:"בדקתם — הכל נראה עובד. לפעמים בדיקה רק מאשרת שאתם בכיוון. עדיין עלה תור אחד.",
+    saveDone:"נשמר. תור אחד עכשיו — ביטוח לכל מה שיבוא. אם משהו יישבר, תחזרו לכאן בתור אחד.",
+    restoreDone:"חזרתם לגרסה השמורה. כל מה שנשבר מאז — נעלם. תור אחד, לא שלושה.",
+    restoreNone:"אין גרסה שמורה לחזור אליה. שמירה זה מה שהופך 'נשבר' לתור אחד במקום שלושה.",
+    winTitle:"הגעתם למסך ראשון עובד!",
+    winSub:"בניתם אפליקציה שעובדת — צעד אחר צעד.",
+    loseTitle:"לא הספקתם הפעם", loseSub:"נגמרו התורים — אבל תראו כמה הייתם קרובים, ואיפה דלפו התורים.",
+    mapTitle:"מפת התורים", mapSub:"כל תור שעשיתם — ירוק=התקדמות, אדום=תיקון/בזבוז, כחול=משמעת. כאן רואים איפה דלפו התורים.",
+    progTitle:"כמה התקרבתם למטרה",
+    payoffTitle:"מה עשיתם",
+    payoff:"עבדתם כמו צוות שבונה עם AI — הקשר מלא בהתחלה, ואז צעד ממוקד, בדיקה ושמירה. למדתם שהפרומפט הנכון תלוי בשלב: מה שמנצח בהתחלה שובר בסוף. זה בדיוק התהליך שתעשו עוד מעט על האפליקציה האמיתית שלכם.",
+    debriefTitle:"שיחת סיכום (בקול, בלי להקליד)",
+    debrief:[
+      "מתי כדאי לבקש הרבה בבת אחת — ומתי דווקא צעד אחד קטן וממוקד?",
+      "איזו בחירה עלתה לכם הכי ביוקר — ומה תעשו אחרת בבנייה האמיתית?",
+      "מתי שווה 'לבזבז' תור על שמירה או בדיקה?"
+    ],
+    handoffTitle:"הצעד הבא — אמיתי",
+    handoff:"עכשיו פותחים את הכלי האמיתי. אותם חוקים: בהתחלה תנו הקשר מלא ובקשו הרבה; מרגע שמשהו עובד — צעד ממוקד, בודקים, שומרים.",
+    replay:"שחקו שוב", switchScenario:"תרחיש אחר", newGame:"משחק חדש",
+    turnsUsed:"תורים בשימוש", advances:"התקדמויות", repairs:"תיקונים/בזבוז", discipline:"מהלכי משמעת"
+  },
+
+  scenarios:[
+    /* ========================================================
+       SCENARIO 1 — מגניב-לי  (default)
+       ======================================================== */
+    {
+      id:"magniv-li",
+      appName:"מגניב-לי",
+      tagline:"אפליקציה שבה בני נוער ממליצים זה לזה על פעילויות פנאי חינמיות ומגניבות.",
+      icon:"heart",
+      goalStateId:"first-screen-working",
+      goalText:"מסך בית עובד עם פעולה מרכזית אחת: להציע פעילות",
+      startStateId:"empty",
+      states:[
+        /* ---------- SCAFFOLD PHASE: broad+specified is the fast, correct move;
+             broad+vague is the trap; focused works but is slower ---------- */
+        {
+          id:"empty", name:"מסך ריק", progress:0, looksFine:true,
+          testReveal:"אין עדיין מה לבדוק — המסך ריק. אבל הרגל טוב. עלה תור אחד.",
+          mock:`<div class="a-empty"><div class="big">${ic('screen')}</div><b>מסך ריק</b><span>עוד לא ביקשתם כלום מה-AI</span></div>`,
+          choices:[
+            {scope:"broad", style:"specified", outcome:"advance", to:"scaffold-rich",
+             label:"בנה מסך ראשון שלם: כותרת 'מגניב-לי', רשימת פעילויות לדוגמה, וכפתור 'הצע פעילות' שפותח טופס להוספה — הכל במסך אחד.",
+             asksFor:"מבקש: מסך שלם, עם פירוט מה כל חלק עושה",
+             reveal:"פרומפט ראשון עשיר וברור — ובתור אחד ה-AI הקים מסך כמעט שלם. בהתחלה, כשאין עדיין מה לשבור, ככל שתיתנו יותר הקשר כך תקבלו יותר בבת אחת.",
+             lesson:"בתחילת בנייה — הקשר מלא הוא היתרון הכי גדול. הרבה נבנה עכשיו; שווה גם לבדוק שהכל באמת עובד."},
+            {scope:"broad", style:"vague", outcome:"setback", to:"everything-half", comicBeat:true,
+             label:"בנה את כל האפליקציה: בית, רשימה, פרופיל וצ'אט — הכל, כמו שבא לך.",
+             asksFor:"מבקש: 4 מסכים, בלי לומר מה כל אחד עושה",
+             reveal:"רחב זה לא הבעיה — לא אמרתם מה כל חלק עושה ואיך הם מתחברים, אז ה-AI ניחש בגדול. יש עכשיו שלושה כפתורי 'שלח', כל אחד עושה משהו אחר, והפרופיל נפתח בתוך הצ'אט.",
+             revealPlain:"שוב פרומפט רחב בלי פירוט — ה-AI ניחש בגדול והכול יצא חצי. רוחב בלי הקשר = בלגן, לא קסם.",
+             lesson:"ההבדל בין פרומפט ראשון מנצח למבולגן הוא לא הגודל — הוא הפירוט."},
+            {scope:"focused", style:"specified", outcome:"advance", to:"home-title",
+             label:"בנה רק כותרת 'מגניב-לי' עם משפט הסבר קצר.",
+             asksFor:"מבקש: דבר אחד, מוגדר",
+             reveal:"עובד — נקי ומדויק. אבל בתור הראשון, כשאין עדיין מה לשמור, יכולתם לבקש הרבה יותר בבת אחת. צעדים קטנים באמת יזרחו בהמשך, כשיהיה מה להגן עליו.",
+             lesson:"צעד קטן זה כלי מצוין — פשוט לא הכי יעיל בתור הפתיחה."},
+            {scope:"focused", style:"vague", outcome:"setback", to:"pretty-mess",
+             label:"תעשה שיהיה יפה ומגניב.",
+             asksFor:"מבקש: 'יפה', בלי לומר מה בדיוק",
+             reveal:"'יפה' זה לא הוראה. ה-AI ניחש: צבע את המסך הריק בפסים ורודים והוסיף כותרת ענקית. יפה? ספק. שימושי? ממש לא.",
+             lesson:"מעורפל מזמין את ה-AI לנחש — ובדרך כלל לא את מה שדמיינתם."}
+          ]
+        },
+        {
+          id:"home-title", name:"בית — כותרת", progress:15, looksFine:true,
+          testReveal:"בדקתם: הכותרת מוצגת יפה, המסך נטען. הכל תקין כאן. עלה תור אחד.",
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div><div class="a-sub">כאן ממליצים על פעילויות פנאי חינמיות בשכונה</div></div>
+                <div class="a-empty"><div class="big">${ic('heart')}</div><b>עוד אין המלצות</b><span>בקרוב יהיה כאן כפתור להצעת פעילות</span></div>`,
+          choices:[
+            {scope:"broad", style:"specified", outcome:"advance", to:"scaffold-rich",
+             label:"עכשיו בנה את המשך המסך: רשימת פעילויות לדוגמה וכפתור 'הצע פעילות' שפותח טופס הוספה.",
+             asksFor:"מבקש: כמה חלקים ביחד, עם פירוט",
+             reveal:"עדיין בשלב השלד — ואין מה לשבור. הפרומפט הרחב והמפורט הקפיץ אתכם קדימה בבת אחת. זה בדיוק הזמן לחשוב בגדול.",
+             lesson:"כל עוד מקימים שלד — הקשר רחב ומפורט הוא הדרך המהירה."},
+            {scope:"focused", style:"specified", outcome:"advance", to:"home-button",
+             label:"הוסף כפתור 'הצע פעילות' מתחת לכותרת.",
+             asksFor:"מבקש: דבר אחד, מוגדר",
+             reveal:"נוסף כפתור אחד, במקום הנכון. עובד — אבל שוב לקחתם תור שלם לצעד קטן, כשאפשר היה לבקש יותר.",
+             lesson:"מדויק תמיד עובד; פשוט שקלו כמה אפשר לבקש בבת אחת בשלב הזה."},
+            {scope:"broad", style:"vague", outcome:"setback", to:"everything-half",
+             label:"תבנה כבר את הכל — רשימה, פרופיל, צ'אט, מה שיש.",
+             asksFor:"מבקש: הרבה מסכים, בלי לפרט",
+             reveal:"רחב שוב בלי הקשר. הרשימה, הפרופיל והצ'אט נדחסו זה על זה, והכותרת שעבדה נעלמה מתחת לערימה.",
+             lesson:"רוחב בלי פירוט מסתבך — גם עם מה שכבר עבד."}
+          ]
+        },
+        {
+          id:"home-button", name:"בית — כפתור", progress:30, looksFine:true,
+          testReveal:"בדקתם: לחצתם על 'הצע פעילות' — הכפתור מגיב ומודגש. הוא עדיין לא פותח כלום, כי בזה לא התחלתם. הכל צפוי. עלה תור אחד.",
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div><div class="a-sub">כאן ממליצים על פעילויות פנאי חינמיות בשכונה</div></div>
+                <div class="a-pad" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px">
+                  <div class="a-empty" style="padding:10px"><div class="big">${ic('heart')}</div><b>עוד אין המלצות</b><span>היו הראשונים להציע פעילות</span></div>
+                  <button class="a-btn">${ic('plus')} הצע פעילות</button>
+                </div>`,
+          choices:[
+            {scope:"focused", style:"specified", outcome:"advance", to:"home-form",
+             label:"שהכפתור יפתח טופס קצר: שם הפעילות + איפה.",
+             asksFor:"מבקש: התנהגות אחת, מוגדרת",
+             reveal:"הכפתור פותח עכשיו טופס נקי: 'שם הפעילות' ו'איפה'. בדיוק מה שביקשתם.",
+             lesson:"התנהגות אחת לכפתור אחד — צעד מדויק."},
+            {scope:"broad", style:"specified", outcome:"advance", to:"scaffold-rich",
+             label:"בנה עכשיו את הטופס והרשימה ביחד: טופס הוספה שנפתח מהכפתור, ורשימה שתציג פעילויות.",
+             asksFor:"מבקש: שני חלקים ביחד, עם פירוט",
+             reveal:"עדיין שלד, עדיין מפורט — אז הרוחב שילם. קיבלתם טופס ורשימה בבת אחת וקפצתם קדימה.",
+             lesson:"בזמן הקמת שלד, אפשר לאגד כמה חלקים בפרומפט מפורט אחד."},
+            {scope:"focused", style:"vague", outcome:"setback", to:"vague-moved",
+             label:"תעשה את הכפתור יותר בולט ומזמין.",
+             asksFor:"מבקש: 'בולט', בלי לומר איך",
+             reveal:"ה-AI ניחש 'בולט': הגדיל את הכפתור, כתב עליו 'לחצו!!!' ובדרך הזיז אותו מעל הכותרת. משהו שעבד — זז.",
+             lesson:"מעורפל משנה דברים שלא ביקשתם לשנות."}
+          ]
+        },
+        {
+          /* HIDDEN BREAKAGE: pretty form, submits nowhere. Only test reveals it. */
+          id:"home-form", name:"בית — טופס", progress:45, looksFine:false,
+          testReveal:"בדיקה חשפה תקלה נסתרת: מילאתם את הטופס, לחצתם 'שלח' — ולא קרה כלום. הטופס יפה אבל לא מחובר לשום מקום. טוב שבדקתם עכשיו, לפני שבניתם עליו. עלה תור אחד.",
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div></div>
+                <div class="a-pad"><div class="a-label">שם הפעילות</div><div class="a-field">למשל: כדורסל בפארק</div>
+                <div class="a-label">איפה?</div><div class="a-field">שם המקום / כתובת</div>
+                <button class="a-btn">${ic('check')} שלח</button></div>`,
+          choices:[
+            {scope:"focused", style:"specified", outcome:"advance", to:"core-working",
+             label:"חבר את הטופס: אחרי 'שלח' — לשמור את הפעילות ולהציג אותה ברשימה.",
+             asksFor:"מבקש: תיקון אחד, מדויק",
+             reveal:"עכשיו 'שלח' באמת עושה משהו: הפעילות נשמרת ומופיעה ברשימה. זה הצעד שהחזיק את הכל.",
+             lesson:"עכשיו שיש בסיס — הצעד הממוקד והמדויק הוא המנצח."},
+            {scope:"focused", style:"specified", outcome:"setback", to:"list-cosmetic-broken",
+             label:"הוסף עוד פעילויות לדוגמה לרשימה כדי שהמסך ייראה מלא ומרשים.",
+             asksFor:"מבקש: דבר אחד, מוגדר",
+             reveal:"נראה כמו התקדמות — אבל הוספתם תוכן מעל טופס שלא שומר כלום. עכשיו הרשימה מלאה בפעילויות דמה שאי אפשר להוסיף אליהן באמת.",
+             lesson:"בדיקה הייתה מגלה שהטופס מת — ומצילה אתכם מלבנות מעליו."},
+            {scope:"broad", style:"specified", outcome:"advance", to:"core-working",
+             label:"חבר את הכל: הטופס שומר, הרשימה מציגה את מה שנשמר, ומופיע אישור — עם פירוט מה קורה בכל שלב.",
+             asksFor:"מבקש: כמה חלקים, עם פירוט מלא",
+             reveal:"עדיין לא היה משהו מחובר לשבור, אז הרוחב המפורט עבד — הטופס, הרשימה והאישור חוברו יחד. זו הפעם האחרונה שרחב בטוח כאן.",
+             lesson:"מרגע שיש פעולה שעובדת — פרומפט רחב יתחיל לסכן אותה."},
+            {scope:"focused", style:"vague", outcome:"setback", to:"vague-moved",
+             label:"תעשה את הטופס יותר יפה.",
+             asksFor:"מבקש: 'יפה', בלי לפרט",
+             reveal:"ה-AI ריפד בצבעים, ובדרך הסתיר את כפתור 'שלח' מתחת לשדה. עכשיו אי אפשר לשלוח בכלל — עוד לפני שהיה מחובר.",
+             lesson:"מעורפל על משהו שכבר שביר = שביר יותר."}
+          ]
+        },
+        {
+          /* FAST-PATH LANDING: rich scaffold built in one broad turn — but same hidden dead form */
+          id:"scaffold-rich", name:"שלד עשיר", progress:55, looksFine:false,
+          testReveal:"בדיקה חשפה תקלה נסתרת: המסך נראה מלא ומרשים — כותרת, רשימה, כפתור — אבל כשממלאים את הטופס ולוחצים 'שלח', כלום לא נשמר. הטופס לא מחובר. ה-AI בנה הרבה ומהר, וחלק לא באמת עובד. טוב שבדקתם. עלה תור אחד.",
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div><div class="a-sub">ההמלצות החמות בשכונה</div></div>
+                <div class="a-pad" style="flex:1">
+                  <div class="a-card"><div class="t">כדורסל בפארק</div><div class="d">פארק הזוג · חינם</div></div>
+                  <div class="a-card"><div class="t">ערב משחקי קופסה</div><div class="d">מרכז הנוער · שישי</div></div>
+                </div>
+                <div class="a-pad" style="padding-top:0"><button class="a-btn">${ic('plus')} הצע פעילות</button></div>`,
+          choices:[
+            {scope:"focused", style:"specified", outcome:"advance", to:"core-working",
+             label:"חבר את הטופס לרשימה: פעילות שנשלחת נשמרת ומופיעה למעלה.",
+             asksFor:"מבקש: תיקון אחד, מדויק",
+             reveal:"חיברתם את החלק שהיה מנותק. עכשיו כשמציעים פעילות — היא באמת נשמרת ומופיעה. השלד הפך לאפליקציה שעובדת.",
+             lesson:"אחרי פרומפט רחב — התיקון הממוקד שמחבר את החלקים הוא הזהב."},
+            {scope:"focused", style:"specified", outcome:"setback", to:"list-cosmetic-broken",
+             label:"הוסף עוד כרטיסי פעילות לדוגמה לרשימה.",
+             asksFor:"מבקש: דבר אחד, מוגדר",
+             reveal:"הוספתם תוכן — אבל הטופס עדיין מנותק. עכשיו יש עוד פעילויות דמה שאי אפשר להוסיף אליהן, והבעיה האמיתית רק הוסתרה.",
+             lesson:"בלי בדיקה, קל להוסיף עוד על גבי מה ששבור בלי לדעת."},
+            {scope:"broad", style:"specified", outcome:"setback", to:"overbuilt",
+             label:"עכשיו תוסיף פרופיל, צ'אט, לייקים ומפה — הכל.",
+             asksFor:"מבקש: 4 פיצ'רים בבת אחת",
+             reveal:"עכשיו כבר יש לכם שלד — ופרומפט רחב סיכן אותו. הלייקים דרסו את הרשימה, הצ'אט תפס את המסך. הפאזה מתחלפת: מכאן רוחב שובר.",
+             lesson:"ברגע שיש מה להגן עליו — רחב מפסיק להיות ידיד."},
+            {scope:"focused", style:"vague", outcome:"setback", to:"vague-moved",
+             label:"תשפר את המסך שיראה יותר מקצועי.",
+             asksFor:"מבקש: 'לשפר', בלי לפרט",
+             reveal:"ה-AI 'שיפר': הזיז את הכפתור לראש המסך והקטין את הרשימה. משהו שעבד — זז ממקומו.",
+             lesson:"'תשפר' בלי פירוט = שינויים שלא ביקשתם."}
+          ]
+        },
+        {
+          /* CONVERGENCE + PHASE FLIP: a working core action exists. Now surgical wins, broad breaks. */
+          id:"core-working", name:"פעולה עובדת", progress:75, looksFine:true,
+          testReveal:"בדקתם: הצעתם פעילות, קיבלתם אישור, היא הופיעה ברשימה. הפעם הכל מחובר ועובד. נשאר ליטוש. עלה תור אחד.",
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div><div class="a-sub">ההמלצות החמות בשכונה</div></div>
+                <div class="a-toast">${ic('check')} הפעילות נוספה!</div>
+                <div class="a-pad" style="flex:1">
+                  <div class="a-card"><div class="t">כדורסל בפארק</div><div class="d">פארק הזוג · חינם · אחה"צ</div></div>
+                  <div class="a-card"><div class="t">ערב משחקי קופסה</div><div class="d">מרכז הנוער · שישי</div></div>
+                </div>
+                <div class="a-pad" style="padding-top:0"><button class="a-btn">${ic('plus')} הצע פעילות</button></div>`,
+          choices:[
+            {scope:"focused", style:"specified", outcome:"advance", to:"first-screen-working",
+             label:"ליטוש אחרון: כותרת ברורה, כפתור 'הצע פעילות' קבוע למטה, מרווחים נקיים.",
+             asksFor:"מבקש: ליטוש אחד, מדויק",
+             reveal:"מסך ראשון עובד: כותרת, רשימת המלצות אמיתית, וכפתור קבוע שפותח טופס שנשמר. פעולה מרכזית אחת — שלמה.",
+             lesson:"בשלב הזה כל צעד ממוקד מוסיף בלי לסכן. זה 'מסך ראשון עובד'."},
+            {scope:"focused", style:"specified", outcome:"advance", to:"first-screen-working",
+             label:"שכתב את משפט ההסבר שיהיה ברור ומזמין — בלי לגעת בשאר.",
+             asksFor:"מבקש: שינוי טקסט אחד, תחום",
+             reveal:"שיניתם בדיוק דבר אחד — המשפט — ושום דבר אחר לא זז. המסך מוכן ועובד. יש כמה דרכים נכונות לסיים, וכולן ממוקדות.",
+             lesson:"פרומפט ממוקד ותחום מדגיש בדיוק מה מותר לגעת בו."},
+            {scope:"broad", style:"specified", outcome:"setback", to:"overbuilt",
+             label:"עכשיו תוסיף פרופיל, צ'אט, מפה והתראות — הכל ביחד.",
+             asksFor:"מבקש: 4 פיצ'רים בבת אחת",
+             reveal:"בהתחלה 'בגדול' עבד לכם — אבל עכשיו יש מסך שעובד, ופרומפט רחב סיכן אותו. הרשימה נשברה, הכפתור נעלם. שנייה לפני הסיום, חזרתם אחורה.",
+             lesson:"זה הלב: אותו רוחב שניצח בתור 1 שובר בתור הזה. הפאזה קובעת, לא הגודל."},
+            {scope:"focused", style:"vague", outcome:"setback", to:"vague-moved",
+             label:"תעשה שיהיה יותר יפה.",
+             asksFor:"מבקש: 'יפה', בלי לפרט",
+             reveal:"ה-AI ניחש 'יפה' והזיז את הכפתור והרשימה. על מסך שעבד, זה סתם סיכן את מה שהיה מוכן.",
+             lesson:"ככל שמתקדמים, מעורפל מסוכן יותר — יש יותר מה לקלקל."}
+          ]
+        },
+
+        /* ---------- GOAL ---------- */
+        {
+          id:"first-screen-working", name:"מסך ראשון עובד", progress:100, looksFine:true, goal:true,
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div><div class="a-sub">ההמלצות החמות בשכונה שלך</div></div>
+                <div class="a-pad" style="flex:1">
+                  <div class="a-card"><div class="t">כדורסל בפארק</div><div class="d">פארק הזוג · חינם · כל אחה"צ</div></div>
+                  <div class="a-card"><div class="t">ערב משחקי קופסה</div><div class="d">מרכז הנוער · חינם · שישי</div></div>
+                  <div class="a-card"><div class="t">ריצת בוקר בטיילת</div><div class="d">הטיילת · חינם · 7:00</div></div>
+                </div>
+                <div class="a-pad" style="padding-top:0"><button class="a-btn">${ic('plus')} הצע פעילות</button></div>
+                <div class="a-nav"><div class="on">${ic('heart')}בית</div><div>${ic('users')}חברים</div><div>${ic('plus')}הצעה</div></div>`,
+          choices:[]
+        },
+
+        /* ---------- SETBACK / RECOVERY (never a dead end; the cost is the lesson) ---------- */
+        {
+          id:"everything-half", name:"הכול-חצי", progress:12, looksFine:false,
+          testReveal:"בדיקה מאשרת את הבלגן: משלושת כפתורי 'שלח', אחד שולח, אחד מוחק והשלישי לא מגיב. הפרופיל נפתח בתוך הצ'אט. שום מסך לא שלם.",
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div><div class="a-sub" style="color:#c23b48">בית · רשימה · פרופיל · צ'אט — הכל ביחד</div></div>
+                <div class="a-pad a-messy" style="flex:1">
+                  <div class="a-card a-broken"><div class="t">פרופיל (נפתח בטעות בתוך הצ'אט)</div><div class="d">כפתורים שלא עובדים</div></div>
+                  <div class="a-card"><div class="t">רשימה ריקה</div><div class="d">אין נתונים עדיין</div></div>
+                  <div class="a-overlap" style="display:flex;flex-direction:column;gap:8px">
+                    <button class="a-btn">שלח</button><button class="a-btn">שלח</button><button class="a-btn">שלח</button>
+                  </div>
+                </div>`,
+          choices:[
+            {scope:"focused", style:"specified", outcome:"setback", to:"untangle-1",
+             label:"בוא נפרק: מחק הכל חוץ ממסך בית עם כותרת.",
+             asksFor:"מבקש: לפרק, צעד מדויק",
+             reveal:"התחלתם לפרק — מחקתם צ'אט, פרופיל ורשימה ריקה. נשאר בסיס נקי יותר, אבל זה עלה תור.",
+             lesson:"לפרק בלגן לוקח תורים. פרומפט ראשון מפורט היה חוסך אותם."},
+            {scope:"focused", style:"vague", outcome:"setback", to:"everything-worse",
+             label:"תסדר את זה שיעבוד.",
+             asksFor:"מבקש: 'לסדר', בלי לפרט",
+             reveal:"'תסדר' על בלגן = בלגן גדול יותר. ה-AI הוסיף כפתור 'שלח' רביעי כדי 'לאחד'. הוא לא אתם — הוא רק ניחש.",
+             lesson:"מעורפל על שבור = שבור יותר. צריך הוראה מדויקת."}
+          ]
+        },
+        {
+          id:"everything-worse", name:"הכול-גרוע-יותר", progress:8, looksFine:false,
+          testReveal:"ארבעה כפתורי 'שלח', שניים מהם מוחקים דברים. הבלגן גדל. צריך לפרק ידנית.",
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div><div class="a-sub" style="color:#c23b48">מצב: מבולגן יותר</div></div>
+                <div class="a-pad a-messy" style="flex:1">
+                  <div class="a-card a-broken"><div class="t">ארבעה כפתורי 'שלח'</div><div class="d">שניים מוחקים במקום לשלוח</div></div>
+                  <div class="a-overlap" style="display:flex;flex-direction:column;gap:8px">
+                    <button class="a-btn">שלח</button><button class="a-btn">שלח</button><button class="a-btn">שלח</button><button class="a-btn">שלח</button>
+                  </div>
+                </div>`,
+          choices:[
+            {scope:"focused", style:"specified", outcome:"setback", to:"untangle-1",
+             label:"מספיק לנחש — מחק הכל חוץ ממסך בית עם כותרת.",
+             asksFor:"מבקש: לפרק, צעד מדויק",
+             reveal:"סוף סוף הוראה מדויקת. מחקתם הכל חוץ מהבסיס. הפסדתם עוד תור על 'תסדר' — אבל עכשיו אתם שוב בכיוון.",
+             lesson:"הוראה מדויקת מנקה מה ש'תסדר' רק סיבך."}
+          ]
+        },
+        {
+          id:"untangle-1", name:"בסיס נקי", progress:26, looksFine:true,
+          testReveal:"בדקתם: נשאר מסך בית נקי עם כותרת. הבלגן נמחק. אפשר להמשיך מכאן. עלה תור אחד.",
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div><div class="a-sub">חזרנו לבסיס נקי</div></div>
+                <div class="a-warn">${ic('warn')} ניקינו את הבלגן. מכאן ממשיכים בזהירות.</div>
+                <div class="a-empty" style="padding:20px"><div class="big">${ic('heart')}</div><b>מסך בית נקי</b><span>עכשיו בונים בזהירות</span></div>`,
+          choices:[
+            {scope:"broad", style:"specified", outcome:"advance", to:"scaffold-rich",
+             label:"עכשיו שנקי — בנה את הרשימה והטופס ביחד, עם פירוט מה כל אחד עושה.",
+             asksFor:"מבקש: כמה חלקים, עם פירוט",
+             reveal:"חזרתם לבסיס נקי, וכאן שוב אין מה לשבור — אז פרומפט רחב ומפורט מקפיץ אתכם קדימה. הפעם עם הקשר.",
+             lesson:"רוחב עובד כשהשלד נקי והפירוט מלא."},
+            {scope:"focused", style:"specified", outcome:"advance", to:"home-button",
+             label:"צעד בטוח: הוסף כפתור 'הצע פעילות' בלבד.",
+             asksFor:"מבקש: דבר אחד, מוגדר",
+             reveal:"חזרתם לדרך הבטוחה — כפתור אחד, מוגדר. ממשיכים צעד אחר צעד.",
+             lesson:"אחרי בלגן, כל דרך נקייה קדימה טובה."}
+          ]
+        },
+        {
+          id:"list-cosmetic-broken", name:"תוכן על טופס מת", progress:50, looksFine:false,
+          testReveal:"בדיקה מאשרת: הרשימה מלאה בפעילויות דמה יפות — אבל כפתור 'שלח' בטופס לא מוסיף אף אחת. בניתם תצוגה מעל יסוד שלא מחובר.",
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div></div>
+                <div class="a-pad" style="flex:1">
+                  <div class="a-card"><div class="t">פעילות דמה 1</div><div class="d">נראה טוב — אבל לא באמת נוסף</div></div>
+                  <div class="a-card"><div class="t">פעילות דמה 2</div><div class="d">תצוגה בלבד</div></div>
+                  <button class="a-btn a-dead">${ic('check')} שלח (לא מחובר)</button>
+                </div>`,
+          choices:[
+            {scope:"focused", style:"specified", outcome:"setback", to:"list-cosmetic-fix",
+             label:"עצור. הורד את פעילויות הדמה וחבר קודם את הטופס.",
+             asksFor:"מבקש: לתקן את היסוד, מדויק",
+             reveal:"התחלתם לתקן: הורדתם את הקישוט שנבנה מוקדם מדי. עכשיו אפשר לחבר את הטופס כמו שצריך — אבל זה כבר התור השני על התיקון.",
+             lesson:"תצוגה יפה מעל יסוד שבור צריך לפרק לפני שמתקנים."}
+          ]
+        },
+        {
+          id:"list-cosmetic-fix", name:"מתקנים יסוד", progress:62, looksFine:true,
+          testReveal:"בדקתם: הדמה הוסרה, הטופס לבד ומוכן לחיבור. עלה תור אחד.",
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div></div>
+                <div class="a-warn">${ic('warn')} הורדנו את פעילויות הדמה. עכשיו מחברים את הטופס נכון.</div>
+                <div class="a-pad"><div class="a-label">שם הפעילות</div><div class="a-field">כדורסל בפארק</div>
+                <button class="a-btn">${ic('check')} שלח</button></div>`,
+          choices:[
+            {scope:"focused", style:"specified", outcome:"advance", to:"core-working",
+             label:"עכשיו חבר את הטופס: פעילות שנשלחת נשמרת ומופיעה ברשימה.",
+             asksFor:"מבקש: תיקון אחד, מדויק",
+             reveal:"חיברתם את הטופס כמו שצריך. שוב בדרך הנקייה — פשוט הגעתם לכאן בשני תורים במקום אחד.",
+             lesson:"בדיוק זה: דילוג על בדיקה עלה תור כפול."}
+          ]
+        },
+        {
+          id:"overbuilt", name:"נבנה יותר מדי", progress:40, looksFine:false,
+          testReveal:"בדיקה מאשרת: הפרופיל, הצ'אט והמפה תפסו את המסך, והרשימה שעבדה נדחקה ונשברה. כפתור 'הצע פעילות' מוסתר. יותר מדי בבת אחת שבר את מה שעבד.",
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div><div class="a-sub" style="color:#c23b48">פרופיל · צ'אט · מפה · התראות — נדחסו על המסך שעבד</div></div>
+                <div class="a-pad a-messy" style="flex:1">
+                  <div class="a-card a-broken"><div class="t">צ'אט שנפתח מעל הרשימה</div><div class="d">הרשימה שעבדה נדחקה ונשברה</div></div>
+                  <div class="a-card a-dead"><div class="t">מפה ריקה</div><div class="d">נטענת ולא מסתיימת</div></div>
+                </div>`,
+          choices:[
+            {scope:"focused", style:"specified", outcome:"setback", to:"untangle-2",
+             label:"בטל את הפרופיל, הצ'אט והמפה. חזור למסך שעבד.",
+             asksFor:"מבקש: להסיר תוספות, מדויק",
+             reveal:"התחלתם להסיר את מה שדחסתם. אם שמרתם גרסה קודם — 'חזור לגרסה' היה מחזיר אתכם בתור אחד במקום שניים.",
+             lesson:"שמירה לפני מהלך רחב = חבל הצלה של תור אחד."}
+          ]
+        },
+        {
+          id:"untangle-2", name:"מנקים תוספות", progress:58, looksFine:true,
+          testReveal:"בדקתם: התוספות הוסרו, המסך נקי שוב, נשאר לחבר מחדש את הפעולה. עלה תור אחד.",
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div><div class="a-sub">חזרנו למסך נקי</div></div>
+                <div class="a-warn">${ic('warn')} הסרנו את הפרופיל, הצ'אט והמפה. עכשיו מחזירים את הפעולה שעבדה.</div>
+                <div class="a-pad"><div class="a-card"><div class="t">כדורסל בפארק</div><div class="d">פארק הזוג · חינם</div></div>
+                <button class="a-btn">${ic('plus')} הצע פעילות</button></div>`,
+          choices:[
+            {scope:"focused", style:"specified", outcome:"advance", to:"core-working",
+             label:"חבר מחדש: הטופס שומר פעילות והיא מופיעה ברשימה.",
+             asksFor:"מבקש: תיקון אחד, מדויק",
+             reveal:"חזרתם למסך שעובד. הפאזה החמדנית עלתה לכם שני תורים — בדיוק מה שגרסה שמורה הייתה חוסכת.",
+             lesson:"רחב בזמן הלא נכון עלה יקר. ממוקד החזיר אתכם."}
+          ]
+        },
+        {
+          id:"pretty-mess", name:"'יפה' מעורפל", progress:6, looksFine:true,
+          testReveal:"בדקתם: המסך צבעוני בפסים ורודים, כותרת ענקית, ועדיין ריק מתוכן. יפה זה לא שימושי. עלה תור אחד.",
+          mock:`<div class="a-head a-ugly"><div class="a-logo" style="font-size:26px">מגניב-לי!!!</div></div>
+                <div class="a-ugly" style="flex:1;display:flex;align-items:center;justify-content:center;color:#c26bd1;font-weight:800;text-align:center;padding:20px">
+                  פסים ורודים וכותרת ענקית — אבל שום דבר לא עושה כלום
+                </div>`,
+          choices:[
+            {scope:"broad", style:"specified", outcome:"advance", to:"scaffold-rich",
+             label:"בנה מסך ראשון שלם: כותרת, רשימת פעילויות וכפתור שפותח טופס — עם פירוט.",
+             asksFor:"מבקש: מסך שלם, עם פירוט",
+             reveal:"החלפתם 'יפה' בהקשר מלא — ובבת אחת קיבלתם שלד עשיר. ככה נראה פרומפט ראשון מנצח.",
+             lesson:"בהתחלה: החליפו מילים מעורפלות בהקשר מפורט, לא בצעד קטן."},
+            {scope:"focused", style:"specified", outcome:"advance", to:"home-title",
+             label:"עזוב 'יפה'. בנה מסך בית עם כותרת ומשפט הסבר קצר.",
+             asksFor:"מבקש: דבר אחד, מוגדר",
+             reveal:"חזרתם להוראה מדויקת — וקיבלתם מסך בית אמיתי. ה'יפה' המעורפל עלה תור.",
+             lesson:"מדויק תמיד מנצח מעורפל. גם ב'יפה'."}
+          ]
+        },
+        {
+          id:"vague-moved", name:"'שיפור' שהזיז", progress:24, looksFine:false,
+          testReveal:"בדיקה חשפה: ה'שיפור' הזיז אלמנט שעבד והסתיר חלק ממנו. צריך להחזיר ידנית.",
+          mock:`<div class="a-pad" style="flex:1;display:flex;flex-direction:column;justify-content:space-between">
+                  <button class="a-btn" style="margin-top:10px">כפתור שקפץ למעלה</button>
+                  <div class="a-warn">${ic('warn')} 'השיפור' הזיז דברים שעבדו. משהו מוסתר עכשיו מתחת לשדה.</div>
+                  <div class="a-head" style="opacity:.5"><div class="a-logo" style="font-size:14px">מגניב-לי (זז לתחתית)</div></div>
+                </div>`,
+          choices:[
+            {scope:"focused", style:"specified", outcome:"advance", to:"home-button",
+             label:"החזר סדר: כותרת למעלה, כפתור 'הצע פעילות' במקומו.",
+             asksFor:"מבקש: להחזיר למקום, מדויק",
+             reveal:"החזרתם ידנית את מה שה'שיפור' הזיז. שוב מסודר — אבל תור הלך על תיקון של מה שלא היה שבור.",
+             lesson:"'תשפר' עלה תור. הוראה מדויקת הייתה חוסכת אותו."}
+          ]
+        }
+      ]
+    },
+
+    /* ========================================================
+       SCENARIO 2 — מתי-פנוי  (alternate — demonstrates config pattern)
+       ======================================================== */
+    {
+      id:"matay-panuy",
+      appName:"מתי-פנוי",
+      tagline:"אפליקציה שבה חברים מסמנים מתי הם פנויים, כדי למצוא זמן משותף להיפגש.",
+      icon:"clock",
+      goalStateId:"panuy-goal",
+      goalText:"מסך בית עובד עם פעולה מרכזית אחת: לסמן מתי אני פנוי",
+      startStateId:"p-empty",
+      states:[
+        {
+          id:"p-empty", name:"מסך ריק", progress:0, looksFine:true,
+          testReveal:"אין עדיין מה לבדוק — המסך ריק. אבל הרגל טוב. עלה תור אחד.",
+          mock:`<div class="a-empty"><div class="big">${ic('cal')}</div><b>מסך ריק</b><span>עוד לא ביקשתם כלום מה-AI</span></div>`,
+          choices:[
+            {label:"בנה מסך בית עם הכותרת 'מתי-פנוי' ומשפט הסבר קצר", type:"small", to:"p-title",
+             reveal:"צעד אחד ברור — כותרת ומשפט. ה-AI בנה בדיוק את זה.",
+             lesson:"מתחילים מדבר אחד מוגדר."},
+            {label:"בנה הכל: לוח שבועי, רשימת חברים, התראות ופגישות", type:"greedy", to:"p-everything", comicBeat:true,
+             reveal:"ביקשתם הכול בבת אחת — וקיבלתם הכול חצי. יש עכשיו שלושה כפתורי 'שמור', כל אחד שומר יום אחר, ורשימת החברים פתוחה בתוך הלוח.",
+             lesson:"חמישה דברים במשפט אחד — ה-AI התבלבל, לא אתם."},
+            {label:"תעשה שיהיה נקי ומודרני", type:"vague", to:"p-pretty",
+             reveal:"'נקי ומודרני' זה לא הוראה. ה-AI מחק את רוב הטקסט והשאיר מסך אפור וריק שנראה 'מודרני' אבל לא עושה כלום.",
+             lesson:"מעורפל = ה-AI מנחש, ובדרך כלל לא נכון."}
+          ]
+        },
+        {
+          id:"p-title", name:"בית — כותרת", progress:18, looksFine:true,
+          testReveal:"בדקתם: הכותרת מוצגת, המסך נטען תקין. עלה תור אחד.",
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div><div class="a-sub">סמנו מתי אתם פנויים ומצאו זמן משותף עם החברים</div></div>
+                <div class="a-empty"><div class="big">${ic('cal')}</div><b>עוד לא סימנתם זמנים</b><span>בקרוב יהיה כאן לוח שבועי</span></div>`,
+          choices:[
+            {label:"הוסף שורת ימים: א׳–ש׳ ככפתורים", type:"small", to:"p-days",
+             reveal:"נוספה שורת ימים נקייה, א׳ עד ש׳. עדיין לא לוחצים עליהם — צעד אחד בכל פעם.",
+             lesson:"קודם המבנה, אחר כך ההתנהגות."},
+            {label:"תוסיף גם לוח, גם חברים, גם התראות עכשיו", type:"greedy", to:"p-everything",
+             reveal:"שוב הכול-ביחד. הלוח, החברים וההתראות נדחסו והכותרת שעבדה נעלמה מתחת לערימה.",
+             lesson:"כל תוספת גדולה מסתבכת עם מה שכבר עבד."},
+            {label:"תשפר את העיצוב", type:"vague", to:"p-vague-moved",
+             reveal:"ה-AI 'שיפר': הזיז את הכותרת הצידה והוסיף רקע כהה שבולע את הטקסט. מה שעבד — זז ונעלם.",
+             lesson:"'תשפר' בלי פירוט = שינויים שלא ביקשתם."}
+          ]
+        },
+        {
+          id:"p-days", name:"בית — ימים", progress:32, looksFine:true,
+          testReveal:"בדקתם: כפתורי הימים מוצגים ומגיבים ללחיצה בהדגשה. הם עדיין לא שומרים כלום — כי בזה לא התחלתם. הכל צפוי. עלה תור אחד.",
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div><div class="a-sub">באילו ימים אתם פנויים השבוע?</div></div>
+                <div class="a-pad">
+                  <span class="a-chip">א׳</span><span class="a-chip">ב׳</span><span class="a-chip">ג׳</span><span class="a-chip">ד׳</span><span class="a-chip">ה׳</span><span class="a-chip">ו׳</span><span class="a-chip">ש׳</span>
+                </div>
+                <div class="a-empty" style="padding:14px"><div class="big">${ic('clock')}</div><span>בחרו יום כדי לסמן שאתם פנויים</span></div>`,
+          choices:[
+            {label:"שלחיצה על יום תסמן אותו כ'פנוי' ותדגיש אותו", type:"small", to:"p-toggle",
+             reveal:"עכשיו לחיצה על יום מדגישה אותו בירוק כ'פנוי'. פעולה אחת, ברורה.",
+             lesson:"התנהגות אחת בכל פעם."},
+            {label:"תוסיף שמירה, חברים, שיתוף ומיזוג לוחות — הכל", type:"greedy", to:"p-everything",
+             reveal:"חבילה שלמה בפרומפט אחד — והכול חצי. השמירה מחוברת לשיתוף, המיזוג שובר את הלוח, וכפתורי הימים הפסיקו להגיב.",
+             lesson:"פיצ'רים שנבנים ביחד בחיפזון נשברים ביחד."},
+            {label:"תעשה את הימים יותר צבעוניים וכיפיים", type:"vague", to:"p-vague-moved",
+             reveal:"ה-AI צבע כל יום בצבע אחר — וגם הגדיל אותם כל כך שרק שלושה נכנסים למסך. השאר נחתכו.",
+             lesson:"מעורפל = מקבלים גם מה שלא ביקשתם."}
+          ]
+        },
+        {
+          /* HIDDEN BREAKAGE: highlight works visually but selection isn't stored */
+          id:"p-toggle", name:"בית — סימון", progress:47, looksFine:false,
+          testReveal:"בדיקה חשפה תקלה נסתרת: היום נצבע בירוק כשלוחצים — אבל אם יוצאים מהמסך וחוזרים, הסימון נעלם. הבחירה לא נשמרת בכלל. טוב שבדקתם לפני שבניתם עליה סיכום. עלה תור אחד.",
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div><div class="a-sub">בחרו את הימים הפנויים</div></div>
+                <div class="a-pad">
+                  <span class="a-chip" style="background:#dff5e8;color:#177a4b">א׳ ✓</span><span class="a-chip">ב׳</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">ג׳ ✓</span><span class="a-chip">ד׳</span><span class="a-chip">ה׳</span><span class="a-chip">ו׳</span><span class="a-chip">ש׳</span>
+                </div>
+                <div class="a-empty" style="padding:14px"><span>הימים מודגשים — אבל מה קורה כשחוזרים למסך?</span></div>`,
+          choices:[
+            {label:"חבר את הסימון: שהבחירה תישמר ותישאר גם אחרי יציאה", type:"small", to:"p-toggle-fixed",
+             reveal:"עכשיו הסימון באמת נשמר: יוצאים וחוזרים — הימים הפנויים עדיין שם. זה הצעד שהיה חסר.",
+             lesson:"הצעד המשעמם — לשמור — הוא בדרך כלל הקריטי."},
+            {label:"הוסף כבר מסך 'זמן משותף' שמציג מתי כולם פנויים", type:"small", to:"p-summary-broken", outcome:"repair",
+             reveal:"בניתם מסך סיכום מעל סימון שלא נשמר. התוצאה: 'זמן משותף' מציג ריק תמיד, כי אין נתונים שמורים. קומה שנייה על יסוד לא יצוק.",
+             lesson:"בדיקה הייתה מראה שהסימון לא נשמר — לפני שבניתם עליו."},
+            {label:"תעשה את המסך הזה יותר יפה", type:"vague", to:"p-vague-moved",
+             reveal:"ה-AI ריפד בצבעים, ובדרך הסתיר חלק מהימים מאחורי כרטיס דקורטיבי. עכשיו אי אפשר ללחוץ על חלקם — וזה עוד לפני שנשמר.",
+             lesson:"מעורפל על משהו שביר = שביר יותר."}
+          ]
+        },
+        {
+          id:"p-toggle-fixed", name:"סימון נשמר", progress:64, looksFine:true,
+          testReveal:"בדקתם: סימנתם ימים, יצאתם וחזרתם — הסימון נשאר. הפעם באמת עובד. עלה תור אחד.",
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div></div>
+                <div class="a-toast">${ic('check')} הימים הפנויים נשמרו!</div>
+                <div class="a-pad">
+                  <span class="a-chip" style="background:#dff5e8;color:#177a4b">א׳ ✓</span><span class="a-chip">ב׳</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">ג׳ ✓</span><span class="a-chip">ד׳</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">ה׳ ✓</span><span class="a-chip">ו׳</span><span class="a-chip">ש׳</span>
+                </div>`,
+          choices:[
+            {label:"הצג למטה סיכום: 'אתה פנוי ב: א׳, ג׳, ה׳'", type:"small", to:"p-summary",
+             reveal:"נוסף סיכום חי מתחת ללוח: 'אתה פנוי ב: א׳, ג׳, ה׳'. מתעדכן לפי מה שנשמר. אמיתי, כי הסימון מחובר.",
+             lesson:"כשהיסוד יצוק, כל קומה נבנית חלק."},
+            {label:"תוסיף חברים, מיזוג לוחות, צ'אט והתראות — הכל", type:"greedy", to:"p-everything",
+             reveal:"היה לכם סימון עובד — ואז ביקשתם ארבעה פיצ'רים ביחד. עכשיו המיזוג מוחק ימים, ההתראות שוברות את הלוח, והסימון שעבד נשבר.",
+             lesson:"אפילו על בסיס עובד, חמדנות הורסת את מה שעבד."}
+          ]
+        },
+        {
+          id:"p-summary", name:"סיכום חי", progress:84, looksFine:true,
+          testReveal:"בדקתם: הסיכום מתעדכן לפי הימים שסימנתם, הכל מחובר ונשמר. נשאר ליטוש אחרון. עלה תור אחד.",
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div><div class="a-sub">הזמנים הפנויים שלך השבוע</div></div>
+                <div class="a-pad">
+                  <span class="a-chip" style="background:#dff5e8;color:#177a4b">א׳ ✓</span><span class="a-chip">ב׳</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">ג׳ ✓</span><span class="a-chip">ד׳</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">ה׳ ✓</span><span class="a-chip">ו׳</span><span class="a-chip">ש׳</span>
+                  <div class="a-card" style="margin-top:8px"><div class="t">${ic('check')} אתה פנוי ב: א׳, ג׳, ה׳</div><div class="d">שתף כדי למצוא זמן משותף</div></div>
+                </div>`,
+          choices:[
+            {label:"ליטוש אחרון: כותרת ברורה, לוח מסודר, כפתור 'שמור' קבוע", type:"small", to:"panuy-goal",
+             reveal:"מסך ראשון עובד: לוח שבועי, סימון שנשמר, וסיכום חי של הזמנים הפנויים. פעולה מרכזית אחת — שלמה.",
+             lesson:"זה 'מסך ראשון עובד'. דבר אחד, שלם."},
+            {label:"עכשיו תוסיף חברים, מפה, צ'אט והתראות", type:"greedy", to:"p-everything",
+             reveal:"היה לכם מסך כמעט מוכן — וביקשתם עוד ארבעה. הכל נדחס, הלוח שעבד נשבר, וחזרתם לערימה חצי-בנויה.",
+             lesson:"שנייה לפני הסיום, חמדנות זורקת אחורה."}
+          ]
+        },
+
+        /* ---------- GOAL ---------- */
+        {
+          id:"panuy-goal", name:"מסך ראשון עובד", progress:100, looksFine:true, goal:true,
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div><div class="a-sub">הזמנים הפנויים שלך השבוע</div></div>
+                <div class="a-pad" style="flex:1">
+                  <span class="a-chip" style="background:#dff5e8;color:#177a4b">א׳ ✓</span><span class="a-chip">ב׳</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">ג׳ ✓</span><span class="a-chip">ד׳</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">ה׳ ✓</span><span class="a-chip">ו׳</span><span class="a-chip">ש׳</span>
+                  <div class="a-card" style="margin-top:10px"><div class="t">${ic('check')} אתה פנוי ב: א׳, ג׳, ה׳</div><div class="d">שתף עם חברים כדי למצוא זמן משותף</div></div>
+                </div>
+                <div class="a-pad" style="padding-top:0"><button class="a-btn">${ic('save')} שמור זמינות</button></div>
+                <div class="a-nav"><div class="on">${ic('cal')}הלוח שלי</div><div>${ic('users')}חברים</div><div>${ic('clock')}משותף</div></div>`,
+          choices:[]
+        },
+
+        /* ---------- REPAIR / SETBACK ---------- */
+        {
+          id:"p-everything", name:"הכול-חצי", progress:22, looksFine:false,
+          testReveal:"בדיקה מאשרת את הבלגן: משלושת כפתורי 'שמור', אחד שומר, אחד מוחק והשלישי לא מגיב. רשימת החברים פתוחה בתוך הלוח. שום מסך לא שלם.",
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div><div class="a-sub" style="color:#c23b48">לוח · חברים · התראות · פגישות — הכל ביחד</div></div>
+                <div class="a-pad a-messy" style="flex:1">
+                  <div class="a-card a-broken"><div class="t">רשימת חברים (נפתחה בטעות בתוך הלוח)</div><div class="d">כפתורים שלא מגיבים</div></div>
+                  <div class="a-overlap" style="display:flex;flex-direction:column;gap:8px">
+                    <button class="a-btn">שמור</button><button class="a-btn">שמור</button><button class="a-btn">שמור</button>
+                  </div>
+                </div>`,
+          choices:[
+            {label:"בוא נפרק: מחק הכול חוץ ממסך הבית עם הכותרת", type:"small", to:"p-untangle", outcome:"repair",
+             reveal:"התחלתם לפרק — מחקתם התראות, פגישות וחברים. נשאר בסיס נקי יותר, אבל זה עלה תור, ועוד אחד יבוא.",
+             lesson:"לפרק בלגן לוקח כמה תורים. לבנות נקי — לא."},
+            {label:"תסדר את זה שיעבוד", type:"vague", to:"p-untangle", outcome:"repair",
+             reveal:"'תסדר' על בלגן = ה-AI ניחש שוב והוסיף כפתור 'שמור' רביעי כדי 'לאחד'. בסוף נאלצתם לפרק ידנית בכל זאת.",
+             lesson:"מעורפל על שבור = שבור יותר. צריך הוראה מדויקת."}
+          ]
+        },
+        {
+          id:"p-untangle", name:"מפרקים", progress:28, looksFine:true,
+          testReveal:"בדקתם: נשאר מסך בית נקי עם כותרת, הבלגן נמחק. אפשר להמשיך צעד-צעד. עלה תור אחד.",
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div><div class="a-sub">חזרנו לבסיס נקי</div></div>
+                <div class="a-warn">${ic('warn')} ניקינו את הבלגן. מכאן ממשיכים צעד אחד בכל פעם.</div>
+                <div class="a-empty" style="padding:20px"><div class="big">${ic('cal')}</div><b>מסך בית נקי</b><span>עכשיו בונים לאט ובזהירות</span></div>`,
+          choices:[
+            {label:"הוסף שורת ימים א׳–ש׳ — צעד אחד בלבד", type:"small", to:"p-days",
+             reveal:"חזרתם לדרך הנכונה: שורת ימים אחת, מוגדרת. ממשיכים כמו שצריך — צעד אחר צעד.",
+             lesson:"הדרך החוצה מבלגן היא בדיוק הדרך שהיה כדאי ללכת מלכתחילה."}
+          ]
+        },
+        {
+          id:"p-summary-broken", name:"סיכום שבור", progress:50, looksFine:false,
+          testReveal:"בדיקה מאשרת: מסך 'זמן משותף' מציג ריק תמיד, כי הסימון שמתחתיו אף פעם לא נשמר. בניתם על יסוד שלא יצוק.",
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div></div>
+                <div class="a-pad" style="flex:1">
+                  <div class="a-card a-broken"><div class="t">${ic('warn')} זמן משותף: ריק</div><div class="d">אין ימים שמורים — הסימון לא נשמר מעולם</div></div>
+                  <div class="a-card a-dead"><div class="t">הלוח מסמן, אבל שוכח</div><div class="d">כל יציאה מאפסת הכל</div></div>
+                </div>`,
+          choices:[
+            {label:"עצור. בטל את מסך הסיכום וחבר קודם את הסימון", type:"small", to:"p-summary-fix", outcome:"repair",
+             reveal:"התחלתם לתקן: הורדתם את מסך הסיכום שנבנה מוקדם מדי. עכשיו אפשר לחבר את הסימון — אבל זה כבר התור השני על התיקון.",
+             lesson:"קומה על יסוד רעוע צריך לפרק לפני שמתקנים את היסוד."}
+          ]
+        },
+        {
+          id:"p-summary-fix", name:"מתקנים יסוד", progress:58, looksFine:true,
+          testReveal:"בדקתם: הסיכום הורד, הסימון לבד ומוכן לחיבור. עלה תור אחד.",
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div></div>
+                <div class="a-warn">${ic('warn')} הורדנו את הסיכום. עכשיו מחברים את הסימון נכון.</div>
+                <div class="a-pad"><span class="a-chip" style="background:#dff5e8;color:#177a4b">א׳ ✓</span><span class="a-chip">ב׳</span><span class="a-chip">ג׳</span></div>`,
+          choices:[
+            {label:"עכשיו חבר את הסימון: שהבחירה תישמר", type:"small", to:"p-toggle-fixed",
+             reveal:"חיברתם את הסימון כמו שצריך. שוב בדרך הנקייה — פשוט הגעתם בשני תורים במקום אחד.",
+             lesson:"בדיוק זה: דילוג על בדיקה עלה תורים כפולים."}
+          ]
+        },
+        {
+          id:"p-pretty", name:"'נקי' מעורפל", progress:8, looksFine:true,
+          testReveal:"בדקתם: מסך אפור ריק שנראה 'מודרני' אבל אין בו כלום. נקי זה לא שימושי. עלה תור אחד.",
+          mock:`<div style="flex:1;display:flex;align-items:center;justify-content:center;color:#aab2c9;font-weight:800;text-align:center;padding:24px;background:#f0f1f5">
+                  מסך אפור ו'מודרני' — וריק לגמרי
+                </div>`,
+          choices:[
+            {label:"עזוב 'נקי'. בנה מסך בית עם כותרת ומשפט הסבר", type:"small", to:"p-title", outcome:"repair",
+             reveal:"חזרתם להוראה מדויקת וקיבלתם מסך בית אמיתי. ה'נקי' המעורפל עלה תור.",
+             lesson:"מדויק מנצח מעורפל. תמיד."}
+          ]
+        },
+        {
+          id:"p-vague-moved", name:"'שיפור' שהזיז", progress:26, looksFine:false,
+          testReveal:"בדיקה חשפה: ה'שיפור' הזיז אלמנט שעבד והסתיר חלק ממנו. צריך להחזיר ידנית.",
+          mock:`<div class="a-pad" style="flex:1;display:flex;flex-direction:column;justify-content:space-between">
+                  <div class="a-warn" style="margin-top:10px">${ic('warn')} 'השיפור' הזיז דברים שעבדו — חלק מהימים מוסתרים עכשיו.</div>
+                  <div class="a-head" style="opacity:.5"><div class="a-logo" style="font-size:14px">מתי-פנוי (זז הצידה)</div></div>
+                </div>`,
+          choices:[
+            {label:"החזר סדר: כותרת למעלה, שורת הימים במקומה", type:"small", to:"p-days", outcome:"repair",
+             reveal:"החזרתם ידנית את מה שה'שיפור' הזיז. שוב מסודר — אבל תור הלך על תיקון של מה שלא היה שבור.",
+             lesson:"'תשפר' עלה תור. הוראה מדויקת הייתה חוסכת אותו."}
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+/* ============================================================
+   ENGINE  (scenario-agnostic)
+   ============================================================ */
+const G = {
+  scenario:null, statesById:{}, stateId:null,
+  turns:0, saved:null, history:[], mode:"team",
+  comicSpent:false, order:{}, revealHTML:"", revealType:"placeholder",
+  showTestFlag:false, animate:false, ended:false
+};
+
+/* ---------- choice normalization ----------
+   New model: scope('broad'|'focused') · style('specified'|'vague') ·
+   asksFor(text) · outcome('advance'|'setback'|'discipline').
+   Falls back to the legacy `type` so un-ported scenarios still work. */
+function normChoice(c){
+  const t=c.type;
+  const scope = c.scope || (t==='greedy'?'broad':'focused');
+  const style = c.style || (t==='vague'?'vague':'specified');
+  let outcome = c.outcome;
+  if(!outcome) outcome = (t==='small')?'advance':(t==='discipline'?'discipline':'setback');
+  if(outcome==='repair') outcome='setback';
+  return {scope,style,outcome};
+}
+/* neutral SCOPE tag — never signals good/bad (broad is best early, worst late) */
+function scopeMeta(c){
+  const n=normChoice(c);
+  return n.scope==='broad'
+    ? {cls:'broad',   icon:'layers', label:'רחב'}
+    : {cls:'focused', icon:'step',   label:'ממוקד'};
+}
+/* factual "asks for" line — conveys specificity as a fact, not a verdict */
+function asksLine(c){
+  if(c.asksFor) return c.asksFor;
+  const n=normChoice(c);
+  if(n.style==='vague') return 'מבקש: שינוי כללי, בלי לפרט';
+  return n.scope==='broad' ? 'מבקש: כמה דברים בבת אחת' : 'מבקש: דבר אחד, מוגדר';
+}
+/* shuffle the card order once per state-entry so position is never a tell */
+function displayOrder(st){
+  if(!G.order[st.id]){
+    const idx = st.choices.map((_,i)=>i);
+    for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=idx[i];idx[i]=idx[j];idx[j]=t;}
+    G.order[st.id]=idx;
+  }
+  return G.order[st.id];
+}
+
+const root = document.getElementById('root');
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* ---------- START SCREEN ---------- */
+let sel = { scenarioId: CONFIG.scenarios[0].id, mode:"team" };
+
+function renderStart(){
+  G.ended=false;
+  const m = CONFIG.meta, ui = CONFIG.ui;
+  const scen = CONFIG.scenarios;
+  root.innerHTML = `
+  <div class="screen">
+    <div class="hero">
+      <div class="kicker">${esc(m.kicker)}</div>
+      <h1>${esc(m.title)}</h1>
+      <p class="lead">${esc(m.lead)}</p>
+      <div class="golden">${ic('bolt')} ${esc(m.golden)}</div>
+    </div>
+    <div class="setup-grid">
+      <div class="setup-card">
+        <h3>${ic('screen')} בחרו אפליקציה לבנות</h3>
+        <p class="sub">שני תרחישים — כל אחד לומד את אותם חוקים.</p>
+        <div id="scen-opts">
+          ${scen.map(s=>`
+            <button class="opt ${s.id===sel.scenarioId?'on':''}" data-scen="${s.id}">
+              <span class="oico">${ic(s.icon||'screen')}</span>
+              <span class="otxt"><b>${esc(s.appName)}</b><span>${esc(s.tagline)}</span></span>
+            </button>`).join('')}
+        </div>
+      </div>
+      <div class="setup-card">
+        <h3>${ic('users')} בחרו מסלול משחק</h3>
+        <p class="sub">אותו משחק בדיוק — רק מי מחליט משתנה.</p>
+        <button class="opt ${sel.mode==='team'?'on':''}" data-mode="team">
+          <span class="oico">${ic('users')}</span>
+          <span class="otxt"><b>מסלול צוות</b><span>כל צוות במחשב שלו, בקצב שלו.</span></span>
+        </button>
+        <button class="opt ${sel.mode==='board'?'on':''}" data-mode="board">
+          <span class="oico">${ic('hand')}</span>
+          <span class="otxt"><b>מסלול לוח (מוקרן)</b><span>הכיתה מצביעה בהרמת יד, המנחה לוחץ. הקריסה החמדנית הראשונה הופכת לרגע כיתתי משותף.</span></span>
+        </button>
+      </div>
+    </div>
+    <div class="start-row">
+      <button class="btn-primary" id="startBtn">${ic('rocket')} מתחילים לבנות</button>
+    </div>
+    <p class="how">כל תור: בוחרים פרומפט → המסך משתנה → שורה אחת מסבירה מה קרה ולמה. אין פה תשובה קבועה: פרומפט רחב עם הקשר מנצח בהתחלה, וצעד ממוקד מנצח מרגע שמשהו עובד. מהלכי משמעת (שמירה, בדיקה, חזרה) זמינים תמיד ועולים תור — עד שמשהו נשבר, ואז הם מצילים אתכם.</p>
+    <div class="foot">${esc(m.title)} · מוצר סטטי, ללא שרת · כל התוכן ניתן לעריכה ב-CONFIG</div>
+  </div>`;
+
+  root.querySelectorAll('[data-scen]').forEach(b=>b.onclick=()=>{sel.scenarioId=b.dataset.scen;renderStart();});
+  root.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{sel.mode=b.dataset.mode;renderStart();});
+  document.getElementById('startBtn').onclick=()=>startGame(sel.scenarioId, sel.mode);
+}
+
+/* ---------- START GAME ---------- */
+function startGame(scenarioId, mode){
+  const scen = CONFIG.scenarios.find(s=>s.id===scenarioId) || CONFIG.scenarios[0];
+  G.scenario = scen;
+  G.statesById = {};
+  scen.states.forEach(st=>G.statesById[st.id]=st);
+  G.stateId = scen.startStateId;
+  G.turns = CONFIG.meta.turns;
+  G.saved = null;
+  G.history = [];
+  G.comicSpent = false;
+  G.order = {};
+  G.mode = mode || "team";
+  G.ended = false;
+  G.showTestFlag = false;
+  G.revealType = "placeholder";
+  G.revealHTML = CONFIG.ui.revealPlaceholder;
+  G.animate = false;
+  document.body.classList.toggle('board', G.mode==='board');
+  renderGame();
+}
+
+function curState(){return G.statesById[G.stateId];}
+
+/* ---------- record a turn in history (for the map) ---------- */
+function record(kind, label, cost, from, to){
+  // kind: 'advance' | 'setback' | 'discipline'
+  G.history.push({kind, label, cost, from, to});
+}
+
+/* ---------- apply a scripted prompt choice ---------- */
+function pickChoice(idx){
+  if(G.ended) return;
+  const st = curState();
+  const ch = st.choices[idx];
+  if(!ch) return;
+  const cost = ch.cost==null?1:ch.cost;
+  const outcome = normChoice(ch).outcome;
+
+  // comic beat fires exactly once; later hits use revealPlain if provided
+  let revealHTML = ch.reveal;
+  if(ch.comicBeat){
+    if(G.comicSpent && ch.revealPlain) revealHTML = ch.revealPlain;
+    G.comicSpent = true;
+  }
+  const lessonHTML = ch.lesson;
+
+  const fromP = st.progress||0;
+  const target = G.statesById[ch.to];
+  const toP = target ? (target.progress||0) : fromP;
+
+  G.turns -= cost;
+  record(outcome, ch.label, cost, fromP, toP);
+  G.stateId = ch.to;
+  G.showTestFlag = false;
+  G.revealType = outcome;
+  G.revealHTML = revealHTML + (lessonHTML?`<span class="lesson">${esc(lessonHTML)}</span>`:'');
+  G.animate = true;
+
+  checkEndOrRender();
+}
+
+/* ---------- discipline moves (engine-level) ---------- */
+function doSave(){
+  if(G.ended) return;
+  const st = curState();
+  G.saved = { id:G.stateId, name:st.name, progress:st.progress||0 };
+  G.turns -= CONFIG.meta.disciplineCost;
+  const p=st.progress||0;
+  record('discipline', CONFIG.ui.save+' — '+st.name, CONFIG.meta.disciplineCost, p, p);
+  G.revealType='discipline';
+  G.revealHTML = CONFIG.ui.saveDone;
+  G.showTestFlag=false; G.animate=false;
+  checkEndOrRender();
+}
+function doTest(){
+  if(G.ended) return;
+  const st = curState();
+  G.turns -= CONFIG.meta.disciplineCost;
+  const p=st.progress||0;
+  record('discipline', CONFIG.ui.test+' — '+st.name, CONFIG.meta.disciplineCost, p, p);
+  G.revealType='discipline';
+  G.revealHTML = st.testReveal || CONFIG.ui.testGenericFine;
+  // reveal hidden breakage visually if the state hides some
+  G.showTestFlag = (st.looksFine===false);
+  G.animate=false;
+  checkEndOrRender();
+}
+function doRestore(){
+  if(G.ended) return;
+  if(!G.saved){
+    // costs nothing — just informs
+    G.revealType='discipline';
+    G.revealHTML = CONFIG.ui.restoreNone;
+    renderGame();
+    return;
+  }
+  G.turns -= CONFIG.meta.disciplineCost;
+  const fromP=curState().progress||0;
+  record('discipline', CONFIG.ui.restore+' — '+G.saved.name, CONFIG.meta.disciplineCost, fromP, G.saved.progress||0);
+  G.stateId = G.saved.id;
+  G.revealType='discipline';
+  G.revealHTML = CONFIG.ui.restoreDone;
+  G.showTestFlag=false; G.animate=true;
+  checkEndOrRender();
+}
+
+/* ---------- end detection ---------- */
+function checkEndOrRender(){
+  const st = curState();
+  if(st.goal || G.stateId===G.scenario.goalStateId){
+    G.ended=true; renderEnd(true); return;
+  }
+  if(G.turns<=0){
+    G.ended=true; renderEnd(false); return;
+  }
+  renderGame();
+}
+
+/* ---------- GAME RENDER ---------- */
+function renderGame(){
+  const st = curState();
+  const ui = CONFIG.ui, scen = G.scenario;
+  const turnsClass = G.turns<=2 ? 'crit' : (G.turns<=4?'low':'');
+
+  root.innerHTML = `
+  <div class="screen">
+    <div class="topbar">
+      <div class="brand"><span class="logo">${ic('layers')}</span>${esc(CONFIG.meta.title)}</div>
+      <span class="mode-tag ${G.mode}">${G.mode==='board'?'מסלול לוח':'מסלול צוות'}</span>
+      <div class="spacer"></div>
+      <div class="goal-chip">${ic('flag')}<div><div class="gl">${esc(ui.goalLabel)} · ${esc(scen.appName)}</div><div class="gt">${esc(scen.goalText)}</div></div></div>
+      <div class="turns-chip ${turnsClass}">
+        <span class="bolt">${ic('bolt')}</span>
+        <div><div class="turns-num">${G.turns}</div><div class="tl">${esc(ui.turnsLabel)}</div></div>
+      </div>
+      <button class="ghost-btn" id="quitBtn">${ic('undo')} התחלה</button>
+    </div>
+
+    <div class="board-banner">${ic('hand')} ${esc(ui.boardBanner)}</div>
+
+    <div class="game">
+      <!-- APP PANE -->
+      <div class="phone-col">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="screen-frame ${G.animate?'animating':''} ${G.showTestFlag?'show-test':''}">
+            <div class="tested-flag">${ic('warn')} תקלה נסתרת שנחשפה</div>
+            <div class="screen-tick"><span>${esc(scen.appName)}</span><span>9:41</span></div>
+            <div class="app-screen">${st.mock}</div>
+          </div>
+        </div>
+
+        <div class="disc-bar">
+          <button class="disc-btn" id="saveBtn">${ic('save')}<b>${esc(ui.save)}</b><small>${esc(ui.saveSub)}</small></button>
+          <button class="disc-btn" id="testBtn">${ic('test')}<b>${esc(ui.test)}</b><small>${esc(ui.testSub)}</small></button>
+          <button class="disc-btn" id="restoreBtn" ${G.saved?'':'disabled'}>${ic('undo')}<b>${esc(ui.restore)}</b><small>${esc(ui.restoreSub)}</small></button>
+        </div>
+        <div class="save-slot ${G.saved?'has':''}">
+          <span class="sico">${ic('save')}</span>
+          <div><div class="sl">${esc(ui.slotLabel)}</div><div class="sn">${G.saved?esc(G.saved.name):esc(ui.slotEmpty)}</div></div>
+        </div>
+      </div>
+
+      <!-- PROMPT PANE -->
+      <div class="prompt-col">
+        <div class="prompt-head"><h2>${esc(ui.promptTitle)}</h2><span class="hint">${esc(ui.promptHint)}</span></div>
+        <div class="reveal ${G.revealType}">
+          <span class="ric">${ic(revealIcon(G.revealType))}</span>
+          <div class="rtxt">${G.revealHTML}</div>
+        </div>
+        <div class="cards">
+          ${displayOrder(st).map(i=>{const c=st.choices[i];const m=scopeMeta(c);return `
+            <button class="card ${m.cls}" data-i="${i}">
+              <div class="card-top"><span class="tag ${m.cls}">${ic(m.icon)} ${m.label}</span>
+                <span class="cost">${ic('bolt')} ${c.cost==null?1:c.cost} ${esc(CONFIG.ui.costTurn)}</span></div>
+              <div class="promptline"><span class="qico">${ic('q')}</span><span class="lbl">${esc(c.label)}</span></div>
+              <div class="asks">${ic('info')} ${esc(asksLine(c))}</div>
+              <span class="vote-badge">${ic('hand')} ${esc(ui.voteHint)}</span>
+            </button>`;}).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="foot">${esc(CONFIG.meta.golden)}</div>
+  </div>`;
+
+  root.querySelectorAll('.card').forEach(b=>b.onclick=()=>pickChoice(+b.dataset.i));
+  document.getElementById('saveBtn').onclick=doSave;
+  document.getElementById('testBtn').onclick=doTest;
+  document.getElementById('restoreBtn').onclick=doRestore;
+  document.getElementById('quitBtn').onclick=()=>{document.body.classList.remove('board');renderStart();};
+  G.animate=false;
+}
+
+function revealIcon(t){
+  return t==='advance'?'check':t==='setback'?'warn':t==='discipline'?'save':'q';
+}
+
+/* ---------- END SCREEN ---------- */
+function renderEnd(win){
+  const ui = CONFIG.ui, scen = G.scenario;
+  const used = G.history.reduce((a,h)=>a+h.cost,0);
+  const adv = G.history.filter(h=>h.kind==='advance').reduce((a,h)=>a+h.cost,0);
+  const rep = G.history.filter(h=>h.kind==='setback').reduce((a,h)=>a+h.cost,0);
+  const dis = G.history.filter(h=>h.kind==='discipline').reduce((a,h)=>a+h.cost,0);
+  const progress = curState().progress||0;
+
+  document.body.classList.remove('board');
+  root.innerHTML = `
+  <div class="screen end">
+    <div class="end-head ${win?'win':'lose'}">
+      <div class="rico">${ic(win?'flag':'clock')}</div>
+      <h1>${esc(win?ui.winTitle:ui.loseTitle)}</h1>
+      <p>${esc(win?ui.winSub:ui.loseSub)}</p>
+    </div>
+
+    <!-- MAP FIRST -->
+    <div class="panel">
+      <h3>${ic('map')} ${esc(ui.mapTitle)}</h3>
+      <p class="psub">${esc(ui.mapSub)}</p>
+      <div class="map">
+        ${G.history.map((h,i)=>{
+          const d=(h.to==null?0:h.to)-(h.from==null?0:h.from);
+          const ds = d>0?`+${d}%`:(d<0?`${d}%`:'±0%');
+          return `
+          <div class="step ${h.kind}">
+            <span class="n">${i+1}</span>
+            <div><div class="st">${esc(h.label)}</div><div class="sc">${kindLabel(h.kind)} · ${h.cost} ${esc(ui.costTurn)}<span class="delta">${ds}</span></div></div>
+          </div>`;}).join('') || '<div class="psub">לא נעשו תורים.</div>'}
+      </div>
+      <div class="map-legend">
+        <span><i class="g"></i>התקדמות</span><span><i class="r"></i>תיקון / בזבוז</span><span><i class="b"></i>משמעת (שמירה/בדיקה/חזרה)</span>
+      </div>
+      <div class="tally">
+        <div class="t g"><div class="num">${adv}</div><div class="lb">${esc(ui.advances)}</div></div>
+        <div class="t r"><div class="num">${rep}</div><div class="lb">${esc(ui.repairs)}</div></div>
+        <div class="t b"><div class="num">${dis}</div><div class="lb">${esc(ui.discipline)}</div></div>
+        <div class="t"><div class="num">${used}</div><div class="lb">${esc(ui.turnsUsed)}</div></div>
+      </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="panel">
+      <h3>${ic('flag')} ${esc(ui.progTitle)}</h3>
+      <div class="progbar"><i style="width:${progress}%"></i></div>
+      <div class="prog-lbl"><span>${esc(scen.appName)}</span><span>${progress}% — ${esc(curState().name)}</span></div>
+    </div>
+
+    <!-- PAYOFF -->
+    <div class="panel payoff">
+      <h3>${ic('rocket')} ${esc(ui.payoffTitle)}</h3>
+      <div class="rtxt" style="font-size:15.5px;line-height:1.6">${esc(ui.payoff)}</div>
+    </div>
+
+    <!-- DEBRIEF -->
+    <div class="panel">
+      <h3>${ic('users')} ${esc(ui.debriefTitle)}</h3>
+      <ul class="debrief-list">
+        ${ui.debrief.map(q=>`<li><span class="qm">?</span><span>${esc(q)}</span></li>`).join('')}
+      </ul>
+    </div>
+
+    <!-- HANDOFF -->
+    <div class="panel handoff">
+      <h3 style="justify-content:center">${ic('arrow')} ${esc(ui.handoffTitle)}</h3>
+      <div>${esc(ui.handoff)}</div>
+    </div>
+
+    <div class="end-actions">
+      <button class="btn-primary green" id="replayBtn">${ic('undo')} ${esc(ui.replay)}</button>
+      <button class="ghost-btn" id="menuBtn" style="padding:14px 22px;font-size:15px">${ic('layers')} ${esc(ui.newGame)}</button>
+    </div>
+    <div class="foot">${esc(CONFIG.meta.title)}</div>
+  </div>`;
+
+  document.getElementById('replayBtn').onclick=()=>startGame(G.scenario.id, G.mode);
+  document.getElementById('menuBtn').onclick=renderStart;
+}
+function kindLabel(k){return k==='advance'?'התקדמות':k==='setback'?'נסיגה / תיקון':'משמעת';}
+
+/* ---------- boot ---------- */
+renderStart();
+</script>
+</body>
+</html>

@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>שוק הפיצ'רים</title>
+<style>
+  :root{
+    --bg-board:#141233;
+    --bg-board2:#1f1b4d;
+    --panel-board:#221d55;
+    --panel-board-2:#2a2470;
+    --line-board:#3b3480;
+    --bg-wallet:#f6f5fb;
+    --panel-wallet:#ffffff;
+    --line-wallet:#e2dff2;
+    --ink:#f3f1ff;
+    --ink-dim:#b8b3e0;
+    --ink-dark:#211c47;
+    --ink-dark-dim:#635d94;
+    --accent:#8f7bff;
+    --accent-2:#c6ff5e;
+    --spend:#ff6b5b;
+    --save:#4fd6a8;
+    --gold:#ffd166;
+    --danger:#ff4d6d;
+    --radius:16px;
+    --radius-sm:10px;
+    font-size:16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:"Segoe UI","Rubik","Arial Hebrew","Arial",sans-serif;
+    background:var(--bg-wallet);
+    color:var(--ink-dark);
+    min-height:100vh;
+  }
+  button{font-family:inherit;cursor:pointer;}
+  .icon svg{width:1.4em;height:1.4em;display:block;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+  .icon{display:inline-flex;align-items:center;justify-content:center;}
+
+  /* ---------- MENU ---------- */
+  .menu-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 20%, #2a2470, #141233 70%);color:var(--ink);padding:32px 16px;}
+  .menu-card{max-width:720px;text-align:center;}
+  .menu-card h1{font-size:2.6em;margin:0 0 6px;}
+  .menu-card .sub{color:var(--ink-dim);font-size:1.15em;margin-bottom:36px;}
+  .menu-choices{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;}
+  .menu-btn{position:relative;flex:1;min-width:240px;background:var(--panel-board);border:1px solid var(--line-board);border-radius:var(--radius);padding:26px 20px;color:var(--ink);text-align:right;transition:transform .15s, background .15s;}
+  .menu-btn:hover{transform:translateY(-3px);background:var(--panel-board-2);}
+  .menu-btn.recommended{border:2px solid var(--accent-2);background:var(--panel-board-2);box-shadow:0 0 0 4px rgba(198,255,94,.12);}
+  .menu-flag{position:absolute;top:-12px;inset-inline-start:20px;background:var(--accent-2);color:#141233;font-size:.75em;font-weight:800;padding:3px 12px;border-radius:20px;}
+  .menu-btn .icon{color:var(--accent-2);margin-bottom:10px;}
+  .menu-btn h3{margin:6px 0 6px;font-size:1.3em;}
+  .menu-btn p{margin:0;color:var(--ink-dim);font-size:.95em;line-height:1.5;}
+  .menu-note{margin-top:30px;font-size:.85em;color:var(--ink-dim);line-height:1.6;}
+
+  /* ---------- BOARD ---------- */
+  .board{min-height:100vh;background:linear-gradient(160deg,var(--bg-board),var(--bg-board2));color:var(--ink);display:flex;flex-direction:column;}
+  .board-top{display:flex;justify-content:space-between;align-items:center;padding:18px 34px;}
+  .board-title{font-size:1.3em;font-weight:700;display:flex;align-items:center;gap:10px;}
+  .board-title .icon{color:var(--accent-2);}
+  .board-progress{font-size:1.05em;color:var(--ink-dim);}
+  .board-dots{display:flex;gap:6px;padding:0 34px 10px;flex-wrap:wrap;}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--line-board);}
+  .dot.done{background:var(--accent-2);}
+  .dot.current{background:var(--gold);box-shadow:0 0 0 4px rgba(255,209,102,.25);}
+  .board-main{flex:1;display:flex;align-items:center;justify-content:center;padding:20px 34px 40px;}
+  .board-card{width:100%;max-width:900px;background:var(--panel-board);border:1px solid var(--line-board);border-radius:24px;padding:40px 44px;position:relative;overflow:hidden;}
+  .board-card::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg, rgba(143,123,255,.12), transparent 60%);}
+  .board-card-head{display:flex;align-items:center;gap:22px;position:relative;}
+  .board-card-head .icon{width:64px;height:64px;background:var(--panel-board-2);border-radius:18px;color:var(--accent-2);flex-shrink:0;}
+  .board-card-head .icon svg{width:34px;height:34px;}
+  .board-feature-name{font-size:2em;font-weight:700;margin:0;}
+  .board-badge{display:inline-block;font-size:.72em;padding:3px 10px;border-radius:20px;background:var(--accent);color:#141233;font-weight:700;margin-inline-start:10px;vertical-align:middle;}
+  .board-badge.wildcard{background:var(--gold);}
+  .board-sticker{position:relative;margin-top:26px;display:flex;align-items:baseline;gap:10px;}
+  .board-sticker .num{font-size:3.6em;font-weight:800;color:var(--accent-2);line-height:1;}
+  .board-sticker .lbl{color:var(--ink-dim);font-size:1.1em;}
+  .board-note{position:relative;margin-top:14px;color:var(--ink-dim);font-size:1.05em;line-height:1.6;}
+  .reveal-btn{position:relative;margin-top:28px;background:var(--gold);color:#3a2a00;border:none;border-radius:var(--radius-sm);padding:14px 26px;font-size:1.1em;font-weight:700;}
+  .board-round-prompt{position:relative;margin-top:24px;font-size:1.25em;font-weight:700;color:var(--accent-2);}
+  .board-rules{position:relative;margin:22px 0 0;padding-inline-start:22px;line-height:1.9;font-size:1.12em;color:var(--ink);}
+  .board-rules li{margin-bottom:8px;}
+  .reveal-btn:hover{filter:brightness(1.06);}
+  .reveal-panel{position:relative;margin-top:24px;background:rgba(0,0,0,.22);border:1px dashed var(--line-board);border-radius:var(--radius-sm);padding:22px 24px;animation:pop .35s ease;}
+  .reveal-panel.lesson-panel{background:rgba(255,209,102,.1);border-color:var(--gold);}
+  @keyframes pop{from{opacity:0;transform:translateY(6px) scale(.98);}to{opacity:1;transform:none;}}
+  .reveal-truth{font-size:1.15em;color:var(--gold);font-weight:600;margin:0 0 12px;line-height:1.6;}
+  .branch-row{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--panel-board-2);border-radius:10px;margin-bottom:8px;}
+  .branch-row.disabled{opacity:.55;}
+  .branch-row .price{font-weight:800;font-size:1.15em;color:var(--accent-2);}
+  .branch-row .price.blocked{color:var(--danger);font-size:.95em;}
+  .lesson-line{margin-top:14px;padding-top:14px;border-top:1px solid var(--line-board);color:var(--ink);font-size:1.02em;line-height:1.6;}
+  .lesson-line b{color:var(--accent-2);}
+  .trap-stamp{display:inline-block;transform:rotate(-4deg);border:3px solid var(--danger);color:var(--danger);font-weight:800;padding:6px 16px;border-radius:10px;font-size:1.1em;margin-bottom:12px;}
+  .board-caution{position:relative;margin-top:10px;color:var(--gold);font-size:.9em;}
+  .board-nav{display:flex;justify-content:center;gap:14px;padding:0 34px 30px;}
+  .nav-btn{background:var(--panel-board-2);border:1px solid var(--line-board);color:var(--ink);border-radius:var(--radius-sm);padding:12px 22px;font-size:1em;}
+  .nav-btn:disabled{opacity:.35;cursor:default;}
+  .nav-btn.primary{background:var(--accent-2);color:#141233;font-weight:700;border:none;}
+  .board-reset{position:fixed;bottom:14px;inset-inline-end:14px;font-size:.8em;color:var(--ink-dim);background:none;border:1px solid var(--line-board);border-radius:8px;padding:6px 10px;}
+  .board-framing{text-align:center;color:var(--ink-dim);padding:0 34px 6px;font-size:1.05em;}
+  .board-end{max-width:820px;margin:0 auto;text-align:center;}
+  .board-end h2{font-size:1.8em;}
+  .takeaway{font-size:1.5em;font-weight:700;color:var(--accent-2);margin:26px 0;line-height:1.5;}
+  .bridge{background:var(--panel-board-2);border-radius:var(--radius-sm);padding:20px;margin-top:22px;line-height:1.7;font-size:1.05em;}
+  .reflect-box{background:var(--panel-board);border:1px solid var(--line-board);border-radius:var(--radius-sm);padding:16px 20px;margin-top:14px;text-align:right;}
+
+  /* ---------- WALLET ---------- */
+  .wallet{min-height:100vh;background:var(--bg-wallet);padding-bottom:60px;}
+  .wallet-header{position:sticky;top:0;z-index:10;background:var(--panel-wallet);border-bottom:1px solid var(--line-wallet);padding:14px 18px;box-shadow:0 2px 10px rgba(30,20,80,.05);}
+  .wallet-header-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+  .wallet-team{font-weight:700;font-size:1.1em;}
+  .wallet-idea{font-size:.85em;color:var(--ink-dark-dim);max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .meter-wrap{margin-top:10px;}
+  .meter-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+  .meter-num{font-size:1.6em;font-weight:800;transition:color .3s;}
+  .meter-num.pulse{animation:flash .7s ease;}
+  @keyframes flash{0%{transform:scale(1.18);}100%{transform:scale(1);}}
+  .meter-bar-bg{height:14px;border-radius:8px;background:#eceafb;overflow:hidden;}
+  .meter-bar{height:100%;border-radius:8px;background:var(--accent);transition:width .5s cubic-bezier(.2,.9,.3,1), background .3s;}
+  .wallet-actions{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
+  .link-btn{background:none;border:none;color:var(--accent);font-size:.85em;text-decoration:underline;padding:2px;}
+  .small-btn{background:var(--ink-dark);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:.85em;}
+
+  .wallet-main{max-width:760px;margin:0 auto;padding:18px 14px;}
+  .framing-line{background:#efe9ff;color:#4c3ea8;border-radius:var(--radius-sm);padding:12px 16px;font-size:.95em;text-align:center;margin-bottom:16px;line-height:1.6;}
+  .next-feature-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);padding:14px;font-size:1.05em;font-weight:700;margin:4px 0 14px;}
+  .next-feature-btn:hover{filter:brightness(1.05);}
+  .wallet-done{display:flex;align-items:center;gap:10px;justify-content:center;background:#f0f8f4;color:#1d6b4d;border-radius:var(--radius);padding:18px;font-weight:700;margin-bottom:14px;}
+  .wallet-eliminated{display:flex;align-items:flex-start;gap:12px;background:#fff1f2;color:#a5233f;border:1px solid #ff9fb0;border-radius:var(--radius);padding:18px;margin-bottom:14px;line-height:1.6;}
+  .wallet-eliminated .icon{flex-shrink:0;color:var(--danger);}
+  .lost-feature{display:inline-block;margin-top:6px;font-weight:700;}
+  .leftover-panel{background:#fffaf0;border:1px solid #ffe0a3;border-radius:var(--radius);padding:16px 20px;margin-bottom:14px;}
+  .leftover-panel h3{margin:0 0 6px;font-size:1.05em;color:#8a6300;}
+  .leftover-intro{margin:0 0 12px;font-size:.88em;color:var(--ink-dark-dim);line-height:1.6;}
+  .leftover-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #ffe9c2;}
+  .leftover-item:last-child{border-bottom:none;}
+  .leftover-item button{background:var(--gold);color:#3a2a00;border:none;border-radius:8px;padding:8px 14px;font-weight:700;font-size:.85em;white-space:nowrap;}
+  .leftover-item button:hover{filter:brightness(1.05);}
+  .card{background:var(--panel-wallet);border:1px solid var(--line-wallet);border-radius:var(--radius);padding:18px 20px;margin-bottom:14px;transition:box-shadow .2s;}
+  .card.locked{background:#fbfaff;}
+  .card.just-changed{box-shadow:0 0 0 3px var(--accent-2);}
+  .card-head{display:flex;align-items:center;gap:14px;}
+  .card-head .icon{width:42px;height:42px;background:#f0edff;color:var(--accent);border-radius:12px;flex-shrink:0;}
+  .card-head .icon svg{width:22px;height:22px;}
+  .card-title{font-weight:700;font-size:1.08em;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .card-sub{font-size:.82em;color:var(--ink-dark-dim);margin-top:2px;}
+  .badge{font-size:.68em;padding:2px 9px;border-radius:14px;font-weight:700;}
+  .badge.wildcard{background:var(--gold);color:#3a2a00;}
+  .badge.trap{background:#ffe1e6;color:#a5233f;}
+  .badge.blind{background:#e4e1ff;color:#4c3ea8;}
+  .card-body{margin-top:12px;}
+  .price-tag{font-size:1.4em;font-weight:800;color:var(--ink-dark);}
+  .row-buttons{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
+  .btn{border:none;border-radius:var(--radius-sm);padding:11px 18px;font-size:.95em;font-weight:700;}
+  .btn-buy{background:var(--accent);color:#fff;}
+  .btn-skip{background:#eeecf7;color:var(--ink-dark);}
+  .btn-branch{background:#f0edff;color:var(--ink-dark);border:1px solid #ddd6ff;text-align:right;padding:12px 16px;border-radius:10px;display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:8px;}
+  .btn-branch:hover{background:#e4ddff;}
+  .btn-branch:disabled{opacity:.5;cursor:not-allowed;}
+  .btn-branch .p{font-weight:800;color:var(--spend);}
+  .btn-branch .p.blocked{color:var(--danger);font-size:.82em;font-weight:600;}
+  .reveal-inline{margin-top:12px;background:#fff8e6;border:1px dashed #ffd166;border-radius:10px;padding:14px 16px;}
+  .reveal-inline .truth{color:#8a6300;font-weight:600;margin:0 0 10px;line-height:1.6;}
+  .lesson-mini{margin-top:10px;font-size:.88em;color:var(--ink-dark-dim);line-height:1.6;border-top:1px dashed #e2dff2;padding-top:10px;}
+  .lesson-mini b{color:var(--accent);}
+  .locked-line{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
+  .locked-line .lab{color:var(--ink-dark-dim);font-size:.95em;}
+  .locked-line .amt{font-weight:800;}
+  .amt.spend{color:var(--spend);}
+  .amt.save{color:var(--save);}
+  .lock-icon{color:#b6b0e0;width:18px;height:18px;}
+  .ladder-tier{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#f7f5ff;border-radius:10px;margin-bottom:8px;border:1px solid #ece8ff;}
+  .ladder-tier .p{font-weight:800;color:var(--ink-dark);}
+  .ladder-tier .p.free{color:var(--save);}
+  .tier-btn{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:.85em;font-weight:700;}
+  .trap-warn{background:#fff1f2;border:1px dashed #ff9fb0;border-radius:10px;padding:14px 16px;margin-top:10px;}
+  .trap-warn p{margin:0;color:#a5233f;line-height:1.6;}
+  .blind-opt{display:flex;justify-content:space-between;align-items:center;background:#f7f5ff;border:1px solid #ece8ff;border-radius:10px;padding:14px 16px;margin-bottom:8px;}
+  .blind-opt button{background:var(--ink-dark);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-weight:700;}
+  .praise{color:var(--save);font-size:.88em;margin-top:8px;}
+  .offer-note{color:var(--ink-dark-dim);font-size:.9em;margin:0 0 10px;line-height:1.6;}
+  .branch-strike{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#f6f4fb;border-radius:8px;margin-bottom:8px;color:var(--ink-dark-dim);font-size:.9em;}
+  .branch-strike .p.blocked{color:var(--danger);font-weight:700;}
+  .btn-branch:disabled{opacity:.5;cursor:not-allowed;}
+  .elim-reveal{display:inline-block;margin-top:8px;line-height:1.6;}
+  .elim-lesson{display:inline-block;margin-top:8px;line-height:1.6;}
+
+  .basket-panel{background:var(--panel-wallet);border:1px solid var(--line-wallet);border-radius:var(--radius);padding:16px 20px;margin-top:6px;}
+  .basket-panel h3{margin:0 0 10px;font-size:1.05em;}
+  .basket-item{display:flex;justify-content:space-between;font-size:.9em;padding:6px 0;border-bottom:1px solid #f1efff;}
+  .basket-empty{color:var(--ink-dark-dim);font-size:.9em;}
+  .basket-total{display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:2px solid var(--line-wallet);font-weight:800;}
+  .negative-warn{background:#fff1f2;color:#a5233f;border-radius:10px;padding:10px 14px;margin-top:10px;font-size:.9em;}
+
+  .end-panel{background:var(--panel-wallet);border:1px solid var(--line-wallet);border-radius:var(--radius);padding:20px;margin-top:16px;}
+  .end-panel h3{margin-top:0;}
+  .reflect-q{margin-top:16px;}
+  .reflect-q label{display:block;font-weight:700;margin-bottom:6px;font-size:.92em;}
+  .reflect-q textarea{width:100%;border:1px solid var(--line-wallet);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:.92em;resize:vertical;min-height:56px;}
+  .takeaway-wallet{background:#efe9ff;color:#4c3ea8;border-radius:10px;padding:14px 16px;margin-top:16px;font-weight:700;text-align:center;line-height:1.6;}
+  .bridge-wallet{background:#f0f8f4;color:#1d6b4d;border-radius:10px;padding:14px 16px;margin-top:12px;line-height:1.6;font-size:.92em;}
+
+  .setup-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .setup-card{max-width:480px;width:100%;background:var(--panel-wallet);border:1px solid var(--line-wallet);border-radius:var(--radius);padding:30px 26px;}
+  .setup-card h2{margin-top:0;}
+  .setup-card label{display:block;font-weight:700;margin:16px 0 6px;font-size:.92em;}
+  .setup-card input, .setup-card textarea{width:100%;border:1px solid var(--line-wallet);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:1em;}
+  .setup-card textarea{min-height:70px;resize:vertical;}
+  .setup-card button{margin-top:20px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px;font-size:1.05em;font-weight:700;}
+  .back-link{display:inline-block;margin-bottom:14px;color:var(--ink-dark-dim);font-size:.85em;}
+
+  @media (max-width:640px){
+    .board-card{padding:26px 22px;}
+    .board-feature-name{font-size:1.5em;}
+    .board-sticker .num{font-size:2.6em;}
+    .board-top,.board-main,.board-nav,.board-dots{padding-inline:16px;}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =========================================================
+   CONFIG — everything about the game content lives here.
+   Change prices, text, forks or add features without touching
+   any of the rendering code below.
+   ========================================================= */
+const CONFIG = {
+  meta: {
+    title: "שוק הפיצ'רים",
+    subtitle: "אותה חנות, אותם מחירים, ארנק פרטי לכל צוות",
+    budget: 100
+  },
+  // Fixed play order (by feature id). Change this to reorder the game;
+  // both the board and the wallet follow it. Interleaved on purpose —
+  // not grouped by type, so the order isn't predictable.
+  order: ["home","login","ui","content","mystery","core-action","push","storage","onboarding","ai-agent","social","payments"],
+  texts: {
+    boardFraming: "כל צוות קונה בארנק שלו, לאפליקציה שלו. אותו מחיר לכולם — אין תחרות על מי שקונה קודם.",
+    walletFraming: "קחו רק את מה שהאפליקציה שלכם צריכה. לדלג זה מסלול לגיטימי — כסף שנשאר בכיס.",
+    roundPrompt: "כל צוות מחליט עכשיו: קונים או מוותרים?",
+    boardIntroTitle: "איך משחקים",
+    boardIntroRules: [
+      "מתחילים עם תקציב קבוע של 100 נקודות בנייה.",
+      "עוקבים בעצמכם כמה כסף נשאר לכם ואילו פיצ'רים קניתם.",
+      "בכל פיצ'ר בוחרים: לקנות או לא לקנות.",
+      "אם קונים — היזהרו: עלולות להיות הפתעות והשלכות לא צפויות.",
+      "אם נגמר הכסף או יורדים למינוס — אי אפשר לקנות יותר (גם לא פיצ'רים בחינם), ומאבדים את הפיצ'ר האחרון שקניתם.",
+      "המשחק נגמר כשלכל הצוותים נגמר הכסף, או כשנגמרו הפיצ'רים.",
+      "המנצח: הצוות עם הפיצ'רים הכי טובים ל-MVP."
+    ],
+    boardIntroStart: "מתחילים",
+    leftoverTitle: "נשאר לכם תקציב?",
+    leftoverIntro: "אפשר להוסיף עכשיו פיצ'ר אחד או יותר מאלה שדילגתם עליהם — במחיר הסופי, כל עוד יש לכם מספיק.",
+    leftoverNone: "אין פיצ'רים נוספים שאפשר להוסיף בתקציב שנשאר.",
+    eliminatedTitle: "אזל התקציב",
+    eliminatedText: "ירדתם למינוס — יצאתם מהשוק. אי אפשר לקנות יותר, ואיבדתם את הפיצ'ר האחרון שקניתם.",
+    boardEndTitle: "הכנה להגנה",
+    boardEndIntro: "לפני שמציגים, כל צוות מכין שתי תשובות קצרות:",
+    reflectPrompts: [
+      "מה היה הפיצול הקשה ביותר, ולמה בחרתם כמו שבחרתם — בהתאם לאפליקציה שלכם?",
+      "על איזה פיצ'ר אחד סירבתם, ולמה?"
+    ],
+    takeaway: "הסל המנצח הוא לא הכי גדול ולא הכי מרשים — הוא זה שמשיג את המטרה של האפליקציה שלכם בזול ביותר.",
+    bridge: "ההפתעות שפגשתם היום — שרת חבוי, מסד נתונים חבוי, אבטחה חבויה — הן בבנייה אמיתית עם AI בדיוק אותו דבר: טוקנים. פיצ'ר שאפתני לא רק עולה יותר בכסף — הוא גורם ל-AI לבנות תשתית שלמה מתחתיו ולשרוף את התקציב שלכם. זה מה שנלמד להיזהר ממנו בחלק הבא."
+  },
+  features: [
+    {
+      id: "home",
+      name: "מסך בית עם מסר ברור",
+      icon: "home",
+      sticker: 20,
+      forkType: "none",
+      revealText: "המחיר כולל עיצוב בסיסי — כלי ה-AI בונה לכם את המראה הפשוט בחינם, לא שילמתם עליו בנפרד.",
+      lesson: "חלק מהיסודות זולים יותר ממה שחשבתם, כי ה-AI עושה את הבסיס."
+    },
+    {
+      id: "core-action",
+      name: "פעולה מרכזית אחת",
+      icon: "click",
+      sticker: 15,
+      forkType: "none",
+      revealText: "זה הדבר האחד שהמשתמש בפועל עושה באפליקציה. אין כאן הפתעת מחיר — אבל גם אין ממה לגזור: ברוב האפליקציות זה נכנס תמיד.",
+      lesson: "לא כל פיצ'ר מסתיר עלות — חלקם באמת פשוטים כמו שהם נראים."
+    },
+    {
+      id: "login",
+      name: "התחברות / פרופיל",
+      icon: "user",
+      sticker: 30,
+      forkType: "mandatory",
+      revealText: "אין 'התחברות ב-30' — חשבונות אמיתיים דורשים שרת, שמירה ואבטחה.",
+      branches: [
+        { label: "מלא: חשבונות אמיתיים", price: 70 },
+        { label: "הנמכה: כינוי ואווטאר, לשיחה הזו בלבד", price: 10 }
+      ],
+      lesson: "השאפתנות מסתירה שרת. התחברות אף פעם לא באמת זולה — אלא אם מנמיכים."
+    },
+    {
+      id: "storage",
+      name: "שמירת נתונים",
+      icon: "database",
+      sticker: 25,
+      forkType: "mandatory",
+      revealText: "שמירה לתמיד על כל המכשירים דורשת מסד נתונים.",
+      branches: [
+        { label: "מלא: נשמר לתמיד, בכל המכשירים", price: 45 },
+        { label: "הנמכה: נשמר בדפדפן הזה / לשיחה הזו", price: 10 }
+      ],
+      judgment: "האם האפליקציה שלכם נשברת אם היא שוכחת הכול ברענון?",
+      lesson: "שאלו את השאלה הזו לפני שמשלמים על 'לתמיד'."
+    },
+    {
+      id: "content",
+      name: "תוכן / מידע",
+      icon: "book",
+      sticker: 20,
+      forkType: "mandatory",
+      revealText: "מידע חי מהאינטרנט דורש חיבורים ומפתחות API.",
+      branches: [
+        { label: "מלא: מידע חי מהאינטרנט", price: 40 },
+        { label: "הנמכה: כמה דוגמאות מוכנות מראש בתוך האפליקציה", price: 10 }
+      ],
+      lesson: "ל-MVP, מידע לדוגמה כמעט תמיד מנצח."
+    },
+    {
+      id: "social",
+      name: "חברתי / שיתוף",
+      icon: "chat",
+      sticker: 30,
+      forkType: "mandatory",
+      revealText: "תגובות ופיד אמיתי בין משתמשים דורשים מסד נתונים וניהול תוכן.",
+      branches: [
+        { label: "מלא: תגובות ופיד אמיתי בין משתמשים", price: 60 },
+        { label: "הנמכה: כפתור 'שתף' שמעתיק טקסט, או תגובות לשיחה הזו בלבד", price: 15 }
+      ],
+      judgment: "להיות חברתי זה כל הפואנטה של האפליקציה שלכם, או רק נחמד שיהיה?",
+      lesson: "שאלו את השאלה הזו לפני שמשלמים על רשת חברתית שלמה."
+    },
+    {
+      id: "ai-agent",
+      name: "סוכן AI בתוך האפליקציה",
+      icon: "robot",
+      sticker: 50,
+      forkType: "mandatory",
+      revealText: "עוזר AI מותאם ומחובר לשירותים חיצוניים הוא פרויקט שלם בפני עצמו. אבל אפשר להנמיך לעוזר פשוט עם הוראות מובנות — וזה זול להפתיע.",
+      branches: [
+        { label: "מלא: עוזר מותאם ומחובר לשירותים חיצוניים", price: 90 },
+        { label: "הנמכה: עוזר פשוט עם הוראות מובנות (תפקיד + מטרה + כללים)", price: 15 }
+      ],
+      lesson: "אל תשפטו עלות לפי כמה משהו נשמע מרשים — הפיצ'ר הכי שאפתני יכול להיות הזול ביותר."
+    },
+    {
+      id: "ui",
+      name: "עיצוב / UI",
+      icon: "palette",
+      forkType: "ladder",
+      note: "כלול עם מסך הבית. ה-UI נבנה מעל מה שכבר יש לכם.",
+      tiers: [
+        { label: "פשוט (כלול, חינם)", price: 0, free: true },
+        { label: "מלוטש", price: 30 },
+        { label: "מרהיב", price: 40, secretExtra: 10, secretNote: "שדרוג 'מרהיב' שורף גם את שאר הטוקנים של היום על עיצוב — בפועל זה עולה 50, ואי אפשר לקבל החזר." }
+      ],
+      lesson: "ליטוש הוא מס שאין עליו החזר. השקעת יתר במראה היא איך שתקציבים נשרפים."
+    },
+    {
+      id: "onboarding",
+      name: "אונבורדינג / הדרכה",
+      icon: "compass",
+      forkType: "ladder",
+      tiers: [
+        { label: "אין / משפט אחד (חינם)", price: 0, free: true },
+        { label: "מדריך רב-מסכים", price: 20 }
+      ],
+      lesson: "אם צריך הדרכה גדולה כדי להסביר את האפליקציה — כנראה שהאפליקציה עצמה לא מספיק ברורה."
+    },
+    {
+      id: "payments",
+      name: "מערכת תשלומים אמיתית",
+      icon: "ban",
+      sticker: 35,
+      forkType: "trap",
+      realPrice: 130,
+      trapReveal: "המדבקה שיקרה. תשלומים אמיתיים דורשים אבטחה, עמידה בחוק ותשתית — המחיר האמיתי 130, הרבה מעבר לתקציב. מי שקנה — יצא מהמשחק.",
+      lesson: "יש דברים שפשוט לא שייכים ל-MVP. הם נראים זולים, אבל קנייה שלהם מפילה את הפרויקט."
+    },
+    {
+      id: "push",
+      name: "התראות דחיפה (Push)",
+      icon: "bell",
+      sticker: 25,
+      forkType: "trap",
+      realPrice: 120,
+      trapReveal: "המדבקה שיקרה. התראות דחיפה דורשות תשתית שרת אמיתית — המחיר האמיתי 120, הרבה מעבר לתקציב. מי שקנה — יצא מהמשחק.",
+      lesson: "גם כאן — נראה זול, אבל מחוץ לגבולות ל-MVP, וקנייה שלו מפילה את הפרויקט."
+    },
+    {
+      id: "mystery",
+      name: "חבילת מסתורין",
+      icon: "gift",
+      forkType: "blind",
+      options: [
+        { id: "big", teaser: "פיצ'ר גדול אחד", revealLabel: "מצב אופליין מלא לכל האפליקציה", revealPrice: 35 },
+        { id: "small", teaser: "שלושה פיצ'רים קטנים", revealLabel: "שיתוף מהיר + מצב כהה + צליל אישור", revealPrice: 18 }
+      ],
+      lesson: "בבנייה אמיתית מקבלים החלטות עם מידע חלקי. לפעמים 'הרבה קטן' מנצח 'אחד גדול' — ולפעמים לא."
+    }
+  ]
+};
+
+/* =========================================================
+   ICONS — simple line SVGs, no emoji.
+   ========================================================= */
+const ICONS = {
+  home: '<svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v9h14v-9"/><path d="M9 19v-5h6v5"/></svg>',
+  click: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>',
+  user: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>',
+  database: '<svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>',
+  book: '<svg viewBox="0 0 24 24"><path d="M4 4h7a3 3 0 013 3v13a3 3 0 00-3-3H4z"/><path d="M20 4h-7a3 3 0 00-3 3v13a3 3 0 013-3h7z"/></svg>',
+  chat: '<svg viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4z"/></svg>',
+  robot: '<svg viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="11" rx="2"/><path d="M9 8V5a3 3 0 016 0v3"/><circle cx="9.5" cy="13" r="1.1"/><circle cx="14.5" cy="13" r="1.1"/><path d="M9 17h6"/></svg>',
+  palette: '<svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 100 18c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.3A5.2 5.2 0 0021 9.5C21 6 17 3 12 3z"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="9.5" cy="7" r="1"/><circle cx="14.5" cy="7" r="1"/><circle cx="16.5" cy="10.5" r="1"/></svg>',
+  compass: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 9l-2 6-6 2 2-6z"/></svg>',
+  ban: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M6 6l12 12"/></svg>',
+  bell: '<svg viewBox="0 0 24 24"><path d="M6 10a6 6 0 1112 0c0 4 1.5 5 1.5 5H4.5S6 14 6 10z"/><path d="M10 19a2 2 0 004 0"/></svg>',
+  gift: '<svg viewBox="0 0 24 24"><path d="M2 9h20v4H2z"/><rect x="4" y="13" width="16" height="7"/><path d="M12 9v11"/><path d="M12 9c-1.5-4-6-4-6 0M12 9c1.5-4 6-4 6 0"/></svg>',
+  coin: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9c0-1.1 1.3-2 3-2s3 .9 3 2-1.3 1.5-3 2-3 .9-3 2 1.3 2 3 2 3-.9 3-2"/></svg>',
+  check: '<svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg>',
+  warn: '<svg viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17h.01"/></svg>',
+  lock: '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="1"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>'
+};
+function icon(name){ return '<span class="icon">' + (ICONS[name] || ICONS.coin) + '</span>'; }
+
+/* =========================================================
+   Storage helpers — everything wrapped in try/catch since
+   localStorage may be unavailable (e.g. sandboxed preview).
+   ========================================================= */
+const SK = "featureMarket_v1_";
+function sGet(key){ try{ const v = localStorage.getItem(SK+key); return v ? JSON.parse(v) : null; }catch(e){ return null; } }
+function sSet(key, val){ try{ localStorage.setItem(SK+key, JSON.stringify(val)); }catch(e){} }
+function sRemove(key){ try{ localStorage.removeItem(SK+key); }catch(e){} }
+
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+const app = document.getElementById("app");
+
+/* Ordered feature list — board and wallet both play in CONFIG.order.
+   Falls back to declaration order if no order array is given. */
+function orderedFeatures(){
+  if(!Array.isArray(CONFIG.order)) return CONFIG.features.slice();
+  const byId = {};
+  CONFIG.features.forEach(f => byId[f.id] = f);
+  return CONFIG.order.map(id => byId[id]).filter(Boolean);
+}
+
+/* =========================================================
+   ROUTER
+   ========================================================= */
+function route(){
+  const hash = location.hash.replace("#","");
+  if(hash === "board") renderBoard();
+  else if(hash === "wallet") renderWallet();
+  else renderMenu();
+}
+window.addEventListener("hashchange", route);
+window.addEventListener("DOMContentLoaded", route);
+
+/* =========================================================
+   MENU
+   ========================================================= */
+function renderMenu(){
+  app.innerHTML = `
+    <div class="menu-screen">
+      <div class="menu-card">
+        <h1>${esc(CONFIG.meta.title)}</h1>
+        <div class="sub">${esc(CONFIG.meta.subtitle)}</div>
+        <div class="menu-choices">
+          <a class="menu-btn recommended" href="#wallet">
+            <span class="menu-flag">מומלץ</span>
+            ${icon("coin")}
+            <h3>ארנק צוות</h3>
+            <p>כל צוות משחק על המחשב שלו — תקציב פרטי, סל פרטי, לאפליקציה של הצוות הזה.</p>
+          </a>
+          <a class="menu-btn" href="#board">
+            ${icon("home")}
+            <h3>לוח מנחה</h3>
+            <p>חלופה לשחק יחד ככיתה על המסך, בלי שכל צוות במחשב נפרד — כתחרות בין צוותים או כשיתוף פעולה כיתתי.</p>
+          </a>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* =========================================================
+   BOARD  (facilitator, projected, shared — knows nothing
+   about teams; it only reveals the truth about each feature)
+   ========================================================= */
+function loadBoardState(){ return sGet("board") || { started:false, index:0, stage:0 }; }
+function saveBoardState(s){ sSet("board", s); }
+
+function renderBoard(){
+  const state = loadBoardState();
+  const features = orderedFeatures();
+
+  if(!state.started){
+    app.innerHTML = boardIntroTemplate();
+    bindBoardEvents();
+    return;
+  }
+
+  if(state.index >= features.length){
+    app.innerHTML = boardEndTemplate();
+    bindBoardEvents();
+    return;
+  }
+
+  const f = features[state.index];
+  app.innerHTML = `
+    <div class="board">
+      <div class="board-top">
+        <div class="board-title">${icon("home")} ${esc(CONFIG.meta.title)}</div>
+      </div>
+      <div class="board-framing">${esc(CONFIG.texts.boardFraming)}</div>
+      <div class="board-main">
+        <div class="board-card">
+          <div class="board-card-head">
+            ${icon(f.icon)}
+            <div>
+              <h2 class="board-feature-name">${esc(f.name)}
+                ${f.forkType==="blind" ? '<span class="board-badge">בחירה עיוורת</span>' : ""}
+              </h2>
+            </div>
+          </div>
+          ${boardStickerBlock(f)}
+          ${boardStages(f, state.stage || 0)}
+        </div>
+      </div>
+      <div class="board-nav">
+        <button class="nav-btn" data-action="prev" ${state.index===0?"disabled":""}>&rarr; הקודם</button>
+        <button class="nav-btn primary" data-action="next">הבא &larr;</button>
+        <button class="nav-btn" data-action="finish">סיום הסבב &larr;</button>
+      </div>
+      <button class="board-reset" data-action="reset">איפוס לוח</button>
+    </div>`;
+  bindBoardEvents();
+}
+
+function boardIntroTemplate(){
+  const t = CONFIG.texts;
+  return `
+    <div class="board">
+      <div class="board-top">
+        <div class="board-title">${icon("home")} ${esc(CONFIG.meta.title)}</div>
+      </div>
+      <div class="board-main">
+        <div class="board-card">
+          <h2 class="board-feature-name">${esc(t.boardIntroTitle)}</h2>
+          <ul class="board-rules">
+            ${t.boardIntroRules.map(r=>`<li>${esc(r)}</li>`).join("")}
+          </ul>
+          <button class="reveal-btn" data-action="start">${esc(t.boardIntroStart)}</button>
+        </div>
+      </div>
+      <button class="board-reset" data-action="reset">איפוס לוח</button>
+    </div>`;
+}
+
+function boardStickerBlock(f){
+  if(f.forkType === "blind"){
+    return `<div class="board-note">שתי אפשרויות, בלי לדעת מה בפנים ובלי לדעת מחיר: <b>${esc(f.options[0].teaser)}</b> או <b>${esc(f.options[1].teaser)}</b>. כל צוות בוחר בעצמו.</div>`;
+  }
+  if(typeof f.sticker !== "number"){
+    return `<div class="board-sticker"><span class="num">???</span><span class="lbl">אין מדבקת מחיר — צריך להיכנס ולקנות כדי לגלות כמה זה עולה</span></div>`;
+  }
+  return `<div class="board-sticker"><span class="num">${f.sticker}</span><span class="lbl">נקודות בנייה — מדבקת מחיר</span></div>`;
+}
+/* Board reveal is a fixed 2-step flow for every feature:
+   stage 0 → offer only, button "מה כלול במחיר"
+   stage 1 → what's included / the options, button "מה הלקח?"
+   stage 2 → the consequence + lesson. */
+function boardStages(f, stage){
+  let html = "";
+  if(stage === 0){
+    html += `<div class="board-round-prompt">${esc(CONFIG.texts.roundPrompt)}</div>`;
+    html += `<button class="reveal-btn" data-action="reveal1">מה כלול במחיר</button>`;
+    return html;
+  }
+  html += `<div class="reveal-panel">${boardIncludedPanel(f, stage)}</div>`;
+  if(stage === 1){
+    html += `<button class="reveal-btn" data-action="reveal2">מה הלקח?</button>`;
+  } else {
+    html += `<div class="reveal-panel lesson-panel">${boardLessonPanel(f)}<div class="lesson-line"><b>הלקח:</b> ${esc(f.lesson)}</div></div>`;
+  }
+  return html;
+}
+
+/* What's included / the options — no consequences yet.
+   For the blind box, the price is a secret until "מה הלקח?" (stage 2). */
+function boardIncludedPanel(f, stage){
+  if(f.forkType === "none"){
+    return `<p class="reveal-truth">${esc(f.revealText)}</p>`;
+  }
+  if(f.forkType === "mandatory"){
+    return `<p class="board-note">המחיר על המדבקה כבר לא רלוונטי — בוחרים גרסה:</p>` +
+      `<div class="branch-row disabled"><span>מדבקה מקורית</span><span class="price blocked"><s>${f.sticker}</s> לא זמין</span></div>` +
+      f.branches.map(b => `
+        <div class="branch-row">
+          <span>${esc(b.label)}</span>
+          <span class="price">${b.price}</span>
+        </div>`).join("");
+  }
+  if(f.forkType === "ladder"){
+    return (f.note ? `<p class="reveal-truth">${esc(f.note)}</p>` : "") +
+      f.tiers.map(t => `
+        <div class="branch-row">
+          <span>${esc(t.label)}</span>
+          <span class="price">${t.free ? "חינם" : t.price}</span>
+        </div>`).join("");
+  }
+  if(f.forkType === "trap"){
+    return `<div class="branch-row"><span>לפי המדבקה, נראה כמו פיצ'ר רגיל</span><span class="price">${f.sticker}</span></div>`;
+  }
+  if(f.forkType === "blind"){
+    const showPrice = stage >= 2;
+    return `<p class="board-note">${showPrice ? "וזה מה שכל אפשרות עלתה:" : "אחרי שהצוותים בחרו — זה מה שקיבלו. את המחיר מגלים רק ב-'מה הלקח?'."}</p>` +
+      f.options.map(o => `
+        <div class="branch-row">
+          <span>${esc(o.teaser)} &larr; ${esc(o.revealLabel)}</span>
+          <span class="price">${showPrice ? o.revealPrice : "???"}</span>
+        </div>`).join("");
+  }
+  return "";
+}
+
+/* The consequence — shown only after "מה הלקח?". */
+function boardLessonPanel(f){
+  if(f.forkType === "mandatory"){
+    return `<p class="reveal-truth">${esc(f.revealText)}</p>` +
+      (f.judgment ? `<p class="board-note"><b>שאלת שיפוט:</b> ${esc(f.judgment)}</p>` : "");
+  }
+  if(f.forkType === "ladder"){
+    const secret = f.tiers.find(t => t.secretNote);
+    return secret ? `<p class="reveal-truth">${esc(secret.secretNote)}</p>` : "";
+  }
+  if(f.forkType === "trap"){
+    return `<div class="trap-stamp">מחוץ לתחום ל-MVP</div><p class="reveal-truth">${esc(f.trapReveal)}</p>`;
+  }
+  return "";
+}
+
+function boardEndTemplate(){
+  const t = CONFIG.texts;
+  return `
+    <div class="board">
+      <div class="board-top">
+        <div class="board-title">${icon("home")} ${esc(CONFIG.meta.title)}</div>
+      </div>
+      <div class="board-main">
+        <div class="board-end">
+          <h2>${esc(t.boardEndTitle)}</h2>
+          <p>${esc(t.boardEndIntro)}</p>
+          <div class="reflect-box">
+            ${t.reflectPrompts.map((q,i)=>`<div style="margin-bottom:${i<t.reflectPrompts.length-1?'10px':'0'};">${i+1}. ${esc(q)}</div>`).join("")}
+          </div>
+          <div class="takeaway">${esc(t.takeaway)}</div>
+          <div class="bridge">${esc(t.bridge)}</div>
+        </div>
+      </div>
+      <button class="board-reset" data-action="reset">איפוס לוח</button>
+    </div>`;
+}
+
+function bindBoardEvents(){
+  app.querySelectorAll("[data-action]").forEach(el=>{
+    el.addEventListener("click", e=>{
+      const action = el.getAttribute("data-action");
+      const state = loadBoardState();
+      const count = orderedFeatures().length;
+      if(action === "start"){ state.started = true; state.index = 0; state.stage = 0; saveBoardState(state); renderBoard(); }
+      else if(action === "reveal1"){ state.stage = 1; saveBoardState(state); renderBoard(); }
+      else if(action === "reveal2"){ state.stage = 2; saveBoardState(state); renderBoard(); }
+      else if(action === "next"){ e.preventDefault(); state.index = Math.min(state.index+1, count); state.stage = 0; saveBoardState(state); renderBoard(); }
+      else if(action === "prev"){ e.preventDefault(); state.index = Math.max(state.index-1, 0); state.stage = 0; saveBoardState(state); renderBoard(); }
+      else if(action === "finish"){ e.preventDefault(); state.index = count; state.stage = 0; saveBoardState(state); renderBoard(); }
+      else if(action === "reset"){ if(confirm("לאפס את הלוח לתחילת המשחק?")){ sRemove("board"); renderBoard(); } }
+    });
+  });
+}
+
+/* =========================================================
+   WALLET  (per-team, private, on the team's own device)
+   ========================================================= */
+function getActiveTeamId(){ return sGet("activeTeam"); }
+function loadTeam(teamId){ return sGet("wallet_"+teamId); }
+function saveTeam(teamId, teamState){ sSet("wallet_"+teamId, teamState); }
+let walletClickBound = false;
+
+function renderWallet(){
+  const teamId = getActiveTeamId();
+  if(!teamId || !loadTeam(teamId)){
+    renderWalletSetup();
+    return;
+  }
+  mountWalletMain(teamId);
+}
+
+function renderWalletSetup(){
+  app.innerHTML = `
+    <div class="setup-screen">
+      <div class="setup-card">
+        <a class="back-link" href="#">&rarr; חזרה לתפריט</a>
+        <h2>הצוות שלכם</h2>
+        <p style="color:var(--ink-dark-dim);">כל צוות מתחיל עם ${CONFIG.meta.budget} נקודות בנייה, לאפליקציה שלו בלבד.</p>
+        <label>שם הצוות</label>
+        <input id="team-name" type="text" placeholder="למשל: הצוות של דני ונועה">
+        <label>רעיון האפליקציה שלכם (משפט אחד)</label>
+        <textarea id="team-idea" placeholder="למשל: אפליקציה שעוזרת לבני נוער למצוא חוגים בעיר"></textarea>
+        <button data-action="create-team">התחילו לקנות</button>
+      </div>
+    </div>`;
+  app.querySelector('[data-action="create-team"]').addEventListener("click", ()=>{
+    const name = app.querySelector("#team-name").value.trim() || "צוות ללא שם";
+    const idea = app.querySelector("#team-idea").value.trim();
+    const teamId = "team_" + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+    const teamState = {
+      teamName: name,
+      appIdea: idea,
+      budget: CONFIG.meta.budget,
+      decisions: {},
+      walletIndex: 0,
+      reflections: { hardest:"", refused:"" }
+    };
+    saveTeam(teamId, teamState);
+    sSet("activeTeam", teamId);
+    renderWallet();
+  });
+}
+
+function spentFor(teamState){
+  let spent = 0;
+  Object.values(teamState.decisions).forEach(d=>{
+    if(d && (d.status === "bought") && typeof d.price === "number") spent += d.price;
+  });
+  return spent;
+}
+
+/* The "sensible final price" of a feature for the leftover round —
+   the version that makes sense in an MVP. Returns null for features
+   that shouldn't be offered (traps, blind box, no reasonable price). */
+function sensiblePrice(f){
+  if(f.forkType === "none") return typeof f.sticker === "number" ? f.sticker : null;
+  if(f.forkType === "mandatory"){
+    const prices = f.branches.filter(b => typeof b.price === "number").map(b => b.price);
+    return prices.length ? Math.min(...prices) : null; // the downgrade
+  }
+  if(f.forkType === "ladder"){
+    const paid = f.tiers.filter(t => !t.free && typeof t.price === "number").map(t => t.price);
+    return paid.length ? Math.min(...paid) : null; // cheapest real upgrade
+  }
+  return null; // trap / blind: not offered
+}
+
+/* Features the team hasn't bought yet, at their sensible price, that
+   the team can still afford with `remaining`. */
+function leftoverOffers(teamState, remaining){
+  const offers = [];
+  orderedFeatures().forEach(f => {
+    const d = teamState.decisions[f.id];
+    if(d && d.status === "bought") return; // already own it
+    const price = sensiblePrice(f);
+    if(price == null || price > remaining) return;
+    let label = f.name;
+    if(f.forkType === "mandatory"){
+      const b = f.branches.find(x => x.price === price);
+      if(b) label = f.name + ": " + b.label;
+    } else if(f.forkType === "ladder"){
+      const t = f.tiers.find(x => x.price === price);
+      if(t) label = f.name + ": " + t.label;
+    }
+    offers.push({ id: f.id, price, label });
+  });
+  return offers;
+}
+
+/* Enforce the budget rule: if a team drops below zero, it's out of the
+   market — it loses the most recently acquired feature and can't buy
+   anymore. Removing that purchase restores the budget to its pre-buy
+   level; the penalty is the lost feature plus the lock-out. */
+function enforceBudget(teamState){
+  const remaining = CONFIG.meta.budget - spentFor(teamState);
+  if(remaining >= 0 || teamState.eliminated) return;
+  let lastId = null, lastSeq = -1;
+  Object.entries(teamState.decisions).forEach(([id, d]) => {
+    if(d && d.status === "bought" && (d.seq || 0) > lastSeq){ lastSeq = d.seq || 0; lastId = id; }
+  });
+  teamState.eliminated = true;
+  if(lastId){
+    const lost = teamState.decisions[lastId];
+    teamState.lostFeatureLabel = lost.label;
+    teamState.eliminationReveal = lost.reveal || "";
+    teamState.eliminationLesson = lost.lesson || "";
+    delete teamState.decisions[lastId];
+  }
+}
+
+function mountWalletMain(teamId){
+  const teamState = loadTeam(teamId);
+  app.innerHTML = `
+    <div class="wallet">
+      <div class="wallet-header">
+        <div class="wallet-header-top">
+          <div>
+            <div class="wallet-team">${icon("coin")} ${esc(teamState.teamName)}</div>
+            ${teamState.appIdea ? `<div class="wallet-idea" title="${esc(teamState.appIdea)}">${esc(teamState.appIdea)}</div>` : ""}
+          </div>
+          <div class="wallet-actions">
+            <button class="link-btn" data-action="switch-team">החלפת צוות</button>
+          </div>
+        </div>
+        <div class="meter-wrap">
+          <div class="meter-row">
+            <span>תקציב שנותר</span>
+            <span class="meter-num" id="meter-num"></span>
+          </div>
+          <div class="meter-bar-bg"><div class="meter-bar" id="meter-bar"></div></div>
+        </div>
+      </div>
+      <div class="wallet-main">
+        <div class="framing-line">${esc(CONFIG.texts.walletFraming)}</div>
+        <div id="cardsList"></div>
+        <div id="basketSummary"></div>
+        <div id="endScreen"></div>
+      </div>
+    </div>`;
+
+  app.querySelector('[data-action="switch-team"]').addEventListener("click", ()=>{
+    if(confirm("להחליף צוות? נתוני הצוות הנוכחי יישארו שמורים, ותוכלו לחזור אליו רק אם תזכרו את פרטי ההתחלה מחדש.")){
+      sRemove("activeTeam");
+      renderWallet();
+    }
+  });
+
+  if(!walletClickBound){ app.addEventListener("click", walletDelegatedClick); walletClickBound = true; }
+
+  updateMeter(teamId);
+  renderCards(teamId);
+  renderBasket(teamId);
+}
+
+function updateMeter(teamId){
+  const teamState = loadTeam(teamId);
+  const remaining = CONFIG.meta.budget - spentFor(teamState);
+  const pct = Math.max(0, Math.min(100, (remaining / CONFIG.meta.budget) * 100));
+  const numEl = document.getElementById("meter-num");
+  const barEl = document.getElementById("meter-bar");
+  if(!numEl || !barEl) return;
+  numEl.textContent = remaining + " / " + CONFIG.meta.budget;
+  numEl.classList.remove("pulse");
+  requestAnimationFrame(()=> numEl.classList.add("pulse"));
+  barEl.style.width = pct + "%";
+  barEl.style.background = remaining < 0 ? "var(--danger)" : (pct < 20 ? "var(--spend)" : (pct < 50 ? "var(--gold)" : "var(--save)"));
+  numEl.style.color = remaining < 0 ? "var(--danger)" : "var(--ink-dark)";
+}
+
+function renderCards(teamId){
+  const teamState = loadTeam(teamId);
+  const remaining = CONFIG.meta.budget - spentFor(teamState);
+  const list = document.getElementById("cardsList");
+  if(!list) return;
+  const features = orderedFeatures();
+  const idx = Math.min(teamState.walletIndex || 0, features.length);
+  if(teamState.eliminated){
+    list.innerHTML = `<div class="wallet-eliminated">${icon("warn")} <div>
+      <b>${esc(CONFIG.texts.eliminatedTitle)}</b><br>${esc(CONFIG.texts.eliminatedText)}
+      ${teamState.lostFeatureLabel ? `<br><span class="lost-feature">הפיצ'ר שאיבדתם: ${esc(teamState.lostFeatureLabel)}</span>` : ""}
+      ${teamState.eliminationReveal ? `<br><span class="elim-reveal">${esc(teamState.eliminationReveal)}</span>` : ""}
+      ${teamState.eliminationLesson ? `<br><span class="elim-lesson"><b>הלקח:</b> ${esc(teamState.eliminationLesson)}</span>` : ""}
+    </div></div>`;
+    return;
+  }
+  if(idx >= features.length){
+    list.innerHTML = `<div class="wallet-done">${icon("check")} עברתם על כל הפיצ'רים. גללו למטה לסיכום ולהכנה להגנה.</div>`;
+    return;
+  }
+  const f = features[idx];
+  const decision = teamState.decisions[f.id] || null;
+  const done = decision && (decision.status === "bought" || decision.status === "skipped");
+  list.innerHTML = cardTemplate(f, teamState, remaining) +
+    (done ? `<button class="next-feature-btn" data-action="next-feature">הפיצ'ר הבא &larr;</button>` : "");
+}
+
+/* Wallet card is a staged flow, identical shape for every feature:
+   (no decision) → offer         : קנו / דלגו  (or option buttons for ladder/blind)
+   stage "options"               : pick a version (mandatory only)
+   stage "lesson"                : "בחרתם: …" + button מה הלקח?
+   status bought/skipped         : locked. Budget only moves at the lesson step. */
+function cardTemplate(f, teamState, remaining){
+  const decision = teamState.decisions[f.id] || null;
+  const done = decision && (decision.status === "bought" || decision.status === "skipped");
+  let badge = "";
+  if(f.forkType === "blind") badge = '<span class="badge blind">בחירה עיוורת</span>';
+
+  let head = `
+    <div class="card-head">
+      ${icon(f.icon)}
+      <div>
+        <div class="card-title">${esc(f.name)} ${badge}</div>
+        ${f.note ? `<div class="card-sub">${esc(f.note)}</div>` : ""}
+      </div>
+    </div>`;
+
+  let body;
+  if(done) body = lockedCardBody(decision);
+  else if(!decision) body = offerBody(f, remaining);
+  else if(decision.stage === "options") body = optionsBody(f, decision, remaining);
+  else if(decision.stage === "lesson") body = lessonBody(f, decision);
+  else body = offerBody(f, remaining);
+
+  return `<div class="card ${done?'locked':''}" data-feature="${f.id}">${head}<div class="card-body">${body}</div></div>`;
+}
+
+function offerBody(f, remaining){
+  if(f.forkType === "blind"){
+    return `<p class="offer-note">בוחרים בלי לדעת מה בפנים ובלי לדעת מחיר. רק אחרי הבחירה תראו מה קיבלתם וכמה שילמתם.</p>` +
+      f.options.map((o,i)=>`
+        <div class="blind-opt">
+          <span>${esc(o.teaser)}</span>
+          <button data-action="pick-blind" data-feature="${f.id}" data-opt="${i}">בחרו בעיניים עצומות</button>
+        </div>`).join("") +
+      `<div class="row-buttons"><button class="btn btn-skip" data-action="skip" data-feature="${f.id}">דלגו</button></div>`;
+  }
+  if(f.forkType === "ladder"){
+    return `<p class="offer-note">${f.note ? esc(f.note) : "הגרסה הבסיסית כבר כלולה בחינם. אפשר לבחור שדרוג."}</p>` +
+      f.tiers.map((t,i)=>`
+        <div class="ladder-tier">
+          <span>${esc(t.label)}</span>
+          <span style="display:flex; align-items:center; gap:10px;">
+            <span class="p ${t.free?'free':''}">${t.free ? "חינם" : t.price + " נק'"}</span>
+            <button class="tier-btn" data-action="pick-tier" data-feature="${f.id}" data-tier="${i}" ${(!t.free && t.price>remaining)?"disabled":""}>בחרו</button>
+          </span>
+        </div>`).join("");
+  }
+  const sub = f.forkType === "mandatory" ? "(מדבקה — אולי לא המחיר הסופי)" : (f.forkType === "trap" ? "(מדבקה)" : "");
+  return `
+    <div class="price-tag">${f.sticker} נק' ${sub ? `<span style="font-size:.6em; color:var(--ink-dark-dim); font-weight:400;">${sub}</span>` : ""}</div>
+    <div class="row-buttons">
+      <button class="btn btn-buy" data-action="buy" data-feature="${f.id}">קנו</button>
+      <button class="btn btn-skip" data-action="skip" data-feature="${f.id}">דלגו</button>
+    </div>`;
+}
+
+function optionsBody(f, decision, remaining){
+  return `
+    <div class="reveal-inline">
+      <p class="truth">המדבקה כבר לא רלוונטית — צריך לבחור גרסה:</p>
+      <div class="branch-strike"><span>מדבקה מקורית</span><span class="p blocked"><s>${f.sticker}</s> לא זמין</span></div>
+      ${f.branches.map((b,i) => `
+        <button class="btn-branch" data-action="pick-branch" data-feature="${f.id}" data-branch="${i}" ${(typeof b.price==="number" && b.price>remaining) ? "disabled":""}>
+          <span>${esc(b.label)}</span>
+          <span class="p">${b.price} נק'${b.price>remaining?' (אין מספיק תקציב)':''}</span>
+        </button>`).join("")}
+      <div class="row-buttons"><button class="btn btn-skip" data-action="skip" data-feature="${f.id}">ביטול — דלגו</button></div>
+    </div>`;
+}
+
+function lessonBody(f, decision){
+  const showPrice = f.forkType !== "blind";
+  return `
+    <div class="reveal-inline">
+      <div class="locked-line">
+        <span class="lab">בחרתם: ${esc(decision.pendingLabel)}</span>
+        ${showPrice ? `<span class="amt spend">${decision.pendingPrice} נק'</span>` : `<span class="amt" style="color:var(--ink-dark-dim);">המחיר עוד רגע…</span>`}
+      </div>
+      <div class="row-buttons"><button class="btn btn-buy" data-action="lesson" data-feature="${f.id}">מה הלקח?</button></div>
+    </div>`;
+}
+
+function lockedCardBody(decision){
+  const isSpend = decision.status === "bought" && decision.price > 0;
+  const amt = decision.status === "bought" ? decision.price : (decision.saved || 0);
+  let amtText;
+  if(decision.displayAmt) amtText = decision.displayAmt;
+  else if(isSpend) amtText = "-" + amt;
+  else if(decision.status === "bought" && decision.price === 0) amtText = "חינם";
+  else amtText = "נחסך " + amt;
+  return `
+    <div class="locked-line">
+      <span class="lab">${esc(decision.label || (decision.status==="skipped" ? "דילגתם" : ""))}</span>
+      <span class="amt ${isSpend?'spend':'save'}">${amtText}</span>
+    </div>
+    ${decision.reveal ? `<div class="lesson-mini">${esc(decision.reveal)}</div>` : ""}
+    ${decision.lesson ? `<div class="lesson-mini"><b>הלקח:</b> ${esc(decision.lesson)}</div>` : ""}
+    ${decision.praise ? `<div class="praise">${esc(decision.praise)}</div>` : ""}
+    <div style="margin-top:8px; display:flex; align-items:center; gap:6px; color:#b6b0e0; font-size:.8em;">${icon("lock")} נעול</div>
+  `;
+}
+
+function renderBasket(teamId){
+  const teamState = loadTeam(teamId);
+  const spent = spentFor(teamState);
+  const remaining = CONFIG.meta.budget - spent;
+  const bought = Object.values(teamState.decisions).filter(d => d && d.status === "bought");
+  const basketEl = document.getElementById("basketSummary");
+  const endEl = document.getElementById("endScreen");
+  if(basketEl){
+    basketEl.innerHTML = `
+      <div class="basket-panel">
+        <h3>הסל שלכם</h3>
+        ${bought.length ? bought.map(b=>`<div class="basket-item"><span>${esc(b.label)}</span><span>${b.price} נק'</span></div>`).join("") : `<div class="basket-empty">עדיין לא קניתם כלום.</div>`}
+        <div class="basket-total"><span>סה"כ הוצאה</span><span>${spent} נק'</span></div>
+        <div class="basket-total" style="border-top:none;padding-top:0;"><span>נשאר בתקציב</span><span>${remaining} נק'</span></div>
+      </div>`;
+  }
+  if(endEl){
+    const features = orderedFeatures();
+    const finished = (teamState.walletIndex || 0) >= features.length;
+    if(!finished && !teamState.eliminated){ endEl.innerHTML = ""; return; }
+
+    // Optional leftover round: spend remaining budget on sensible features
+    // the team skipped. Only for teams that finished with money left.
+    let leftoverHtml = "";
+    if(finished && !teamState.eliminated && remaining > 0){
+      const offers = leftoverOffers(teamState, remaining);
+      leftoverHtml = `
+        <div class="leftover-panel">
+          <h3>${esc(CONFIG.texts.leftoverTitle)}</h3>
+          <p class="leftover-intro">${esc(CONFIG.texts.leftoverIntro)}</p>
+          ${offers.length ? offers.map(o=>`
+            <div class="leftover-item">
+              <span>${esc(o.label)}</span>
+              <button data-action="buy-extra" data-feature="${o.id}" data-price="${o.price}">הוסיפו — ${o.price} נק'</button>
+            </div>`).join("") : `<div class="basket-empty">${esc(CONFIG.texts.leftoverNone)}</div>`}
+        </div>`;
+    }
+
+    endEl.innerHTML = `
+      ${leftoverHtml}
+      <div class="end-panel">
+        <h3>לפני ההגנה</h3>
+        ${CONFIG.texts.reflectPrompts.map((q,i)=>`
+          <div class="reflect-q">
+            <label>${i+1}. ${esc(q)}</label>
+            <textarea data-action="reflect" data-key="${i===0?'hardest':'refused'}">${esc(i===0?teamState.reflections.hardest:teamState.reflections.refused)}</textarea>
+          </div>`).join("")}
+        <div class="takeaway-wallet">${esc(CONFIG.texts.takeaway)}</div>
+        <div class="bridge-wallet">${esc(CONFIG.texts.bridge)}</div>
+      </div>`;
+    endEl.querySelectorAll('[data-action="reflect"]').forEach(ta=>{
+      ta.addEventListener("input", ()=>{
+        const t = loadTeam(teamId);
+        t.reflections[ta.getAttribute("data-key")] = ta.value;
+        saveTeam(teamId, t);
+      });
+    });
+  }
+}
+
+function walletDelegatedClick(e){
+  const teamId = getActiveTeamId();
+  if(!teamId) return;
+  const el = e.target.closest("[data-action]");
+  if(!el) return;
+
+  // Advancing to the next feature in the wallet stepper (no data-feature).
+  if(el.getAttribute("data-action") === "next-feature"){
+    const t = loadTeam(teamId);
+    t.walletIndex = Math.min((t.walletIndex || 0) + 1, orderedFeatures().length);
+    saveTeam(teamId, t);
+    updateMeter(teamId);
+    renderCards(teamId);
+    renderBasket(teamId);
+    const w = document.querySelector(".wallet");
+    if(w) w.scrollIntoView({behavior:"smooth", block:"start"});
+    return;
+  }
+
+  if(!el.getAttribute("data-feature")) return;
+  const action = el.getAttribute("data-action");
+  const featureId = el.getAttribute("data-feature");
+  const f = CONFIG.features.find(x => x.id === featureId);
+  const teamState = loadTeam(teamId);
+  const remaining = CONFIG.meta.budget - spentFor(teamState);
+
+  // Once a team is out of the market, no more buying of any kind.
+  if(teamState.eliminated) return;
+
+  if(action === "buy-extra"){
+    const price = Number(el.getAttribute("data-price"));
+    if(price > remaining) return; // safety: never overspend in the bonus round
+    const offer = leftoverOffers(teamState, remaining).find(o => o.id === featureId);
+    teamState.decisions[featureId] = { status:"bought", label: (offer ? offer.label : f.name), price: price, lesson: f.lesson };
+
+  } else if(action === "buy"){
+    // no-option features (none / trap) go straight to the lesson step;
+    // mandatory features open the version picker first.
+    if(f.forkType === "mandatory"){
+      teamState.decisions[featureId] = { status:"staging", stage:"options" };
+    } else {
+      teamState.decisions[featureId] = { status:"staging", stage:"lesson", pendingLabel: f.name, pendingPrice: f.sticker };
+    }
+
+  } else if(action === "pick-branch"){
+    const idx = Number(el.getAttribute("data-branch"));
+    const b = f.branches[idx];
+    if(typeof b.price === "number" && b.price > remaining) return;
+    teamState.decisions[featureId] = { status:"staging", stage:"lesson", pendingLabel: f.name + ": " + b.label, pendingPrice: b.price, branchIdx: idx };
+
+  } else if(action === "pick-tier"){
+    const idx = Number(el.getAttribute("data-tier"));
+    const t = f.tiers[idx];
+    if(!t.free && t.price > remaining) return;
+    teamState.decisions[featureId] = { status:"staging", stage:"lesson", pendingLabel: f.name + ": " + t.label, pendingPrice: t.free ? 0 : t.price, tierIdx: idx };
+
+  } else if(action === "pick-blind"){
+    const idx = Number(el.getAttribute("data-opt"));
+    teamState.decisions[featureId] = { status:"staging", stage:"lesson", pendingLabel: f.name + ": " + f.options[idx].teaser, optIdx: idx };
+
+  } else if(action === "lesson"){
+    // "מה הלקח?" — commit the purchase and reveal the consequence.
+    const cur = teamState.decisions[featureId] || {};
+    let price, label, reveal = "";
+    if(f.forkType === "none"){
+      price = f.sticker; label = f.name; reveal = f.revealText;
+    } else if(f.forkType === "mandatory"){
+      const b = f.branches[cur.branchIdx];
+      price = b.price; label = f.name + ": " + b.label; reveal = f.revealText;
+    } else if(f.forkType === "ladder"){
+      const t = f.tiers[cur.tierIdx];
+      price = t.free ? 0 : (t.price + (t.secretExtra || 0));
+      label = f.name + ": " + t.label;
+      reveal = t.secretNote || "";
+    } else if(f.forkType === "trap"){
+      price = (typeof f.realPrice === "number" ? f.realPrice : f.sticker);
+      label = f.name;
+      reveal = f.trapReveal;
+    } else if(f.forkType === "blind"){
+      const o = f.options[cur.optIdx];
+      price = o.revealPrice; label = f.name + ": " + o.revealLabel;
+      reveal = "קיבלתם: " + o.revealLabel + " · שילמתם " + o.revealPrice + " נק'";
+    }
+    teamState.decisions[featureId] = { status:"bought", label, price, reveal, lesson: f.lesson };
+
+  } else if(action === "skip"){
+    const isTrap = f.forkType === "trap";
+    teamState.decisions[featureId] = isTrap
+      ? { status:"skipped", label: f.name + " — הכרתם בגבול מראש", saved: 0, displayAmt: "הכרתם בגבול", lesson: f.lesson, praise: "יפה — הכרתם בגבול לפני שניסיתם לקנות." }
+      : { status:"skipped", label: f.name + " — דילוג", saved: (typeof f.sticker === "number" ? f.sticker : 0), lesson: f.lesson };
+
+  } else {
+    return;
+  }
+
+  // Stamp acquisition order on new purchases (used to know which feature
+  // is "the last one acquired" if the budget rule kicks in).
+  const dNow = teamState.decisions[featureId];
+  if(dNow && dNow.status === "bought" && dNow.seq == null){
+    teamState.seq = (teamState.seq || 0) + 1;
+    dNow.seq = teamState.seq;
+  }
+  enforceBudget(teamState);
+
+  saveTeam(teamId, teamState);
+  updateMeter(teamId);
+  renderCards(teamId);
+  renderBasket(teamId);
+  const cardEl = document.querySelector(`[data-feature="${featureId}"]`);
+  if(cardEl){ cardEl.classList.add("just-changed"); setTimeout(()=>cardEl.classList.remove("just-changed"), 700); }
+}
+</script>
+</body>
+</html>
