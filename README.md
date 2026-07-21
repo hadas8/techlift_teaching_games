@@ -30,7 +30,7 @@ The class mode is designed as a shared, instructor-led moment; the team mode is 
 ## The games
 
 ### 🛒 Feature Market — שוק הפיצ'רים
-**Folder:** [`budget game/`](budget%20game/index.html)
+**Folder:** [`feature-market/`](feature-market/index.html) · **Play:** https://hadas8.github.io/techlift_teaching_games/feature-market/
 
 **Purpose:** Prioritization and scoping / MVP thinking. Every team gets the *same shop, the same prices, and a fixed build budget* (100 build points) — but a private wallet for their own app. Feature by feature, they decide: **buy or skip.** Skipping is a legitimate move — leftover budget stays in your pocket. The point isn't to buy the most; it's to buy only what *your* app actually needs, then defend those choices.
 
@@ -39,7 +39,7 @@ The class mode is designed as a shared, instructor-led moment; the team mode is 
 ---
 
 ### 🐛 Bug Safari — ספארי באגים
-**Folder:** [`bug safari/`](bug%20safari/bug-safari.html)
+**Folder:** [`bug-safari/`](bug-safari/index.html) · **Play:** https://hadas8.github.io/techlift_teaching_games/bug-safari/
 
 **Purpose:** QA and critical-eye training. Teams explore a deliberately broken sample app seeded with planted bugs and hunt them down against the clock, documenting each finding with a suggested fix. The twist: judge the app by *its audience*, not by what's convenient — some issues are only bugs for that specific audience. Ends with a reveal, a severity map, and a debrief.
 
@@ -48,7 +48,7 @@ The class mode is designed as a shared, instructor-led moment; the team mode is 
 ---
 
 ### 🏗️ Build Simulator — סימולטור הבנייה
-**Folder:** [`build simulator/`](build%20simulator/index.html)
+**Folder:** [`build-simulator/`](build-simulator/index.html) · **Play:** https://hadas8.github.io/techlift_teaching_games/build-simulator/
 
 **Purpose:** Building a real app *with AI*. Each turn, the team picks the next prompt to send — and the screen changes based on what they asked for. The goal: reach a working first screen before the turns run out. It rewards the **golden rule** of AI-assisted building: give full context up front, then move in focused steps — prompt, test, save — instead of chasing greedy all-at-once requests.
 
@@ -57,7 +57,7 @@ The class mode is designed as a shared, instructor-led moment; the team mode is 
 ---
 
 ### 📰 The Newsroom — חדר החדשות
-**Folder:** [`fake news/`](fake%20news/index.html)
+**Folder:** [`newsroom/`](newsroom/index.html) · **Play:** https://hadas8.github.io/techlift_teaching_games/newsroom/
 
 **Purpose:** Media literacy and spotting misinformation. Round by round, teams weigh a story and lock in a vote *before* the truth is revealed. In class mode several groups vote around one projected board; in team mode the computer *is* your group.
 
@@ -66,7 +66,7 @@ The class mode is designed as a shared, instructor-led moment; the team mode is 
 ---
 
 ### 🎤 The Editing Table — שולחן העריכה
-**Folder:** [`pitch assembly/`](pitch%20assembly/editing-table.html)
+**Folder:** [`editing-table/`](editing-table/index.html) · **Play:** https://hadas8.github.io/techlift_teaching_games/editing-table/
 
 **Purpose:** Pitch craft and storytelling. Teams get the building blocks of an elevator pitch — shuffled — and arrange them into the strongest version, discovering how **order changes meaning.** A second round teaches that a great pitch is also about what you leave *out*. There's no single right answer: the engine scores each attempt **1–5** on ordering principles and explains *why* an order works or falls apart — mirroring the peer rating used in the lesson.
 
@@ -78,18 +78,26 @@ The class mode is designed as a shared, instructor-led moment; the team mode is 
 
 ```
 techlift_teaching_games/
-├── budget game/        # שוק הפיצ'רים — Feature Market
-├── bug safari/         # ספארי באגים — Bug Safari
-├── build simulator/    # סימולטור הבנייה — Build Simulator
-├── fake news/          # חדר החדשות — The Newsroom
-├── pitch assembly/     # שולחן העריכה — The Editing Table
+├── feature-market/     # שוק הפיצ'רים — Feature Market
+├── bug-safari/         # ספארי באגים — Bug Safari
+├── build-simulator/    # סימולטור הבנייה — Build Simulator
+├── newsroom/           # חדר החדשות — The Newsroom
+├── editing-table/      # שולחן העריכה — The Editing Table
 └── README.md
 ```
 
+Each folder holds a single `index.html` — the whole game.
+
 ## Running a game
 
-1. Open the game's HTML file in a browser — locally (double-click) or via any static host.
+This repository is published with **GitHub Pages**, so every game has a live link (see each game above). To play:
+
+1. Open the game's **Play** link, or open its `index.html` locally (double-click).
 2. Pick a mode on the opening screen: **Class / Board** (מסלול לוח) or **Team** (מסלול צוות).
 3. Play. Nothing is saved — closing or refreshing the tab resets everything.
 
-To share with a class, host the folder as a static site (e.g. GitHub Pages) and hand out the link.
+To share with a class, just hand out the game's Play link.
+
+### Updating a game
+
+Edit the game's `index.html`, commit, and push. GitHub Pages redeploys automatically to the **same link** within a minute or two — refresh the browser to see the change. Links never change.
