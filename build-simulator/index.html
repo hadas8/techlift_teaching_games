@@ -75,6 +75,7 @@ button{font-family:inherit}
 /* prompt-category tags — neutral, describe SCOPE not correctness */
 .tag.broad{background:var(--indigo-dim);color:var(--indigo)}
 .tag.focused{background:var(--teal-dim);color:var(--teal)}
+.tag.reco{background:var(--amber-dim);color:var(--amber);font-size:10.5px;padding:2px 8px;vertical-align:middle;margin-inline-start:6px}
 
 /* ============================================================
    START SCREEN
@@ -197,32 +198,6 @@ body.board .board-banner{display:flex}
 .screen-tick{height:30px;background:#fff;display:flex;align-items:center;justify-content:space-between;
   padding:0 16px;font-size:12px;color:#6b7591;border-bottom:1px solid #eef0f6;font-weight:700}
 .app-screen{flex:1;overflow:auto;display:flex;flex-direction:column}
-.tested-flag{
-  position:absolute;top:38px;inset-inline-start:10px;z-index:5;
-  background:var(--red);color:#fff;font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;
-  display:none;align-items:center;gap:5px;box-shadow:0 6px 16px rgba(255,92,108,.4)
-}
-.screen-frame.show-test .tested-flag{display:inline-flex}
-
-/* discipline bar under phone */
-.disc-bar{margin:14px auto 0;max-width:360px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.disc-btn{
-  cursor:pointer;background:var(--panel);border:1.5px solid var(--line);border-radius:12px;
-  padding:11px 6px 9px;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:5px;transition:.15s;text-align:center
-}
-.disc-btn:hover:not(:disabled){border-color:var(--blue);background:var(--blue-dim);transform:translateY(-2px)}
-.disc-btn:disabled{opacity:.4;cursor:not-allowed}
-.disc-btn .icon{font-size:20px;color:var(--blue)}
-.disc-btn b{font-size:13px}
-.disc-btn small{font-size:10.5px;color:var(--muted-2);font-weight:700}
-.save-slot{
-  margin:12px auto 0;max-width:360px;background:var(--panel-2);border:1px dashed var(--line);
-  border-radius:12px;padding:10px 13px;display:flex;align-items:center;gap:11px;font-size:13px
-}
-.save-slot .sico{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:var(--panel);border:1px solid var(--line);color:var(--muted-2)}
-.save-slot.has .sico{color:var(--blue);border-color:rgba(74,168,255,.5);background:var(--blue-dim)}
-.save-slot .sl{color:var(--muted-2);font-weight:700;font-size:11px}
-.save-slot .sn{font-weight:800}
 
 /* ---------- prompt pane ---------- */
 .prompt-head{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
@@ -237,7 +212,6 @@ body.board .board-banner{display:flex}
 /* reveals are AFTER the choice — coloring by outcome here is fine (not a pre-choice tell) */
 .reveal.advance{border-color:rgba(53,208,127,.4)}.reveal.advance .ric{background:var(--green-dim);color:var(--green)}
 .reveal.setback{border-color:rgba(255,92,108,.45)}.reveal.setback .ric{background:var(--red-dim);color:var(--red)}
-.reveal.discipline{border-color:rgba(74,168,255,.42)}.reveal.discipline .ric{background:var(--blue-dim);color:var(--blue)}
 .reveal .rtxt{font-size:14.5px;line-height:1.5}
 .reveal .rtxt .lesson{display:block;margin-top:6px;color:var(--muted);font-size:13px;font-style:italic}
 .reveal.placeholder{border-style:dashed;color:var(--muted-2)}
@@ -345,20 +319,19 @@ body.board .vote-badge{
 .map .step .n{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font-size:12px;font-weight:900;flex:none;color:#08122b}
 .map .step.advance{border-color:rgba(53,208,127,.4)} .map .step.advance .n{background:var(--green)}
 .map .step.setback{border-color:rgba(255,92,108,.4)} .map .step.setback .n{background:var(--red)}
-.map .step.discipline{border-color:rgba(74,168,255,.4)} .map .step.discipline .n{background:var(--blue)}
 .map .step .delta{font-weight:900;font-size:11px;margin-inline-start:6px}
-.map .step.advance .delta{color:var(--green)} .map .step.setback .delta{color:var(--red)} .map .step.discipline .delta{color:var(--muted-2)}
+.map .step.advance .delta{color:var(--green)} .map .step.setback .delta{color:var(--red)}
 .map .step .st{font-size:12px;font-weight:700;line-height:1.3}
 .map .step .sc{font-size:10.5px;color:var(--muted-2);font-weight:800;margin-top:3px}
 .map-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12.5px;color:var(--muted)}
 .map-legend span{display:inline-flex;align-items:center;gap:6px}
 .map-legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
-.map-legend .g{background:var(--green)}.map-legend .r{background:var(--red)}.map-legend .b{background:var(--blue)}
+.map-legend .g{background:var(--green)}.map-legend .r{background:var(--red)}
 
 .tally{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
 .tally .t{flex:1 1 120px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .tally .t .num{font-size:26px;font-weight:900;line-height:1}
-.tally .t.g .num{color:var(--green)}.tally .t.r .num{color:var(--red)}.tally .t.b .num{color:var(--blue)}
+.tally .t.g .num{color:var(--green)}.tally .t.r .num{color:var(--red)}
 .tally .t .lb{color:var(--muted);font-size:12.5px;font-weight:700;margin-top:3px}
 
 .progbar{height:14px;border-radius:999px;background:var(--panel-3);overflow:hidden;margin-top:6px;border:1px solid var(--line)}
@@ -370,8 +343,6 @@ body.board .vote-badge{
 .debrief-list{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:10px}
 .debrief-list li{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:13px 15px;font-size:14.5px;display:flex;gap:11px;align-items:flex-start}
 .debrief-list li .qm{color:var(--purple);font-weight:900;font-size:18px;flex:none;line-height:1.2}
-.handoff{background:linear-gradient(120deg,var(--blue-dim),transparent);border:1px solid rgba(74,168,255,.4);text-align:center;font-size:16px;line-height:1.55;font-weight:600}
-.handoff .icon{color:var(--blue)}
 .end-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:22px 0 4px}
 
 .hidden{display:none !important}
@@ -422,58 +393,44 @@ function ic(id){return '<svg class="icon" aria-hidden="true"><use href="#i-'+id+
    To make a new scenario: add an object to CONFIG.scenarios.
    Engine below never needs to change.
    ------------------------------------------------------------
-   state:  { id, name, progress(0-100), looksFine, mock(HTML),
-             testReveal, choices:[...] }
+   state:  { id, name, progress(0-100), mock(HTML), choices:[...] }
    choice: { label, type:'small'|'greedy'|'vague',
              to, cost=1, reveal, lesson?, comicBeat?, outcome? }
      outcome (for the end-screen map) is inferred from type when
      omitted: small->advance, greedy/vague->repair. Set it
      explicitly for "small repair" steps (untangling) => 'repair'.
-   Discipline moves (save / test / restore) are engine-level and
-   available every turn from the bar under the phone.
    ============================================================ */
 const CONFIG = {
   meta:{
     title:"סימולטור הבנייה",
     kicker:"מחנה יזמות · בנייה עם AI",
     lead:"אתם צוות שבונה אפליקציה עם AI. כל תור אתם בוחרים את הפרומפט הבא — והמסך משתנה לפי מה שביקשתם. המטרה: להגיע למסך ראשון שעובד לפני שנגמרים התורים.",
-    golden:"החוק הזהב: בהתחלה — הקשר מלא בבת אחת. מרגע שמשהו עובד — צעד ממוקד, בדיקה, שמירה.",
-    turns:9,
-    disciplineCost:1
+    golden:"חוק זהב: בהתחלה כדאי לתת הקשר מלא בבת אחת. מרגע שמשהו עובד, עוברים לצעד ממוקד.",
+    turns:9
   },
   ui:{
     turnsLabel:"תורים נותרו", goalLabel:"המטרה",
-    save:"שמור גרסה", saveSub:"שמור מצב נוכחי",
-    test:"בדוק מה עובד", testSub:"חשוף תקלות נסתרות",
-    restore:"חזור לגרסה", restoreSub:"שחזר מצב שמור",
-    slotEmpty:"אין גרסה שמורה", slotLabel:"גרסה שמורה",
     promptTitle:"מה הפרומפט הבא שלכם?",
     promptHint:"קראו והחליטו — הבחירה הנכונה תלויה בשלב הבנייה, לא בסוג הכרטיס. כל בחירה עולה תור.",
     revealPlaceholder:"בחרו פרומפט וה-AI יבנה. מה שיקרה יופיע כאן.",
     boardBanner:"מסלול לוח — הכיתה מצביעה בהצבעת ידיים, המנחה לוחץ על הכרטיס שזכה.",
     voteHint:"הצביעו בהרמת יד",
     costTurn:"תור",
-    testGenericFine:"בדקתם — הכל נראה עובד. לפעמים בדיקה רק מאשרת שאתם בכיוון. עדיין עלה תור אחד.",
-    saveDone:"נשמר. תור אחד עכשיו — ביטוח לכל מה שיבוא. אם משהו יישבר, תחזרו לכאן בתור אחד.",
-    restoreDone:"חזרתם לגרסה השמורה. כל מה שנשבר מאז — נעלם. תור אחד, לא שלושה.",
-    restoreNone:"אין גרסה שמורה לחזור אליה. שמירה זה מה שהופך 'נשבר' לתור אחד במקום שלושה.",
     winTitle:"הגעתם למסך ראשון עובד!",
     winSub:"בניתם אפליקציה שעובדת — צעד אחר צעד.",
     loseTitle:"לא הספקתם הפעם", loseSub:"נגמרו התורים — אבל תראו כמה הייתם קרובים, ואיפה דלפו התורים.",
-    mapTitle:"מפת התורים", mapSub:"כל תור שעשיתם — ירוק=התקדמות, אדום=תיקון/בזבוז, כחול=משמעת. כאן רואים איפה דלפו התורים.",
+    mapTitle:"מפת התורים", mapSub:"כל תור שעשיתם — ירוק=התקדמות, אדום=תיקון/בזבוז. כאן רואים איפה דלפו התורים.",
     progTitle:"כמה התקרבתם למטרה",
     payoffTitle:"מה עשיתם",
-    payoff:"עבדתם כמו צוות שבונה עם AI — הקשר מלא בהתחלה, ואז צעד ממוקד, בדיקה ושמירה. למדתם שהפרומפט הנכון תלוי בשלב: מה שמנצח בהתחלה שובר בסוף. זה בדיוק התהליך שתעשו עוד מעט על האפליקציה האמיתית שלכם.",
-    debriefTitle:"שיחת סיכום (בקול, בלי להקליד)",
+    payoff:"עבדתם כמו צוות שבונה עם AI: הקשר מלא בהתחלה, ואז צעד ממוקד ומדויק. למדתם שהפרומפט הנכון תלוי בשלב: מה שמנצח בהתחלה שובר בסוף. זה בדיוק התהליך שתעשו עוד מעט על האפליקציה האמיתית שלכם.",
+    debriefTitle:"שיחת סיכום",
     debrief:[
       "מתי כדאי לבקש הרבה בבת אחת — ומתי דווקא צעד אחד קטן וממוקד?",
       "איזו בחירה עלתה לכם הכי ביוקר — ומה תעשו אחרת בבנייה האמיתית?",
-      "מתי שווה 'לבזבז' תור על שמירה או בדיקה?"
+      "מה גרם לכם להחליט שהגיע הזמן לעבור מפרומפט רחב לצעד ממוקד?"
     ],
-    handoffTitle:"הצעד הבא — אמיתי",
-    handoff:"עכשיו פותחים את הכלי האמיתי. אותם חוקים: בהתחלה תנו הקשר מלא ובקשו הרבה; מרגע שמשהו עובד — צעד ממוקד, בודקים, שומרים.",
     replay:"שחקו שוב", switchScenario:"תרחיש אחר", newGame:"משחק חדש",
-    turnsUsed:"תורים בשימוש", advances:"התקדמויות", repairs:"תיקונים/בזבוז", discipline:"מהלכי משמעת"
+    turnsUsed:"תורים בשימוש", advances:"התקדמויות", repairs:"תיקונים/בזבוז"
   },
 
   scenarios:[
@@ -492,8 +449,7 @@ const CONFIG = {
         /* ---------- SCAFFOLD PHASE: broad+specified is the fast, correct move;
              broad+vague is the trap; focused works but is slower ---------- */
         {
-          id:"empty", name:"מסך ריק", progress:0, looksFine:true,
-          testReveal:"אין עדיין מה לבדוק — המסך ריק. אבל הרגל טוב. עלה תור אחד.",
+          id:"empty", name:"מסך ריק", progress:0,
           mock:`<div class="a-empty"><div class="big">${ic('screen')}</div><b>מסך ריק</b><span>עוד לא ביקשתם כלום מה-AI</span></div>`,
           choices:[
             {scope:"broad", style:"specified", outcome:"advance", to:"scaffold-rich",
@@ -520,8 +476,7 @@ const CONFIG = {
           ]
         },
         {
-          id:"home-title", name:"בית — כותרת", progress:15, looksFine:true,
-          testReveal:"בדקתם: הכותרת מוצגת יפה, המסך נטען. הכל תקין כאן. עלה תור אחד.",
+          id:"home-title", name:"בית — כותרת", progress:15,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div><div class="a-sub">כאן ממליצים על פעילויות פנאי חינמיות בשכונה</div></div>
                 <div class="a-empty"><div class="big">${ic('heart')}</div><b>עוד אין המלצות</b><span>בקרוב יהיה כאן כפתור להצעת פעילות</span></div>`,
           choices:[
@@ -543,8 +498,7 @@ const CONFIG = {
           ]
         },
         {
-          id:"home-button", name:"בית — כפתור", progress:30, looksFine:true,
-          testReveal:"בדקתם: לחצתם על 'הצע פעילות' — הכפתור מגיב ומודגש. הוא עדיין לא פותח כלום, כי בזה לא התחלתם. הכל צפוי. עלה תור אחד.",
+          id:"home-button", name:"בית — כפתור", progress:30,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div><div class="a-sub">כאן ממליצים על פעילויות פנאי חינמיות בשכונה</div></div>
                 <div class="a-pad" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px">
                   <div class="a-empty" style="padding:10px"><div class="big">${ic('heart')}</div><b>עוד אין המלצות</b><span>היו הראשונים להציע פעילות</span></div>
@@ -570,8 +524,7 @@ const CONFIG = {
         },
         {
           /* HIDDEN BREAKAGE: pretty form, submits nowhere. Only test reveals it. */
-          id:"home-form", name:"בית — טופס", progress:45, looksFine:false,
-          testReveal:"בדיקה חשפה תקלה נסתרת: מילאתם את הטופס, לחצתם 'שלח' — ולא קרה כלום. הטופס יפה אבל לא מחובר לשום מקום. טוב שבדקתם עכשיו, לפני שבניתם עליו. עלה תור אחד.",
+          id:"home-form", name:"בית — טופס", progress:45,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div></div>
                 <div class="a-pad"><div class="a-label">שם הפעילות</div><div class="a-field">למשל: כדורסל בפארק</div>
                 <div class="a-label">איפה?</div><div class="a-field">שם המקום / כתובת</div>
@@ -601,8 +554,7 @@ const CONFIG = {
         },
         {
           /* FAST-PATH LANDING: rich scaffold built in one broad turn — but same hidden dead form */
-          id:"scaffold-rich", name:"שלד עשיר", progress:55, looksFine:false,
-          testReveal:"בדיקה חשפה תקלה נסתרת: המסך נראה מלא ומרשים — כותרת, רשימה, כפתור — אבל כשממלאים את הטופס ולוחצים 'שלח', כלום לא נשמר. הטופס לא מחובר. ה-AI בנה הרבה ומהר, וחלק לא באמת עובד. טוב שבדקתם. עלה תור אחד.",
+          id:"scaffold-rich", name:"שלד עשיר", progress:55,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div><div class="a-sub">ההמלצות החמות בשכונה</div></div>
                 <div class="a-pad" style="flex:1">
                   <div class="a-card"><div class="t">כדורסל בפארק</div><div class="d">פארק הזוג · חינם</div></div>
@@ -634,8 +586,7 @@ const CONFIG = {
         },
         {
           /* CONVERGENCE + PHASE FLIP: a working core action exists. Now surgical wins, broad breaks. */
-          id:"core-working", name:"פעולה עובדת", progress:75, looksFine:true,
-          testReveal:"בדקתם: הצעתם פעילות, קיבלתם אישור, היא הופיעה ברשימה. הפעם הכל מחובר ועובד. נשאר ליטוש. עלה תור אחד.",
+          id:"core-working", name:"פעולה עובדת", progress:75,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div><div class="a-sub">ההמלצות החמות בשכונה</div></div>
                 <div class="a-toast">${ic('check')} הפעילות נוספה!</div>
                 <div class="a-pad" style="flex:1">
@@ -669,7 +620,7 @@ const CONFIG = {
 
         /* ---------- GOAL ---------- */
         {
-          id:"first-screen-working", name:"מסך ראשון עובד", progress:100, looksFine:true, goal:true,
+          id:"first-screen-working", name:"מסך ראשון עובד", progress:100, goal:true,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div><div class="a-sub">ההמלצות החמות בשכונה שלך</div></div>
                 <div class="a-pad" style="flex:1">
                   <div class="a-card"><div class="t">כדורסל בפארק</div><div class="d">פארק הזוג · חינם · כל אחה"צ</div></div>
@@ -683,8 +634,7 @@ const CONFIG = {
 
         /* ---------- SETBACK / RECOVERY (never a dead end; the cost is the lesson) ---------- */
         {
-          id:"everything-half", name:"הכול-חצי", progress:12, looksFine:false,
-          testReveal:"בדיקה מאשרת את הבלגן: משלושת כפתורי 'שלח', אחד שולח, אחד מוחק והשלישי לא מגיב. הפרופיל נפתח בתוך הצ'אט. שום מסך לא שלם.",
+          id:"everything-half", name:"הכול-חצי", progress:12,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div><div class="a-sub" style="color:#c23b48">בית · רשימה · פרופיל · צ'אט — הכל ביחד</div></div>
                 <div class="a-pad a-messy" style="flex:1">
                   <div class="a-card a-broken"><div class="t">פרופיל (נפתח בטעות בתוך הצ'אט)</div><div class="d">כפתורים שלא עובדים</div></div>
@@ -707,8 +657,7 @@ const CONFIG = {
           ]
         },
         {
-          id:"everything-worse", name:"הכול-גרוע-יותר", progress:8, looksFine:false,
-          testReveal:"ארבעה כפתורי 'שלח', שניים מהם מוחקים דברים. הבלגן גדל. צריך לפרק ידנית.",
+          id:"everything-worse", name:"הכול-גרוע-יותר", progress:8,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div><div class="a-sub" style="color:#c23b48">מצב: מבולגן יותר</div></div>
                 <div class="a-pad a-messy" style="flex:1">
                   <div class="a-card a-broken"><div class="t">ארבעה כפתורי 'שלח'</div><div class="d">שניים מוחקים במקום לשלוח</div></div>
@@ -725,8 +674,7 @@ const CONFIG = {
           ]
         },
         {
-          id:"untangle-1", name:"בסיס נקי", progress:26, looksFine:true,
-          testReveal:"בדקתם: נשאר מסך בית נקי עם כותרת. הבלגן נמחק. אפשר להמשיך מכאן. עלה תור אחד.",
+          id:"untangle-1", name:"בסיס נקי", progress:26,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div><div class="a-sub">חזרנו לבסיס נקי</div></div>
                 <div class="a-warn">${ic('warn')} ניקינו את הבלגן. מכאן ממשיכים בזהירות.</div>
                 <div class="a-empty" style="padding:20px"><div class="big">${ic('heart')}</div><b>מסך בית נקי</b><span>עכשיו בונים בזהירות</span></div>`,
@@ -744,8 +692,7 @@ const CONFIG = {
           ]
         },
         {
-          id:"list-cosmetic-broken", name:"תוכן על טופס מת", progress:50, looksFine:false,
-          testReveal:"בדיקה מאשרת: הרשימה מלאה בפעילויות דמה יפות — אבל כפתור 'שלח' בטופס לא מוסיף אף אחת. בניתם תצוגה מעל יסוד שלא מחובר.",
+          id:"list-cosmetic-broken", name:"תוכן על טופס מת", progress:50,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div></div>
                 <div class="a-pad" style="flex:1">
                   <div class="a-card"><div class="t">פעילות דמה 1</div><div class="d">נראה טוב — אבל לא באמת נוסף</div></div>
@@ -761,8 +708,7 @@ const CONFIG = {
           ]
         },
         {
-          id:"list-cosmetic-fix", name:"מתקנים יסוד", progress:62, looksFine:true,
-          testReveal:"בדקתם: הדמה הוסרה, הטופס לבד ומוכן לחיבור. עלה תור אחד.",
+          id:"list-cosmetic-fix", name:"מתקנים יסוד", progress:62,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div></div>
                 <div class="a-warn">${ic('warn')} הורדנו את פעילויות הדמה. עכשיו מחברים את הטופס נכון.</div>
                 <div class="a-pad"><div class="a-label">שם הפעילות</div><div class="a-field">כדורסל בפארק</div>
@@ -776,8 +722,7 @@ const CONFIG = {
           ]
         },
         {
-          id:"overbuilt", name:"נבנה יותר מדי", progress:40, looksFine:false,
-          testReveal:"בדיקה מאשרת: הפרופיל, הצ'אט והמפה תפסו את המסך, והרשימה שעבדה נדחקה ונשברה. כפתור 'הצע פעילות' מוסתר. יותר מדי בבת אחת שבר את מה שעבד.",
+          id:"overbuilt", name:"נבנה יותר מדי", progress:40,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div><div class="a-sub" style="color:#c23b48">פרופיל · צ'אט · מפה · התראות — נדחסו על המסך שעבד</div></div>
                 <div class="a-pad a-messy" style="flex:1">
                   <div class="a-card a-broken"><div class="t">צ'אט שנפתח מעל הרשימה</div><div class="d">הרשימה שעבדה נדחקה ונשברה</div></div>
@@ -787,13 +732,12 @@ const CONFIG = {
             {scope:"focused", style:"specified", outcome:"setback", to:"untangle-2",
              label:"בטל את הפרופיל, הצ'אט והמפה. חזור למסך שעבד.",
              asksFor:"מבקש: להסיר תוספות, מדויק",
-             reveal:"התחלתם להסיר את מה שדחסתם. אם שמרתם גרסה קודם — 'חזור לגרסה' היה מחזיר אתכם בתור אחד במקום שניים.",
-             lesson:"שמירה לפני מהלך רחב = חבל הצלה של תור אחד."}
+             reveal:"התחלתם להסיר את מה שדחסתם. זה עולה תור לפרק, ועוד תור לחבר מחדש את מה שעבד.",
+             lesson:"רוחב שקורה ברגע הלא נכון עולה כמה תורים לתקן."}
           ]
         },
         {
-          id:"untangle-2", name:"מנקים תוספות", progress:58, looksFine:true,
-          testReveal:"בדקתם: התוספות הוסרו, המסך נקי שוב, נשאר לחבר מחדש את הפעולה. עלה תור אחד.",
+          id:"untangle-2", name:"מנקים תוספות", progress:58,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מגניב-לי</div><div class="a-sub">חזרנו למסך נקי</div></div>
                 <div class="a-warn">${ic('warn')} הסרנו את הפרופיל, הצ'אט והמפה. עכשיו מחזירים את הפעולה שעבדה.</div>
                 <div class="a-pad"><div class="a-card"><div class="t">כדורסל בפארק</div><div class="d">פארק הזוג · חינם</div></div>
@@ -802,13 +746,12 @@ const CONFIG = {
             {scope:"focused", style:"specified", outcome:"advance", to:"core-working",
              label:"חבר מחדש: הטופס שומר פעילות והיא מופיעה ברשימה.",
              asksFor:"מבקש: תיקון אחד, מדויק",
-             reveal:"חזרתם למסך שעובד. הפאזה החמדנית עלתה לכם שני תורים — בדיוק מה שגרסה שמורה הייתה חוסכת.",
+             reveal:"חזרתם למסך שעובד, אחרי שני תורים שהלכו על תיקון.",
              lesson:"רחב בזמן הלא נכון עלה יקר. ממוקד החזיר אתכם."}
           ]
         },
         {
-          id:"pretty-mess", name:"'יפה' מעורפל", progress:6, looksFine:true,
-          testReveal:"בדקתם: המסך צבעוני בפסים ורודים, כותרת ענקית, ועדיין ריק מתוכן. יפה זה לא שימושי. עלה תור אחד.",
+          id:"pretty-mess", name:"'יפה' מעורפל", progress:6,
           mock:`<div class="a-head a-ugly"><div class="a-logo" style="font-size:26px">מגניב-לי!!!</div></div>
                 <div class="a-ugly" style="flex:1;display:flex;align-items:center;justify-content:center;color:#c26bd1;font-weight:800;text-align:center;padding:20px">
                   פסים ורודים וכותרת ענקית — אבל שום דבר לא עושה כלום
@@ -827,8 +770,7 @@ const CONFIG = {
           ]
         },
         {
-          id:"vague-moved", name:"'שיפור' שהזיז", progress:24, looksFine:false,
-          testReveal:"בדיקה חשפה: ה'שיפור' הזיז אלמנט שעבד והסתיר חלק ממנו. צריך להחזיר ידנית.",
+          id:"vague-moved", name:"'שיפור' שהזיז", progress:24,
           mock:`<div class="a-pad" style="flex:1;display:flex;flex-direction:column;justify-content:space-between">
                   <button class="a-btn" style="margin-top:10px">כפתור שקפץ למעלה</button>
                   <div class="a-warn">${ic('warn')} 'השיפור' הזיז דברים שעבדו. משהו מוסתר עכשיו מתחת לשדה.</div>
@@ -857,118 +799,180 @@ const CONFIG = {
       goalText:"מסך בית עובד עם פעולה מרכזית אחת: לסמן מתי אני פנוי",
       startStateId:"p-empty",
       states:[
+        /* ---------- SCAFFOLD PHASE: broad+specified is the fast, correct move;
+             broad+vague is the trap; focused works but is slower ---------- */
         {
-          id:"p-empty", name:"מסך ריק", progress:0, looksFine:true,
-          testReveal:"אין עדיין מה לבדוק — המסך ריק. אבל הרגל טוב. עלה תור אחד.",
+          id:"p-empty", name:"מסך ריק", progress:0,
           mock:`<div class="a-empty"><div class="big">${ic('cal')}</div><b>מסך ריק</b><span>עוד לא ביקשתם כלום מה-AI</span></div>`,
           choices:[
-            {label:"בנה מסך בית עם הכותרת 'מתי-פנוי' ומשפט הסבר קצר", type:"small", to:"p-title",
-             reveal:"צעד אחד ברור — כותרת ומשפט. ה-AI בנה בדיוק את זה.",
-             lesson:"מתחילים מדבר אחד מוגדר."},
-            {label:"בנה הכל: לוח שבועי, רשימת חברים, התראות ופגישות", type:"greedy", to:"p-everything", comicBeat:true,
-             reveal:"ביקשתם הכול בבת אחת — וקיבלתם הכול חצי. יש עכשיו שלושה כפתורי 'שמור', כל אחד שומר יום אחר, ורשימת החברים פתוחה בתוך הלוח.",
-             lesson:"חמישה דברים במשפט אחד — ה-AI התבלבל, לא אתם."},
-            {label:"תעשה שיהיה נקי ומודרני", type:"vague", to:"p-pretty",
-             reveal:"'נקי ומודרני' זה לא הוראה. ה-AI מחק את רוב הטקסט והשאיר מסך אפור וריק שנראה 'מודרני' אבל לא עושה כלום.",
-             lesson:"מעורפל = ה-AI מנחש, ובדרך כלל לא נכון."}
+            {scope:"broad", style:"specified", outcome:"advance", to:"p-scaffold-rich",
+             label:"בנה מסך בית שלם: כותרת 'מתי-פנוי', שורת ימים א׳–ש׳ שאפשר לסמן כפנויים, וכפתור 'שמור' — הכל במסך אחד.",
+             asksFor:"מבקש: מסך שלם, עם פירוט מה כל חלק עושה",
+             reveal:"פרומפט ראשון עשיר וברור — ובתור אחד ה-AI הקים מסך כמעט שלם: כותרת, ימים לסימון וכפתור שמירה. בהתחלה, כשאין עדיין מה לשבור, ככל שתיתנו יותר הקשר כך תקבלו יותר בבת אחת.",
+             lesson:"בתחילת בנייה — הקשר מלא הוא היתרון הכי גדול. הרבה נבנה עכשיו; שווה גם לבדוק שהכל באמת עובד."},
+            {scope:"broad", style:"vague", outcome:"setback", to:"p-everything", comicBeat:true,
+             label:"בנה את כל האפליקציה: לוח, חברים, התראות ופגישות — הכל, כמו שבא לך.",
+             asksFor:"מבקש: 4 מסכים, בלי לומר מה כל אחד עושה",
+             reveal:"רחב זה לא הבעיה — לא אמרתם מה כל חלק עושה ואיך הם מתחברים, אז ה-AI ניחש בגדול. יש עכשיו שלושה כפתורי 'שמור', כל אחד עושה משהו אחר, ורשימת החברים נפתחת בתוך הלוח.",
+             revealPlain:"שוב פרומפט רחב בלי פירוט — ה-AI ניחש בגדול והכול יצא חצי. רוחב בלי הקשר = בלגן, לא קסם.",
+             lesson:"ההבדל בין פרומפט ראשון מנצח למבולגן הוא לא הגודל — הוא הפירוט."},
+            {scope:"focused", style:"specified", outcome:"advance", to:"p-title",
+             label:"בנה רק כותרת 'מתי-פנוי' עם משפט הסבר קצר.",
+             asksFor:"מבקש: דבר אחד, מוגדר",
+             reveal:"עובד — נקי ומדויק. אבל בתור הראשון, כשאין עדיין מה לשמור, יכולתם לבקש הרבה יותר בבת אחת. צעדים קטנים באמת יזרחו בהמשך, כשיהיה מה להגן עליו.",
+             lesson:"צעד קטן זה כלי מצוין — פשוט לא הכי יעיל בתור הפתיחה."},
+            {scope:"focused", style:"vague", outcome:"setback", to:"p-pretty",
+             label:"תעשה שיהיה נקי ומודרני.",
+             asksFor:"מבקש: 'נקי ומודרני', בלי לומר מה בדיוק",
+             reveal:"'נקי ומודרני' זה לא הוראה. ה-AI מחק את רוב הטקסט והשאיר מסך אפור וריק. נקי? אולי. שימושי? ממש לא.",
+             lesson:"מעורפל מזמין את ה-AI לנחש — ובדרך כלל לא את מה שדמיינתם."}
           ]
         },
         {
-          id:"p-title", name:"בית — כותרת", progress:18, looksFine:true,
-          testReveal:"בדקתם: הכותרת מוצגת, המסך נטען תקין. עלה תור אחד.",
+          id:"p-title", name:"בית — כותרת", progress:18,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div><div class="a-sub">סמנו מתי אתם פנויים ומצאו זמן משותף עם החברים</div></div>
                 <div class="a-empty"><div class="big">${ic('cal')}</div><b>עוד לא סימנתם זמנים</b><span>בקרוב יהיה כאן לוח שבועי</span></div>`,
           choices:[
-            {label:"הוסף שורת ימים: א׳–ש׳ ככפתורים", type:"small", to:"p-days",
-             reveal:"נוספה שורת ימים נקייה, א׳ עד ש׳. עדיין לא לוחצים עליהם — צעד אחד בכל פעם.",
-             lesson:"קודם המבנה, אחר כך ההתנהגות."},
-            {label:"תוסיף גם לוח, גם חברים, גם התראות עכשיו", type:"greedy", to:"p-everything",
-             reveal:"שוב הכול-ביחד. הלוח, החברים וההתראות נדחסו והכותרת שעבדה נעלמה מתחת לערימה.",
-             lesson:"כל תוספת גדולה מסתבכת עם מה שכבר עבד."},
-            {label:"תשפר את העיצוב", type:"vague", to:"p-vague-moved",
-             reveal:"ה-AI 'שיפר': הזיז את הכותרת הצידה והוסיף רקע כהה שבולע את הטקסט. מה שעבד — זז ונעלם.",
-             lesson:"'תשפר' בלי פירוט = שינויים שלא ביקשתם."}
+            {scope:"broad", style:"specified", outcome:"advance", to:"p-scaffold-rich",
+             label:"עכשיו בנה את המשך המסך: שורת ימים א׳–ש׳ לסימון וכפתור 'שמור'.",
+             asksFor:"מבקש: כמה חלקים ביחד, עם פירוט",
+             reveal:"עדיין בשלב השלד — ואין מה לשבור. הפרומפט הרחב והמפורט הקפיץ אתכם קדימה בבת אחת. זה בדיוק הזמן לחשוב בגדול.",
+             lesson:"כל עוד מקימים שלד — הקשר רחב ומפורט הוא הדרך המהירה."},
+            {scope:"focused", style:"specified", outcome:"advance", to:"p-days",
+             label:"הוסף שורת ימים: א׳–ש׳ ככפתורים.",
+             asksFor:"מבקש: דבר אחד, מוגדר",
+             reveal:"נוספה שורת ימים נקייה, א׳ עד ש׳. עדיין לא לוחצים עליהם — צעד אחד בכל פעם. עובד, אבל שוב לקחתם תור שלם לצעד קטן.",
+             lesson:"מדויק תמיד עובד; פשוט שקלו כמה אפשר לבקש בבת אחת בשלב הזה."},
+            {scope:"broad", style:"vague", outcome:"setback", to:"p-everything",
+             label:"תוסיף כבר לוח, גם חברים, גם התראות עכשיו.",
+             asksFor:"מבקש: הרבה מסכים, בלי לפרט",
+             reveal:"רחב שוב בלי הקשר. הלוח, החברים וההתראות נדחסו זה על זה, והכותרת שעבדה נעלמה מתחת לערימה.",
+             lesson:"רוחב בלי פירוט מסתבך — גם עם מה שכבר עבד."}
           ]
         },
         {
-          id:"p-days", name:"בית — ימים", progress:32, looksFine:true,
-          testReveal:"בדקתם: כפתורי הימים מוצגים ומגיבים ללחיצה בהדגשה. הם עדיין לא שומרים כלום — כי בזה לא התחלתם. הכל צפוי. עלה תור אחד.",
+          id:"p-days", name:"בית — ימים", progress:32,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div><div class="a-sub">באילו ימים אתם פנויים השבוע?</div></div>
                 <div class="a-pad">
                   <span class="a-chip">א׳</span><span class="a-chip">ב׳</span><span class="a-chip">ג׳</span><span class="a-chip">ד׳</span><span class="a-chip">ה׳</span><span class="a-chip">ו׳</span><span class="a-chip">ש׳</span>
                 </div>
                 <div class="a-empty" style="padding:14px"><div class="big">${ic('clock')}</div><span>בחרו יום כדי לסמן שאתם פנויים</span></div>`,
           choices:[
-            {label:"שלחיצה על יום תסמן אותו כ'פנוי' ותדגיש אותו", type:"small", to:"p-toggle",
-             reveal:"עכשיו לחיצה על יום מדגישה אותו בירוק כ'פנוי'. פעולה אחת, ברורה.",
-             lesson:"התנהגות אחת בכל פעם."},
-            {label:"תוסיף שמירה, חברים, שיתוף ומיזוג לוחות — הכל", type:"greedy", to:"p-everything",
-             reveal:"חבילה שלמה בפרומפט אחד — והכול חצי. השמירה מחוברת לשיתוף, המיזוג שובר את הלוח, וכפתורי הימים הפסיקו להגיב.",
-             lesson:"פיצ'רים שנבנים ביחד בחיפזון נשברים ביחד."},
-            {label:"תעשה את הימים יותר צבעוניים וכיפיים", type:"vague", to:"p-vague-moved",
-             reveal:"ה-AI צבע כל יום בצבע אחר — וגם הגדיל אותם כל כך שרק שלושה נכנסים למסך. השאר נחתכו.",
-             lesson:"מעורפל = מקבלים גם מה שלא ביקשתם."}
+            {scope:"focused", style:"specified", outcome:"advance", to:"p-toggle",
+             label:"שלחיצה על יום תסמן אותו כ'פנוי' ותדגיש אותו.",
+             asksFor:"מבקש: התנהגות אחת, מוגדרת",
+             reveal:"עכשיו לחיצה על יום מדגישה אותו בירוק כ'פנוי'. בדיוק מה שביקשתם.",
+             lesson:"התנהגות אחת לכפתור אחד — צעד מדויק."},
+            {scope:"broad", style:"specified", outcome:"advance", to:"p-scaffold-rich",
+             label:"בנה עכשיו את הסימון והשמירה ביחד: לחיצה על יום מסמנת אותו, וכפתור 'שמור' שומר את הבחירה.",
+             asksFor:"מבקש: שני חלקים ביחד, עם פירוט",
+             reveal:"עדיין שלד, עדיין מפורט — אז הרוחב שילם. קיבלתם סימון ושמירה בבת אחת וקפצתם קדימה.",
+             lesson:"בזמן הקמת שלד, אפשר לאגד כמה חלקים בפרומפט מפורט אחד."},
+            {scope:"focused", style:"vague", outcome:"setback", to:"p-vague-moved",
+             label:"תעשה את הימים יותר בולטים ומזמינים.",
+             asksFor:"מבקש: 'בולט', בלי לומר איך",
+             reveal:"ה-AI ניחש 'בולט': הגדיל את הימים וצבע אותם בחוזקה — ובדרך הזיז את שורת הימים מתחת לכותרת. משהו שעבד — זז.",
+             lesson:"מעורפל משנה דברים שלא ביקשתם לשנות."}
           ]
         },
         {
           /* HIDDEN BREAKAGE: highlight works visually but selection isn't stored */
-          id:"p-toggle", name:"בית — סימון", progress:47, looksFine:false,
-          testReveal:"בדיקה חשפה תקלה נסתרת: היום נצבע בירוק כשלוחצים — אבל אם יוצאים מהמסך וחוזרים, הסימון נעלם. הבחירה לא נשמרת בכלל. טוב שבדקתם לפני שבניתם עליה סיכום. עלה תור אחד.",
+          id:"p-toggle", name:"בית — סימון", progress:47,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div><div class="a-sub">בחרו את הימים הפנויים</div></div>
                 <div class="a-pad">
                   <span class="a-chip" style="background:#dff5e8;color:#177a4b">א׳ ✓</span><span class="a-chip">ב׳</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">ג׳ ✓</span><span class="a-chip">ד׳</span><span class="a-chip">ה׳</span><span class="a-chip">ו׳</span><span class="a-chip">ש׳</span>
                 </div>
                 <div class="a-empty" style="padding:14px"><span>הימים מודגשים — אבל מה קורה כשחוזרים למסך?</span></div>`,
           choices:[
-            {label:"חבר את הסימון: שהבחירה תישמר ותישאר גם אחרי יציאה", type:"small", to:"p-toggle-fixed",
-             reveal:"עכשיו הסימון באמת נשמר: יוצאים וחוזרים — הימים הפנויים עדיין שם. זה הצעד שהיה חסר.",
-             lesson:"הצעד המשעמם — לשמור — הוא בדרך כלל הקריטי."},
-            {label:"הוסף כבר מסך 'זמן משותף' שמציג מתי כולם פנויים", type:"small", to:"p-summary-broken", outcome:"repair",
-             reveal:"בניתם מסך סיכום מעל סימון שלא נשמר. התוצאה: 'זמן משותף' מציג ריק תמיד, כי אין נתונים שמורים. קומה שנייה על יסוד לא יצוק.",
-             lesson:"בדיקה הייתה מראה שהסימון לא נשמר — לפני שבניתם עליו."},
-            {label:"תעשה את המסך הזה יותר יפה", type:"vague", to:"p-vague-moved",
+            {scope:"focused", style:"specified", outcome:"advance", to:"p-core-working",
+             label:"חבר את הסימון: שהבחירה תישמר ותישאר גם אחרי יציאה, ותוצג בסיכום חי.",
+             asksFor:"מבקש: תיקון אחד, מדויק",
+             reveal:"עכשיו הסימון באמת נשמר: יוצאים וחוזרים — הימים הפנויים עדיין שם, וסיכום חי מציג אותם. זה הצעד שהחזיק את הכל.",
+             lesson:"עכשיו שיש בסיס — הצעד הממוקד והמדויק הוא המנצח."},
+            {scope:"focused", style:"specified", outcome:"setback", to:"p-summary-broken",
+             label:"הוסף כבר מסך 'זמן משותף' שמציג מתי כולם פנויים.",
+             asksFor:"מבקש: דבר אחד, מוגדר",
+             reveal:"נראה כמו התקדמות — אבל הוספתם מסך סיכום מעל סימון שלא נשמר. עכשיו 'זמן משותף' מציג ריק תמיד, כי אין נתונים שמורים.",
+             lesson:"בדיקה הייתה מגלה שהסימון לא נשמר — ומצילה אתכם מלבנות מעליו."},
+            {scope:"broad", style:"specified", outcome:"advance", to:"p-core-working",
+             label:"חבר את הכל: הסימון נשמר, מוצג סיכום חי, ומופיע אישור — עם פירוט מה קורה בכל שלב.",
+             asksFor:"מבקש: כמה חלקים, עם פירוט מלא",
+             reveal:"עדיין לא היה משהו מחובר לשבור, אז הרוחב המפורט עבד — הסימון, השמירה והסיכום חוברו יחד. זו הפעם האחרונה שרחב בטוח כאן.",
+             lesson:"מרגע שיש פעולה שעובדת — פרומפט רחב יתחיל לסכן אותה."},
+            {scope:"focused", style:"vague", outcome:"setback", to:"p-vague-moved",
+             label:"תעשה את המסך הזה יותר יפה.",
+             asksFor:"מבקש: 'יפה', בלי לפרט",
              reveal:"ה-AI ריפד בצבעים, ובדרך הסתיר חלק מהימים מאחורי כרטיס דקורטיבי. עכשיו אי אפשר ללחוץ על חלקם — וזה עוד לפני שנשמר.",
              lesson:"מעורפל על משהו שביר = שביר יותר."}
           ]
         },
         {
-          id:"p-toggle-fixed", name:"סימון נשמר", progress:64, looksFine:true,
-          testReveal:"בדקתם: סימנתם ימים, יצאתם וחזרתם — הסימון נשאר. הפעם באמת עובד. עלה תור אחד.",
-          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div></div>
-                <div class="a-toast">${ic('check')} הימים הפנויים נשמרו!</div>
+          /* FAST-PATH LANDING: rich scaffold built in one broad turn — but same hidden dead selection */
+          id:"p-scaffold-rich", name:"שלד עשיר", progress:55,
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div><div class="a-sub">בחרו את הימים הפנויים</div></div>
                 <div class="a-pad">
-                  <span class="a-chip" style="background:#dff5e8;color:#177a4b">א׳ ✓</span><span class="a-chip">ב׳</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">ג׳ ✓</span><span class="a-chip">ד׳</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">ה׳ ✓</span><span class="a-chip">ו׳</span><span class="a-chip">ש׳</span>
-                </div>`,
+                  <span class="a-chip" style="background:#dff5e8;color:#177a4b">א׳ ✓</span><span class="a-chip">ב׳</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">ג׳ ✓</span><span class="a-chip">ד׳</span><span class="a-chip">ה׳</span><span class="a-chip">ו׳</span><span class="a-chip">ש׳</span>
+                </div>
+                <div class="a-pad" style="padding-top:0"><button class="a-btn">${ic('save')} שמור</button></div>`,
           choices:[
-            {label:"הצג למטה סיכום: 'אתה פנוי ב: א׳, ג׳, ה׳'", type:"small", to:"p-summary",
-             reveal:"נוסף סיכום חי מתחת ללוח: 'אתה פנוי ב: א׳, ג׳, ה׳'. מתעדכן לפי מה שנשמר. אמיתי, כי הסימון מחובר.",
-             lesson:"כשהיסוד יצוק, כל קומה נבנית חלק."},
-            {label:"תוסיף חברים, מיזוג לוחות, צ'אט והתראות — הכל", type:"greedy", to:"p-everything",
-             reveal:"היה לכם סימון עובד — ואז ביקשתם ארבעה פיצ'רים ביחד. עכשיו המיזוג מוחק ימים, ההתראות שוברות את הלוח, והסימון שעבד נשבר.",
-             lesson:"אפילו על בסיס עובד, חמדנות הורסת את מה שעבד."}
+            {scope:"focused", style:"specified", outcome:"advance", to:"p-core-working",
+             label:"חבר את הסימון לשמירה: מה שמסמנים נשמר ומופיע בסיכום.",
+             asksFor:"מבקש: תיקון אחד, מדויק",
+             reveal:"חיברתם את החלק שהיה מנותק. עכשיו כשמסמנים יום — הוא באמת נשמר ומופיע בסיכום. השלד הפך ללוח שעובד.",
+             lesson:"אחרי פרומפט רחב — התיקון הממוקד שמחבר את החלקים הוא הזהב."},
+            {scope:"focused", style:"specified", outcome:"setback", to:"p-summary-broken",
+             label:"הוסף כבר מסך 'זמן משותף' שמראה מתי כולם פנויים.",
+             asksFor:"מבקש: דבר אחד, מוגדר",
+             reveal:"הוספתם מסך סיכום — אבל הסימון עדיין לא נשמר. עכשיו יש מסך 'זמן משותף' שתמיד ריק, והבעיה האמיתית רק הוסתרה.",
+             lesson:"בלי בדיקה, קל להוסיף עוד על גבי מה ששבור בלי לדעת."},
+            {scope:"broad", style:"specified", outcome:"setback", to:"p-overbuilt",
+             label:"עכשיו תוסיף חברים, התראות, מפה וצ'אט — הכל.",
+             asksFor:"מבקש: 4 פיצ'רים בבת אחת",
+             reveal:"עכשיו כבר יש לכם שלד — ופרומפט רחב סיכן אותו. רשימת החברים נפתחה מעל הלוח, ההתראות שברו את הסימון. הפאזה מתחלפת: מכאן רוחב שובר.",
+             lesson:"ברגע שיש מה להגן עליו — רחב מפסיק להיות ידיד."},
+            {scope:"focused", style:"vague", outcome:"setback", to:"p-vague-moved",
+             label:"תשפר את המסך שיראה יותר מקצועי.",
+             asksFor:"מבקש: 'לשפר', בלי לפרט",
+             reveal:"ה-AI 'שיפר': הזיז את שורת הימים לראש המסך והקטין את הכותרת. משהו שעבד — זז ממקומו.",
+             lesson:"'תשפר' בלי פירוט = שינויים שלא ביקשתם."}
           ]
         },
         {
-          id:"p-summary", name:"סיכום חי", progress:84, looksFine:true,
-          testReveal:"בדקתם: הסיכום מתעדכן לפי הימים שסימנתם, הכל מחובר ונשמר. נשאר ליטוש אחרון. עלה תור אחד.",
+          /* CONVERGENCE + PHASE FLIP: a working core action exists. Now surgical wins, broad breaks. */
+          id:"p-core-working", name:"פעולה עובדת", progress:78,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div><div class="a-sub">הזמנים הפנויים שלך השבוע</div></div>
+                <div class="a-toast">${ic('check')} הימים הפנויים נשמרו!</div>
                 <div class="a-pad">
                   <span class="a-chip" style="background:#dff5e8;color:#177a4b">א׳ ✓</span><span class="a-chip">ב׳</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">ג׳ ✓</span><span class="a-chip">ד׳</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">ה׳ ✓</span><span class="a-chip">ו׳</span><span class="a-chip">ש׳</span>
                   <div class="a-card" style="margin-top:8px"><div class="t">${ic('check')} אתה פנוי ב: א׳, ג׳, ה׳</div><div class="d">שתף כדי למצוא זמן משותף</div></div>
                 </div>`,
           choices:[
-            {label:"ליטוש אחרון: כותרת ברורה, לוח מסודר, כפתור 'שמור' קבוע", type:"small", to:"panuy-goal",
-             reveal:"מסך ראשון עובד: לוח שבועי, סימון שנשמר, וסיכום חי של הזמנים הפנויים. פעולה מרכזית אחת — שלמה.",
-             lesson:"זה 'מסך ראשון עובד'. דבר אחד, שלם."},
-            {label:"עכשיו תוסיף חברים, מפה, צ'אט והתראות", type:"greedy", to:"p-everything",
-             reveal:"היה לכם מסך כמעט מוכן — וביקשתם עוד ארבעה. הכל נדחס, הלוח שעבד נשבר, וחזרתם לערימה חצי-בנויה.",
-             lesson:"שנייה לפני הסיום, חמדנות זורקת אחורה."}
+            {scope:"focused", style:"specified", outcome:"advance", to:"panuy-goal",
+             label:"ליטוש אחרון: כותרת ברורה, שורת ימים מסודרת, וכפתור 'שמור' קבוע למטה.",
+             asksFor:"מבקש: ליטוש אחד, מדויק",
+             reveal:"מסך ראשון עובד: לוח ימים, סימון שנשמר, וסיכום חי של הזמנים הפנויים. פעולה מרכזית אחת — שלמה.",
+             lesson:"בשלב הזה כל צעד ממוקד מוסיף בלי לסכן. זה 'מסך ראשון עובד'."},
+            {scope:"focused", style:"specified", outcome:"advance", to:"panuy-goal",
+             label:"שכתב את משפט ההסבר שיהיה ברור ומזמין — בלי לגעת בשאר.",
+             asksFor:"מבקש: שינוי טקסט אחד, תחום",
+             reveal:"שיניתם בדיוק דבר אחד — המשפט — ושום דבר אחר לא זז. המסך מוכן ועובד. יש כמה דרכים נכונות לסיים, וכולן ממוקדות.",
+             lesson:"פרומפט ממוקד ותחום מדגיש בדיוק מה מותר לגעת בו."},
+            {scope:"broad", style:"specified", outcome:"setback", to:"p-overbuilt",
+             label:"עכשיו תוסיף חברים, מפה, צ'אט והתראות — הכל ביחד.",
+             asksFor:"מבקש: 4 פיצ'רים בבת אחת",
+             reveal:"בהתחלה 'בגדול' עבד לכם — אבל עכשיו יש לוח שעובד, ופרומפט רחב סיכן אותו. הסימון נשבר, כפתור השמירה נעלם. שנייה לפני הסיום, חזרתם אחורה.",
+             lesson:"זה הלב: אותו רוחב שניצח בתור 1 שובר בתור הזה. הפאזה קובעת, לא הגודל."},
+            {scope:"focused", style:"vague", outcome:"setback", to:"p-vague-moved",
+             label:"תעשה שיהיה יותר יפה.",
+             asksFor:"מבקש: 'יפה', בלי לפרט",
+             reveal:"ה-AI ניחש 'יפה' והזיז את שורת הימים ואת כפתור השמירה. על לוח שעבד, זה סתם סיכן את מה שהיה מוכן.",
+             lesson:"ככל שמתקדמים, מעורפל מסוכן יותר — יש יותר מה לקלקל."}
           ]
         },
 
         /* ---------- GOAL ---------- */
         {
-          id:"panuy-goal", name:"מסך ראשון עובד", progress:100, looksFine:true, goal:true,
+          id:"panuy-goal", name:"מסך ראשון עובד", progress:100, goal:true,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div><div class="a-sub">הזמנים הפנויים שלך השבוע</div></div>
                 <div class="a-pad" style="flex:1">
                   <span class="a-chip" style="background:#dff5e8;color:#177a4b">א׳ ✓</span><span class="a-chip">ב׳</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">ג׳ ✓</span><span class="a-chip">ד׳</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">ה׳ ✓</span><span class="a-chip">ו׳</span><span class="a-chip">ש׳</span>
@@ -979,10 +983,9 @@ const CONFIG = {
           choices:[]
         },
 
-        /* ---------- REPAIR / SETBACK ---------- */
+        /* ---------- SETBACK / RECOVERY (never a dead end; the cost is the lesson) ---------- */
         {
-          id:"p-everything", name:"הכול-חצי", progress:22, looksFine:false,
-          testReveal:"בדיקה מאשרת את הבלגן: משלושת כפתורי 'שמור', אחד שומר, אחד מוחק והשלישי לא מגיב. רשימת החברים פתוחה בתוך הלוח. שום מסך לא שלם.",
+          id:"p-everything", name:"הכול-חצי", progress:22,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div><div class="a-sub" style="color:#c23b48">לוח · חברים · התראות · פגישות — הכל ביחד</div></div>
                 <div class="a-pad a-messy" style="flex:1">
                   <div class="a-card a-broken"><div class="t">רשימת חברים (נפתחה בטעות בתוך הלוח)</div><div class="d">כפתורים שלא מגיבים</div></div>
@@ -991,73 +994,137 @@ const CONFIG = {
                   </div>
                 </div>`,
           choices:[
-            {label:"בוא נפרק: מחק הכול חוץ ממסך הבית עם הכותרת", type:"small", to:"p-untangle", outcome:"repair",
-             reveal:"התחלתם לפרק — מחקתם התראות, פגישות וחברים. נשאר בסיס נקי יותר, אבל זה עלה תור, ועוד אחד יבוא.",
-             lesson:"לפרק בלגן לוקח כמה תורים. לבנות נקי — לא."},
-            {label:"תסדר את זה שיעבוד", type:"vague", to:"p-untangle", outcome:"repair",
-             reveal:"'תסדר' על בלגן = ה-AI ניחש שוב והוסיף כפתור 'שמור' רביעי כדי 'לאחד'. בסוף נאלצתם לפרק ידנית בכל זאת.",
+            {scope:"focused", style:"specified", outcome:"setback", to:"p-untangle",
+             label:"בוא נפרק: מחק הכול חוץ ממסך הבית עם הכותרת.",
+             asksFor:"מבקש: לפרק, צעד מדויק",
+             reveal:"התחלתם לפרק — מחקתם התראות, פגישות וחברים. נשאר בסיס נקי יותר, אבל זה עלה תור.",
+             lesson:"לפרק בלגן לוקח תורים. פרומפט ראשון מפורט היה חוסך אותם."},
+            {scope:"focused", style:"vague", outcome:"setback", to:"p-everything-worse",
+             label:"תסדר את זה שיעבוד.",
+             asksFor:"מבקש: 'לסדר', בלי לפרט",
+             reveal:"'תסדר' על בלגן = בלגן גדול יותר. ה-AI הוסיף כפתור 'שמור' רביעי כדי 'לאחד'. הוא לא אתם — הוא רק ניחש.",
              lesson:"מעורפל על שבור = שבור יותר. צריך הוראה מדויקת."}
           ]
         },
         {
-          id:"p-untangle", name:"מפרקים", progress:28, looksFine:true,
-          testReveal:"בדקתם: נשאר מסך בית נקי עם כותרת, הבלגן נמחק. אפשר להמשיך צעד-צעד. עלה תור אחד.",
-          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div><div class="a-sub">חזרנו לבסיס נקי</div></div>
-                <div class="a-warn">${ic('warn')} ניקינו את הבלגן. מכאן ממשיכים צעד אחד בכל פעם.</div>
-                <div class="a-empty" style="padding:20px"><div class="big">${ic('cal')}</div><b>מסך בית נקי</b><span>עכשיו בונים לאט ובזהירות</span></div>`,
+          id:"p-everything-worse", name:"הכול-גרוע-יותר", progress:14,
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div><div class="a-sub" style="color:#c23b48">מצב: מבולגן יותר</div></div>
+                <div class="a-pad a-messy" style="flex:1">
+                  <div class="a-card a-broken"><div class="t">ארבעה כפתורי 'שמור'</div><div class="d">שניים מוחקים במקום לשמור</div></div>
+                  <div class="a-overlap" style="display:flex;flex-direction:column;gap:8px">
+                    <button class="a-btn">שמור</button><button class="a-btn">שמור</button><button class="a-btn">שמור</button><button class="a-btn">שמור</button>
+                  </div>
+                </div>`,
           choices:[
-            {label:"הוסף שורת ימים א׳–ש׳ — צעד אחד בלבד", type:"small", to:"p-days",
-             reveal:"חזרתם לדרך הנכונה: שורת ימים אחת, מוגדרת. ממשיכים כמו שצריך — צעד אחר צעד.",
-             lesson:"הדרך החוצה מבלגן היא בדיוק הדרך שהיה כדאי ללכת מלכתחילה."}
+            {scope:"focused", style:"specified", outcome:"setback", to:"p-untangle",
+             label:"מספיק לנחש — מחק הכול חוץ ממסך הבית עם הכותרת.",
+             asksFor:"מבקש: לפרק, צעד מדויק",
+             reveal:"סוף סוף הוראה מדויקת. מחקתם הכול חוץ מהבסיס. הפסדתם עוד תור על 'תסדר' — אבל עכשיו אתם שוב בכיוון.",
+             lesson:"הוראה מדויקת מנקה מה ש'תסדר' רק סיבך."}
           ]
         },
         {
-          id:"p-summary-broken", name:"סיכום שבור", progress:50, looksFine:false,
-          testReveal:"בדיקה מאשרת: מסך 'זמן משותף' מציג ריק תמיד, כי הסימון שמתחתיו אף פעם לא נשמר. בניתם על יסוד שלא יצוק.",
+          id:"p-untangle", name:"מפרקים", progress:28,
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div><div class="a-sub">חזרנו לבסיס נקי</div></div>
+                <div class="a-warn">${ic('warn')} ניקינו את הבלגן. מכאן ממשיכים בזהירות.</div>
+                <div class="a-empty" style="padding:20px"><div class="big">${ic('cal')}</div><b>מסך בית נקי</b><span>עכשיו בונים בזהירות</span></div>`,
+          choices:[
+            {scope:"broad", style:"specified", outcome:"advance", to:"p-scaffold-rich",
+             label:"עכשיו שנקי — בנה את הסימון והשמירה ביחד, עם פירוט מה כל אחד עושה.",
+             asksFor:"מבקש: כמה חלקים, עם פירוט",
+             reveal:"חזרתם לבסיס נקי, וכאן שוב אין מה לשבור — אז פרומפט רחב ומפורט מקפיץ אתכם קדימה. הפעם עם הקשר.",
+             lesson:"רוחב עובד כשהשלד נקי והפירוט מלא."},
+            {scope:"focused", style:"specified", outcome:"advance", to:"p-days",
+             label:"צעד בטוח: הוסף שורת ימים א׳–ש׳ בלבד.",
+             asksFor:"מבקש: דבר אחד, מוגדר",
+             reveal:"חזרתם לדרך הבטוחה — שורת ימים אחת, מוגדרת. ממשיכים צעד אחר צעד.",
+             lesson:"אחרי בלגן, כל דרך נקייה קדימה טובה."}
+          ]
+        },
+        {
+          id:"p-summary-broken", name:"סיכום שבור", progress:50,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div></div>
                 <div class="a-pad" style="flex:1">
                   <div class="a-card a-broken"><div class="t">${ic('warn')} זמן משותף: ריק</div><div class="d">אין ימים שמורים — הסימון לא נשמר מעולם</div></div>
                   <div class="a-card a-dead"><div class="t">הלוח מסמן, אבל שוכח</div><div class="d">כל יציאה מאפסת הכל</div></div>
                 </div>`,
           choices:[
-            {label:"עצור. בטל את מסך הסיכום וחבר קודם את הסימון", type:"small", to:"p-summary-fix", outcome:"repair",
-             reveal:"התחלתם לתקן: הורדתם את מסך הסיכום שנבנה מוקדם מדי. עכשיו אפשר לחבר את הסימון — אבל זה כבר התור השני על התיקון.",
+            {scope:"focused", style:"specified", outcome:"setback", to:"p-summary-fix",
+             label:"עצור. בטל את מסך הסיכום וחבר קודם את הסימון.",
+             asksFor:"מבקש: לתקן את היסוד, מדויק",
+             reveal:"התחלתם לתקן: הורדתם את מסך הסיכום שנבנה מוקדם מדי. עכשיו אפשר לחבר את הסימון כמו שצריך — אבל זה כבר התור השני על התיקון.",
              lesson:"קומה על יסוד רעוע צריך לפרק לפני שמתקנים את היסוד."}
           ]
         },
         {
-          id:"p-summary-fix", name:"מתקנים יסוד", progress:58, looksFine:true,
-          testReveal:"בדקתם: הסיכום הורד, הסימון לבד ומוכן לחיבור. עלה תור אחד.",
+          id:"p-summary-fix", name:"מתקנים יסוד", progress:60,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div></div>
                 <div class="a-warn">${ic('warn')} הורדנו את הסיכום. עכשיו מחברים את הסימון נכון.</div>
                 <div class="a-pad"><span class="a-chip" style="background:#dff5e8;color:#177a4b">א׳ ✓</span><span class="a-chip">ב׳</span><span class="a-chip">ג׳</span></div>`,
           choices:[
-            {label:"עכשיו חבר את הסימון: שהבחירה תישמר", type:"small", to:"p-toggle-fixed",
-             reveal:"חיברתם את הסימון כמו שצריך. שוב בדרך הנקייה — פשוט הגעתם בשני תורים במקום אחד.",
-             lesson:"בדיוק זה: דילוג על בדיקה עלה תורים כפולים."}
+            {scope:"focused", style:"specified", outcome:"advance", to:"p-core-working",
+             label:"עכשיו חבר את הסימון: שהבחירה תישמר ותוצג בסיכום.",
+             asksFor:"מבקש: תיקון אחד, מדויק",
+             reveal:"חיברתם את הסימון כמו שצריך. שוב בדרך הנקייה — פשוט הגעתם לכאן בשני תורים במקום אחד.",
+             lesson:"בדיוק זה: דילוג על בדיקה עלה תור כפול."}
           ]
         },
         {
-          id:"p-pretty", name:"'נקי' מעורפל", progress:8, looksFine:true,
-          testReveal:"בדקתם: מסך אפור ריק שנראה 'מודרני' אבל אין בו כלום. נקי זה לא שימושי. עלה תור אחד.",
+          id:"p-overbuilt", name:"נבנה יותר מדי", progress:42,
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div><div class="a-sub" style="color:#c23b48">חברים · התראות · מפה · צ'אט — נדחסו על הלוח שעבד</div></div>
+                <div class="a-pad a-messy" style="flex:1">
+                  <div class="a-card a-broken"><div class="t">רשימת חברים שנפתחה מעל הלוח</div><div class="d">הסימון שעבד נדחק ונשבר</div></div>
+                  <div class="a-card a-dead"><div class="t">מפה ריקה</div><div class="d">נטענת ולא מסתיימת</div></div>
+                </div>`,
+          choices:[
+            {scope:"focused", style:"specified", outcome:"setback", to:"p-untangle-2",
+             label:"בטל את החברים, ההתראות והמפה. חזור ללוח שעבד.",
+             asksFor:"מבקש: להסיר תוספות, מדויק",
+             reveal:"התחלתם להסיר את מה שדחסתם. זה עולה תור לפרק, ועוד תור לחבר מחדש את מה שעבד.",
+             lesson:"רוחב שקורה ברגע הלא נכון עולה כמה תורים לתקן."}
+          ]
+        },
+        {
+          id:"p-untangle-2", name:"מנקים תוספות", progress:60,
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>מתי-פנוי</div><div class="a-sub">חזרנו ללוח נקי</div></div>
+                <div class="a-warn">${ic('warn')} הסרנו את החברים, ההתראות והמפה. עכשיו מחזירים את הסימון שעבד.</div>
+                <div class="a-pad"><span class="a-chip" style="background:#dff5e8;color:#177a4b">א׳ ✓</span><span class="a-chip">ב׳</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">ג׳ ✓</span></div>`,
+          choices:[
+            {scope:"focused", style:"specified", outcome:"advance", to:"p-core-working",
+             label:"חבר מחדש: הסימון נשמר והסיכום מציג אותו.",
+             asksFor:"מבקש: תיקון אחד, מדויק",
+             reveal:"חזרתם ללוח שעובד, אחרי שני תורים שהלכו על תיקון.",
+             lesson:"רחב בזמן הלא נכון עלה יקר. ממוקד החזיר אתכם."}
+          ]
+        },
+        {
+          id:"p-pretty", name:"'נקי' מעורפל", progress:8,
           mock:`<div style="flex:1;display:flex;align-items:center;justify-content:center;color:#aab2c9;font-weight:800;text-align:center;padding:24px;background:#f0f1f5">
                   מסך אפור ו'מודרני' — וריק לגמרי
                 </div>`,
           choices:[
-            {label:"עזוב 'נקי'. בנה מסך בית עם כותרת ומשפט הסבר", type:"small", to:"p-title", outcome:"repair",
-             reveal:"חזרתם להוראה מדויקת וקיבלתם מסך בית אמיתי. ה'נקי' המעורפל עלה תור.",
-             lesson:"מדויק מנצח מעורפל. תמיד."}
+            {scope:"broad", style:"specified", outcome:"advance", to:"p-scaffold-rich",
+             label:"בנה מסך בית שלם: כותרת, שורת ימים וכפתור 'שמור' — עם פירוט.",
+             asksFor:"מבקש: מסך שלם, עם פירוט",
+             reveal:"החלפתם 'נקי ומודרני' בהקשר מלא — ובבת אחת קיבלתם שלד עשיר. ככה נראה פרומפט ראשון מנצח.",
+             lesson:"בהתחלה: החליפו מילים מעורפלות בהקשר מפורט, לא בצעד קטן."},
+            {scope:"focused", style:"specified", outcome:"advance", to:"p-title",
+             label:"עזוב 'נקי'. בנה מסך בית עם כותרת ומשפט הסבר קצר.",
+             asksFor:"מבקש: דבר אחד, מוגדר",
+             reveal:"חזרתם להוראה מדויקת — וקיבלתם מסך בית אמיתי. ה'נקי' המעורפל עלה תור.",
+             lesson:"מדויק תמיד מנצח מעורפל. גם ב'נקי'."}
           ]
         },
         {
-          id:"p-vague-moved", name:"'שיפור' שהזיז", progress:26, looksFine:false,
-          testReveal:"בדיקה חשפה: ה'שיפור' הזיז אלמנט שעבד והסתיר חלק ממנו. צריך להחזיר ידנית.",
+          id:"p-vague-moved", name:"'שיפור' שהזיז", progress:26,
           mock:`<div class="a-pad" style="flex:1;display:flex;flex-direction:column;justify-content:space-between">
                   <div class="a-warn" style="margin-top:10px">${ic('warn')} 'השיפור' הזיז דברים שעבדו — חלק מהימים מוסתרים עכשיו.</div>
                   <div class="a-head" style="opacity:.5"><div class="a-logo" style="font-size:14px">מתי-פנוי (זז הצידה)</div></div>
                 </div>`,
           choices:[
-            {label:"החזר סדר: כותרת למעלה, שורת הימים במקומה", type:"small", to:"p-days", outcome:"repair",
+            {scope:"focused", style:"specified", outcome:"advance", to:"p-days",
+             label:"החזר סדר: כותרת למעלה, שורת הימים במקומה.",
+             asksFor:"מבקש: להחזיר למקום, מדויק",
              reveal:"החזרתם ידנית את מה שה'שיפור' הזיז. שוב מסודר — אבל תור הלך על תיקון של מה שלא היה שבור.",
              lesson:"'תשפר' עלה תור. הוראה מדויקת הייתה חוסכת אותו."}
           ]
@@ -1072,21 +1139,21 @@ const CONFIG = {
    ============================================================ */
 const G = {
   scenario:null, statesById:{}, stateId:null,
-  turns:0, saved:null, history:[], mode:"team",
+  turns:0, history:[], mode:"team",
   comicSpent:false, order:{}, revealHTML:"", revealType:"placeholder",
-  showTestFlag:false, animate:false, ended:false
+  animate:false, ended:false
 };
 
 /* ---------- choice normalization ----------
    New model: scope('broad'|'focused') · style('specified'|'vague') ·
-   asksFor(text) · outcome('advance'|'setback'|'discipline').
+   asksFor(text) · outcome('advance'|'setback').
    Falls back to the legacy `type` so un-ported scenarios still work. */
 function normChoice(c){
   const t=c.type;
   const scope = c.scope || (t==='greedy'?'broad':'focused');
   const style = c.style || (t==='vague'?'vague':'specified');
   let outcome = c.outcome;
-  if(!outcome) outcome = (t==='small')?'advance':(t==='discipline'?'discipline':'setback');
+  if(!outcome) outcome = (t==='small')?'advance':'setback';
   if(outcome==='repair') outcome='setback';
   return {scope,style,outcome};
 }
@@ -1104,12 +1171,30 @@ function asksLine(c){
   if(n.style==='vague') return 'מבקש: שינוי כללי, בלי לפרט';
   return n.scope==='broad' ? 'מבקש: כמה דברים בבת אחת' : 'מבקש: דבר אחד, מוגדר';
 }
+function shuffleArr(arr){
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=arr[i];arr[i]=arr[j];arr[j]=t;}
+  return arr;
+}
+/* board mode: the class votes by show of hands, so cap the live ballot at 3
+   cards — trimmed to keep at least one advance and one setback when both
+   exist, so the vote is never a fake choice between near-identical cards */
+function boardPick(st, idx){
+  const advIdx = idx.filter(i=>normChoice(st.choices[i]).outcome==='advance');
+  const setIdx = idx.filter(i=>normChoice(st.choices[i]).outcome==='setback');
+  shuffleArr(advIdx); shuffleArr(setIdx);
+  const opts=[];
+  if(advIdx.length>=1 && setIdx.length>=2) opts.push([1,2]);
+  if(advIdx.length>=2 && setIdx.length>=1) opts.push([2,1]);
+  if(!opts.length) return shuffleArr(idx.slice()).slice(0,3);
+  const [a,s] = opts[Math.floor(Math.random()*opts.length)];
+  return advIdx.slice(0,a).concat(setIdx.slice(0,s));
+}
 /* shuffle the card order once per state-entry so position is never a tell */
 function displayOrder(st){
   if(!G.order[st.id]){
-    const idx = st.choices.map((_,i)=>i);
-    for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=idx[i];idx[i]=idx[j];idx[j]=t;}
-    G.order[st.id]=idx;
+    let idx = st.choices.map((_,i)=>i);
+    if(G.mode==='board' && idx.length>3) idx = boardPick(st, idx);
+    G.order[st.id]=shuffleArr(idx);
   }
   return G.order[st.id];
 }
@@ -1135,7 +1220,7 @@ function renderStart(){
     <div class="setup-grid">
       <div class="setup-card">
         <h3>${ic('screen')} בחרו אפליקציה לבנות</h3>
-        <p class="sub">שני תרחישים — כל אחד לומד את אותם חוקים.</p>
+        <p class="sub">זו ההחלטה של הצוות: בחרו ביחד איזו אפליקציה לבנות, איזו שתרצו.</p>
         <div id="scen-opts">
           ${scen.map(s=>`
             <button class="opt ${s.id===sel.scenarioId?'on':''}" data-scen="${s.id}">
@@ -1146,10 +1231,10 @@ function renderStart(){
       </div>
       <div class="setup-card">
         <h3>${ic('users')} בחרו מסלול משחק</h3>
-        <p class="sub">אותו משחק בדיוק — רק מי מחליט משתנה.</p>
+        <p class="sub">איך הכיתה תשחק:</p>
         <button class="opt ${sel.mode==='team'?'on':''}" data-mode="team">
           <span class="oico">${ic('users')}</span>
-          <span class="otxt"><b>מסלול צוות</b><span>כל צוות במחשב שלו, בקצב שלו.</span></span>
+          <span class="otxt"><b>מסלול צוות <span class="tag reco">מומלץ</span></b><span>כל צוות במחשב שלו, בקצב שלו.</span></span>
         </button>
         <button class="opt ${sel.mode==='board'?'on':''}" data-mode="board">
           <span class="oico">${ic('hand')}</span>
@@ -1160,8 +1245,8 @@ function renderStart(){
     <div class="start-row">
       <button class="btn-primary" id="startBtn">${ic('rocket')} מתחילים לבנות</button>
     </div>
-    <p class="how">כל תור: בוחרים פרומפט → המסך משתנה → שורה אחת מסבירה מה קרה ולמה. אין פה תשובה קבועה: פרומפט רחב עם הקשר מנצח בהתחלה, וצעד ממוקד מנצח מרגע שמשהו עובד. מהלכי משמעת (שמירה, בדיקה, חזרה) זמינים תמיד ועולים תור — עד שמשהו נשבר, ואז הם מצילים אתכם.</p>
-    <div class="foot">${esc(m.title)} · מוצר סטטי, ללא שרת · כל התוכן ניתן לעריכה ב-CONFIG</div>
+    <p class="how">כל תור: בוחרים פרומפט -> המסך משתנה -> שורה אחת מסבירה מה קרה ולמה. אין פה תשובה קבועה: פרומפט רחב עם הקשר מנצח בהתחלה, וצעד ממוקד מנצח מרגע שמשהו עובד.</p>
+    <div class="foot">${esc(m.title)} · מוצר סטטי, ללא שרת</div>
   </div>`;
 
   root.querySelectorAll('[data-scen]').forEach(b=>b.onclick=()=>{sel.scenarioId=b.dataset.scen;renderStart();});
@@ -1177,13 +1262,11 @@ function startGame(scenarioId, mode){
   scen.states.forEach(st=>G.statesById[st.id]=st);
   G.stateId = scen.startStateId;
   G.turns = CONFIG.meta.turns;
-  G.saved = null;
   G.history = [];
   G.comicSpent = false;
   G.order = {};
   G.mode = mode || "team";
   G.ended = false;
-  G.showTestFlag = false;
   G.revealType = "placeholder";
   G.revealHTML = CONFIG.ui.revealPlaceholder;
   G.animate = false;
@@ -1195,7 +1278,7 @@ function curState(){return G.statesById[G.stateId];}
 
 /* ---------- record a turn in history (for the map) ---------- */
 function record(kind, label, cost, from, to){
-  // kind: 'advance' | 'setback' | 'discipline'
+  // kind: 'advance' | 'setback'
   G.history.push({kind, label, cost, from, to});
 }
 
@@ -1223,56 +1306,10 @@ function pickChoice(idx){
   G.turns -= cost;
   record(outcome, ch.label, cost, fromP, toP);
   G.stateId = ch.to;
-  G.showTestFlag = false;
   G.revealType = outcome;
   G.revealHTML = revealHTML + (lessonHTML?`<span class="lesson">${esc(lessonHTML)}</span>`:'');
   G.animate = true;
 
-  checkEndOrRender();
-}
-
-/* ---------- discipline moves (engine-level) ---------- */
-function doSave(){
-  if(G.ended) return;
-  const st = curState();
-  G.saved = { id:G.stateId, name:st.name, progress:st.progress||0 };
-  G.turns -= CONFIG.meta.disciplineCost;
-  const p=st.progress||0;
-  record('discipline', CONFIG.ui.save+' — '+st.name, CONFIG.meta.disciplineCost, p, p);
-  G.revealType='discipline';
-  G.revealHTML = CONFIG.ui.saveDone;
-  G.showTestFlag=false; G.animate=false;
-  checkEndOrRender();
-}
-function doTest(){
-  if(G.ended) return;
-  const st = curState();
-  G.turns -= CONFIG.meta.disciplineCost;
-  const p=st.progress||0;
-  record('discipline', CONFIG.ui.test+' — '+st.name, CONFIG.meta.disciplineCost, p, p);
-  G.revealType='discipline';
-  G.revealHTML = st.testReveal || CONFIG.ui.testGenericFine;
-  // reveal hidden breakage visually if the state hides some
-  G.showTestFlag = (st.looksFine===false);
-  G.animate=false;
-  checkEndOrRender();
-}
-function doRestore(){
-  if(G.ended) return;
-  if(!G.saved){
-    // costs nothing — just informs
-    G.revealType='discipline';
-    G.revealHTML = CONFIG.ui.restoreNone;
-    renderGame();
-    return;
-  }
-  G.turns -= CONFIG.meta.disciplineCost;
-  const fromP=curState().progress||0;
-  record('discipline', CONFIG.ui.restore+' — '+G.saved.name, CONFIG.meta.disciplineCost, fromP, G.saved.progress||0);
-  G.stateId = G.saved.id;
-  G.revealType='discipline';
-  G.revealHTML = CONFIG.ui.restoreDone;
-  G.showTestFlag=false; G.animate=true;
   checkEndOrRender();
 }
 
@@ -1315,21 +1352,10 @@ function renderGame(){
       <div class="phone-col">
         <div class="phone">
           <div class="notch"></div>
-          <div class="screen-frame ${G.animate?'animating':''} ${G.showTestFlag?'show-test':''}">
-            <div class="tested-flag">${ic('warn')} תקלה נסתרת שנחשפה</div>
+          <div class="screen-frame ${G.animate?'animating':''}">
             <div class="screen-tick"><span>${esc(scen.appName)}</span><span>9:41</span></div>
             <div class="app-screen">${st.mock}</div>
           </div>
-        </div>
-
-        <div class="disc-bar">
-          <button class="disc-btn" id="saveBtn">${ic('save')}<b>${esc(ui.save)}</b><small>${esc(ui.saveSub)}</small></button>
-          <button class="disc-btn" id="testBtn">${ic('test')}<b>${esc(ui.test)}</b><small>${esc(ui.testSub)}</small></button>
-          <button class="disc-btn" id="restoreBtn" ${G.saved?'':'disabled'}>${ic('undo')}<b>${esc(ui.restore)}</b><small>${esc(ui.restoreSub)}</small></button>
-        </div>
-        <div class="save-slot ${G.saved?'has':''}">
-          <span class="sico">${ic('save')}</span>
-          <div><div class="sl">${esc(ui.slotLabel)}</div><div class="sn">${G.saved?esc(G.saved.name):esc(ui.slotEmpty)}</div></div>
         </div>
       </div>
 
@@ -1356,15 +1382,12 @@ function renderGame(){
   </div>`;
 
   root.querySelectorAll('.card').forEach(b=>b.onclick=()=>pickChoice(+b.dataset.i));
-  document.getElementById('saveBtn').onclick=doSave;
-  document.getElementById('testBtn').onclick=doTest;
-  document.getElementById('restoreBtn').onclick=doRestore;
   document.getElementById('quitBtn').onclick=()=>{document.body.classList.remove('board');renderStart();};
   G.animate=false;
 }
 
 function revealIcon(t){
-  return t==='advance'?'check':t==='setback'?'warn':t==='discipline'?'save':'q';
+  return t==='advance'?'check':t==='setback'?'warn':'q';
 }
 
 /* ---------- END SCREEN ---------- */
@@ -1373,7 +1396,6 @@ function renderEnd(win){
   const used = G.history.reduce((a,h)=>a+h.cost,0);
   const adv = G.history.filter(h=>h.kind==='advance').reduce((a,h)=>a+h.cost,0);
   const rep = G.history.filter(h=>h.kind==='setback').reduce((a,h)=>a+h.cost,0);
-  const dis = G.history.filter(h=>h.kind==='discipline').reduce((a,h)=>a+h.cost,0);
   const progress = curState().progress||0;
 
   document.body.classList.remove('board');
@@ -1400,12 +1422,11 @@ function renderEnd(win){
           </div>`;}).join('') || '<div class="psub">לא נעשו תורים.</div>'}
       </div>
       <div class="map-legend">
-        <span><i class="g"></i>התקדמות</span><span><i class="r"></i>תיקון / בזבוז</span><span><i class="b"></i>משמעת (שמירה/בדיקה/חזרה)</span>
+        <span><i class="g"></i>התקדמות</span><span><i class="r"></i>תיקון / בזבוז</span>
       </div>
       <div class="tally">
         <div class="t g"><div class="num">${adv}</div><div class="lb">${esc(ui.advances)}</div></div>
         <div class="t r"><div class="num">${rep}</div><div class="lb">${esc(ui.repairs)}</div></div>
-        <div class="t b"><div class="num">${dis}</div><div class="lb">${esc(ui.discipline)}</div></div>
         <div class="t"><div class="num">${used}</div><div class="lb">${esc(ui.turnsUsed)}</div></div>
       </div>
     </div>
@@ -1431,12 +1452,6 @@ function renderEnd(win){
       </ul>
     </div>
 
-    <!-- HANDOFF -->
-    <div class="panel handoff">
-      <h3 style="justify-content:center">${ic('arrow')} ${esc(ui.handoffTitle)}</h3>
-      <div>${esc(ui.handoff)}</div>
-    </div>
-
     <div class="end-actions">
       <button class="btn-primary green" id="replayBtn">${ic('undo')} ${esc(ui.replay)}</button>
       <button class="ghost-btn" id="menuBtn" style="padding:14px 22px;font-size:15px">${ic('layers')} ${esc(ui.newGame)}</button>
@@ -1447,7 +1462,7 @@ function renderEnd(win){
   document.getElementById('replayBtn').onclick=()=>startGame(G.scenario.id, G.mode);
   document.getElementById('menuBtn').onclick=renderStart;
 }
-function kindLabel(k){return k==='advance'?'התקדמות':k==='setback'?'נסיגה / תיקון':'משמעת';}
+function kindLabel(k){return k==='advance'?'התקדמות':'נסיגה / תיקון';}
 
 /* ---------- boot ---------- */
 renderStart();
