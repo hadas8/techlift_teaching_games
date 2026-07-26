@@ -155,6 +155,10 @@ select:focus,textarea:focus,input:focus{outline:2px solid var(--accent)}
 .bug .bwhy{font-size:14px;color:var(--muted);line-height:1.55;margin-top:8px}
 .bug .bfix{font-size:13px;margin-top:8px;background:var(--panel2);border-radius:9px;padding:8px 11px}
 .bug .bfix b{color:var(--good)}
+.bug .bmine{font-size:13px;margin-top:8px;border-inline-start:3px solid var(--good);padding:2px 10px;color:var(--muted);line-height:1.6}
+.bug .bmine b{color:var(--ink)}
+select optgroup{background:var(--panel);color:var(--muted);font-style:normal;font-weight:700}
+select optgroup option{color:var(--ink);font-weight:400}
 .sev-badge{font-size:11px;font-weight:800;border-radius:6px;padding:2px 8px}
 .sev-badge.s3{background:rgba(255,107,107,.2);color:var(--sev3)}
 .sev-badge.s2{background:rgba(255,204,51,.2);color:var(--sev2)}
@@ -164,10 +168,6 @@ select:focus,textarea:focus,input:focus{outline:2px solid var(--accent)}
 .sharp-box h3{color:var(--sev1)}
 .sharp-box .si{font-size:14px;padding:6px 0;border-bottom:1px dashed var(--line)}
 
-/* Debrief */
-.debrief-q{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
-.debrief-q .qnum{color:var(--accent);font-weight:800;font-size:14px;margin-bottom:8px}
-.debrief-q .qtext{font-size:17px;line-height:1.6}
 .handoff{background:linear-gradient(135deg,rgba(255,204,51,.12),rgba(255,122,89,.12));border:1px solid var(--accent);border-radius:16px;padding:20px;margin-top:20px;font-size:16px;line-height:1.7}
 
 /* Board mode */
@@ -211,7 +211,7 @@ select:focus,textarea:focus,input:focus{outline:2px solid var(--accent)}
   <div id="viewStart" class="view">
     <div class="card">
       <h2>ברוכים הבאים לספארי</h2>
-      <p class="lead">עוד רגע תבדקו אפליקציה אמיתית של צוות אחר — אבל קודם, בואו נאמן את העין. לפניכם אפליקציה מזויפת ובה באגים שתלנו בכוונה. תפקידכם: לצוד אותם. בחרו מסלול:</p>
+      <p class="lead">לפניכם אפליקציה מזויפת ובה באגים שתלנו בכוונה. תפקידכם: לצוד אותם. בחרו מסלול:</p>
       <div class="modes">
         <div class="card mode-card" onclick="startTeam()">
           <span class="tag">מומלץ</span>
@@ -227,7 +227,7 @@ select:focus,textarea:focus,input:focus{outline:2px solid var(--accent)}
         </div>
       </div>
     </div>
-    <div class="foot">מוצר מדף · הכול נטען מ‑CONFIG בראש הקובץ · ללא שרת, ללא חשבון</div>
+    <div class="foot">מוצר מדף · ללא שרת, ללא חשבון</div>
   </div>
 
   <!-- ============ BRIEFING ============ -->
@@ -282,12 +282,13 @@ select:focus,textarea:focus,input:focus{outline:2px solid var(--accent)}
             <select id="fScreen"></select>
           </div>
           <div class="field">
-            <label>איזה סוג בעיה? <span class="req">*</span></label>
-            <select id="fType"><option value="">בחרו סוג...</option></select>
+            <label>מה מצאתם? <span class="req">*</span></label>
+            <select id="fBug" onchange="onBugPick()"><option value="">בחרו את הבעיה שראיתם...</option></select>
+            <div class="hint" id="fTypeHint"></div>
           </div>
           <div class="field">
-            <label>מה לא בסדר? <span class="req">*</span></label>
-            <textarea id="fWhat" placeholder="למשל: לא ברור מה יקרה כשלוחצים על הכפתור..."></textarea>
+            <label>איפה בדיוק, ומה ציפיתם שיקרה? <span class="req">*</span></label>
+            <textarea id="fWhat" placeholder="למשל: לחצנו על הכרטיס של 'רובוטיקה' וציפינו שייפתחו פרטים..."></textarea>
           </div>
           <div class="field">
             <label>מה הייתם משנים? <span class="req">*</span></label>
@@ -312,11 +313,10 @@ select:focus,textarea:focus,input:focus{outline:2px solid var(--accent)}
       <div class="score-hero">
         <div>
           <div class="score-num" id="scoreNum">0</div>
-          <div style="color:var(--muted);font-size:13px">נקודות (חוסם 3 · מבלבל 2 · קוסמטי 1)</div>
+          <div style="color:var(--muted);font-size:13px" id="scoreLegend"></div>
         </div>
         <div style="flex:1;min-width:200px">
           <h2 style="margin-bottom:4px">החשיפה</h2>
-          <p style="color:var(--muted);font-size:14px;margin:0;line-height:1.6">הניקוד נחמד — אבל תסתכלו על <b>מפת הסוגים</b>. הלקח הוא הנקודות העיוורות, לא המספר.</p>
         </div>
       </div>
       <div class="stat-row">
@@ -339,26 +339,8 @@ select:focus,textarea:focus,input:focus{outline:2px solid var(--accent)}
       <h3 class="mt">כל מה ששתלנו</h3>
       <div class="buglist" id="bugList"></div>
 
-      <div class="actions">
-        <button class="btn primary big" onclick="show('viewDebrief')">לתחקיר</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ============ DEBRIEF ============ -->
-  <div id="viewDebrief" class="view hidden">
-    <div class="card">
-      <h2>תחקיר — בקול רם, בלי להקליד</h2>
-      <p class="lead">דברו ביניכם. שני דברים לנסח כצוות:</p>
-      <div class="debrief-q">
-        <div class="qnum">שאלה 1</div>
-        <div class="qtext" id="dq1"></div>
-      </div>
-      <div class="debrief-q">
-        <div class="qnum">שאלה 2</div>
-        <div class="qtext" id="dq2"></div>
-      </div>
       <div class="handoff" id="handoffText"></div>
+
       <div class="actions">
         <button class="btn ghost" onclick="restart()">התחלה מחדש</button>
       </div>
@@ -384,6 +366,7 @@ select:focus,textarea:focus,input:focus{outline:2px solid var(--accent)}
 
       <div id="boardWalk" class="hidden">
         <div class="board-progress" id="boardProg"></div>
+        <div class="screentabs board-screens" id="boardTabs"></div>
         <div class="phone" style="margin:0 auto 18px"><div class="screen"><div class="screen-scroll" id="boardApp"></div></div></div>
         <h3 id="boardScreenName" style="text-align:center"></h3>
         <div id="boardRevealBox" class="hidden board-reveal">
@@ -427,10 +410,8 @@ const CONFIG = {
 
   // אוצר המילים שהמשחק מלמד
   types: [
-    "כפתור/תווית לא ברורים",
-    "פעולה מוסתרת או קטנה מדי",
-    "מבוי סתום — לוחצים וכלום לא קורה",
-    "משוב משקר",
+    "פעולה לא ברורה או קשה למצוא",
+    "משוב שגוי או חסר על פעולה",
     "ברירת מחדל שגויה",
     "חוסר עקביות בשמות ובעיצוב",
     "חסר מידע שצריך כדי להחליט",
@@ -438,72 +419,97 @@ const CONFIG = {
     "ליטוש חזותי (קוסמטי)"
   ],
 
+  // הסבר קצר לכל סוג — מוצג כטולטיפ (hover) על האפשרות
+  typeHints: {
+    "פעולה לא ברורה או קשה למצוא": "אי אפשר לדעת מה יקרה בלחיצה, או שקשה בכלל למצוא/לשים לב לפעולה.",
+    "משוב שגוי או חסר על פעולה": "אחרי שלוחצים, שום דבר לא קורה — או שמקבלים משוב שגוי (למשל 'הצלחה' כשלא באמת קרה כלום).",
+    "ברירת מחדל שגויה": "הערך שנבחר מראש לא מתאים לרוב המשתמשים, והם צריכים לשים לב ולשנות אותו.",
+    "חוסר עקביות בשמות ובעיצוב": "אותו דבר נקרא או נראה אחרת במקומות שונים באפליקציה, ומבלבל.",
+    "חסר מידע שצריך כדי להחליט": "חסר מידע קריטי שהמשתמש צריך כדי להחליט אם להמשיך.",
+    "לא מתאים לקהל היעד (שפה/תוכן/פרטיות)": "השפה, התוכן או הבקשה לא מתאימים לקהל היעד הספציפי של האפליקציה.",
+    "ליטוש חזותי (קוסמטי)": "נראה לא מוקפד, אבל לא פוגע ביכולת להשתמש באפליקציה בפועל."
+  },
+
   // severity: 3=חוסם, 2=מבלבל, 1=קוסמטי
   bugs: [
-    { id:"start-label", screen:"home", type:"כפתור/תווית לא ברורים", severity:2,
+    { id:"start-label", screen:"home", type:"פעולה לא ברורה או קשה למצוא", severity:2,
+      symptom:"לא ברור מה יקרה כשלוחצים על כפתור",
       where:"כפתור 'התחל' במסך הבית",
       whyItHurts:"הכפתור לא מרמז מה יקרה — ילד לא יודע אם זה מתחיל חיפוש, הרשמה או משהו אחר.",
       betterVersion:"במקום 'התחל' לכתוב 'מצאו חוג עכשיו'." },
     { id:"logo-overlap", screen:"home", type:"ליטוש חזותי (קוסמטי)", severity:1,
+      symptom:"אלמנטים חופפים או נדחפים אחד על השני",
       where:"הלוגו נדחף על הכותרת בראש המסך",
       whyItHurts:"הלוגו יושב על הכותרת ומקשה לקרוא את שם האפליקציה — נראה מרושל.",
       betterVersion:"להזיז את הלוגו הצידה ולתת לכותרת מרווח." },
     { id:"tagline-hard", screen:"home", type:"לא מתאים לקהל היעד (שפה/תוכן/פרטיות)", severity:3,
+      symptom:"שפה או ניסוח שלא מתאימים לגיל של הקהל",
       where:"משפט התיאור מתחת לכותרת",
       whyItHurts:"'פלטפורמה לאיתור פעילויות העשרה חוץ‑בית‑ספריות' — ילד בן 10 לא מבין את המילים, אז הוא לא מבין למה האפליקציה טובה בשבילו.",
       betterVersion:"'בא לך חוג חדש? בוא נמצא לך אחד מגניב.'" },
 
-    { id:"hidden-search", screen:"search", type:"פעולה מוסתרת או קטנה מדי", severity:3,
+    { id:"hidden-search", screen:"search", type:"פעולה לא ברורה או קשה למצוא", severity:3,
+      symptom:"פעולה חשובה שמוסתרת, קטנה מדי או קשה למצוא",
       where:"כפתור החיפוש — אייקון זעיר בפינה",
       whyItHurts:"הפעולה הכי חשובה במסך מוסתרת כאייקון קטן; רוב הילדים פשוט לא ימצאו איך לחפש.",
       betterVersion:"כפתור 'חפש' גדול וברור באמצע." },
     { id:"dup-filter", screen:"search", type:"חוסר עקביות בשמות ובעיצוב", severity:2,
+      symptom:"אותו דבר מופיע בשני שמות שונים",
       where:"שני מסננים: 'תחום' ו'קטגוריה'",
       whyItHurts:"שני שמות שונים לאותו דבר מבלבלים — הילד חושב שהם שני דברים ולא יודע מה למלא.",
       betterVersion:"להשאיר מסנן אחד בשם אחד." },
     { id:"age-default", screen:"search", type:"ברירת מחדל שגויה", severity:2,
+      symptom:"ערך שנבחר מראש ולא מתאים לרוב המשתמשים",
       where:"מסנן הגיל שמוגדר כברירת מחדל ל'מבוגרים'",
       whyItHurts:"הקהל הוא ילדים, אבל הגיל מתחיל ב'מבוגרים' — התוצאות יהיו לא רלוונטיות עד שישימו לב לשנות.",
       betterVersion:"ברירת מחדל '10–12' או בלי ברירת מחדל בכלל." },
 
-    { id:"dead-result", screen:"results", type:"מבוי סתום — לוחצים וכלום לא קורה", severity:3,
+    { id:"dead-result", screen:"results", type:"משוב שגוי או חסר על פעולה", severity:3,
+      symptom:"לוחצים על משהו ושום דבר לא קורה",
       where:"לחיצה על תוצאה ברשימה",
       whyItHurts:"לוחצים על חוג כדי לראות פרטים — ולא קורה כלום. הילד תקוע ולא יכול להתקדם.",
       betterVersion:"לפתוח מסך פרטים עם תיאור, מחיר, מיקום וכפתור הרשמה." },
     { id:"missing-info", screen:"results", type:"חסר מידע שצריך כדי להחליט", severity:2,
+      symptom:"חסר מידע חשוב כדי להחליט (מחיר, מיקום, שעה...)",
       where:"כרטיסי התוצאות",
       whyItHurts:"אין מחיר ואין מיקום — בדיוק שני הדברים שילד צריך כדי להחליט אם החוג בכלל אפשרי בשבילו.",
       betterVersion:"להוסיף לכל כרטיס מחיר, מרחק/שכונה ושעה." },
     { id:"card-heights", screen:"results", type:"ליטוש חזותי (קוסמטי)", severity:1,
+      symptom:"גדלים או מרווחים לא אחידים בין אלמנטים דומים",
       where:"גובה הכרטיסים לא אחיד",
       whyItHurts:"הכרטיסים בגבהים שונים בלי סיבה — נראה שבור ולא מקצועי.",
       betterVersion:"גובה אחיד לכל הכרטיסים." },
 
-    { id:"lying-submit", screen:"register", type:"משוב משקר", severity:3,
+    { id:"lying-submit", screen:"register", type:"משוב שגוי או חסר על פעולה", severity:3,
+      symptom:"הודעת הצלחה על פעולה שלא באמת קרתה",
       where:"כפתור 'שלח' עם שדות ריקים",
       whyItHurts:"לוחצים 'שלח' בלי למלא כלום ומקבלים 'הצלחה!' — האפליקציה משקרת, ובאמת שום הרשמה לא נשלחה.",
       betterVersion:"לבדוק שהשדות מלאים, ולהראות הצלחה רק כשבאמת נשלח." },
     { id:"phone-why", screen:"register", type:"לא מתאים לקהל היעד (שפה/תוכן/פרטיות)", severity:2,
+      symptom:"מבקשים מידע אישי בלי להסביר למה צריך אותו",
       where:"שדה מספר טלפון בלי הסבר",
       whyItHurts:"מבקשים מילד מספר טלפון בלי להסביר למה — לא נעים ולא מתאים לפרטיות של ילדים.",
       betterVersion:"להסביר למה צריך, או לוותר על השדה לגיל הזה." },
     { id:"back-inconsistent", screen:"register", type:"חוסר עקביות בשמות ובעיצוב", severity:1,
+      symptom:"אותו רכיב נראה אחרת במסכים שונים",
       where:"כפתור 'חזרה' שנראה אחרת מכל מסך אחר",
       whyItHurts:"כפתור החזרה כאן נראה שונה משאר האפליקציה — הילד מתקשה לזהות אותו.",
       betterVersion:"אותו עיצוב לכפתור חזרה בכל המסכים." }
   ],
 
   scoring: { 3:3, 2:2, 1:1 },
-
-  debrief: {
-    q1: "איזה סוג בעיה פספסתם לגמרי — ומה תחפשו במיוחד כשתבדקו אפליקציה אמיתית עוד רגע?",
-    q2: "בחרו ממצא אחד שלכם ונסחו אותו כמשוב טוב: מה הבעיה, למי היא מפריעה, ומה הייתם משנים."
-  },
+  // ניקוד לממצא "אחר" — משהו שלא שתלנו אבל הצוות זיהה בעצמו
+  sharpPoints: 1,
+  otherLabel: "אחר — מצאנו משהו שלא ברשימה",
 
   handoff: "עכשיו יש לכם עיניים של בודקים. בעוד רגע תבדקו אפליקציה אמיתית של צוות אחר — חפשו את אותם סוגי בעיות, שפטו לפי הקהל *שלהם*, ותמיד תגידו גם מה הייתם משנים. ומשהו אחרון: כשמישהו מוצא באג אצלכם — זו מתנה, לא עלבון."
 };
 
 const SEV_NAME = {3:"חוסם", 2:"מבלבל", 1:"קוסמטי"};
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
 
 /* ============================================================
    STATE
@@ -512,18 +518,21 @@ let state = {
   currentScreen: "home",
   findings: [],
   timerId: null,
-  timeLeft: CONFIG.meta.timerSeconds,
-  registerSubmitted: false
+  timeLeft: CONFIG.meta.timerSeconds
 };
 
 /* ============================================================
    VIEW ROUTING
    ============================================================ */
+// איזה "טלפון" פעיל כרגע — במסלול לוח מציירים למסגרת אחרת מאשר במסלול צוות
+let boardMode = false;
+
 function show(id){
   document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
   const showTimer = id==='viewHunt';
   document.getElementById('topRight').classList.toggle('hidden', !showTimer);
+  boardMode = (id==='viewBoard');
   window.scrollTo(0,0);
 }
 
@@ -598,7 +607,12 @@ function renderScreen(id, container){
   container.innerHTML = html;
 }
 
-function faNav(id){ renderScreen(id, document.getElementById('fakeApp')); syncTabs(); }
+function faNav(id){
+  renderScreen(id, document.getElementById(boardMode ? 'boardApp' : 'fakeApp'));
+  syncTabs();
+  if(boardMode){ boardSync(); return; }
+  document.getElementById('fScreen').value = id;
+}
 function faDeadEnd(){ /* מבוי סתום מכוון — לא קורה כלום */ }
 function faSubmit(e){
   // משוב משקר: מציג "הצלחה!" גם עם שדות ריקים
@@ -610,9 +624,9 @@ function faSubmit(e){
   setTimeout(()=>t.remove(), 1900);
 }
 
-/* Screen tabs (quick nav) */
+/* Screen tabs (quick nav) — same markup בשני המסלולים */
 function syncTabs(){
-  const tabs = document.getElementById('screenTabs');
+  const tabs = document.getElementById(boardMode ? 'boardTabs' : 'screenTabs');
   tabs.innerHTML = CONFIG.app.screens.map(s=>
     `<button class="screentab ${s.id===state.currentScreen?'active':''}" onclick="faNav('${s.id}')">${s.title}</button>`
   ).join("");
@@ -625,7 +639,7 @@ function startTeam(){
   document.getElementById('brName').textContent = CONFIG.app.name;
   document.getElementById('brPurpose').textContent = CONFIG.app.purpose;
   document.getElementById('brAudience').textContent = CONFIG.app.audience;
-  document.getElementById('brTypes').innerHTML = CONFIG.types.map(t=>`<span class="typechip">${t}</span>`).join("");
+  document.getElementById('brTypes').innerHTML = CONFIG.types.map(t=>`<span class="typechip" title="${CONFIG.typeHints[t]||''}">${t}</span>`).join("");
   show('viewBrief');
 }
 
@@ -639,12 +653,39 @@ function beginHunt(){
   // log form selects
   const scrSel = document.getElementById('fScreen');
   scrSel.innerHTML = CONFIG.app.screens.map(s=>`<option value="${s.id}">${s.title}</option>`).join("");
-  const typeSel = document.getElementById('fType');
-  typeSel.innerHTML = `<option value="">בחרו סוג...</option>` + CONFIG.types.map(t=>`<option value="${t}">${t}</option>`).join("");
+  buildBugSelect();
+  document.getElementById('fTypeHint').textContent = '';
 
   faNav('home');
   show('viewHunt');
   startTimer();
+}
+
+/* הרשימה מקובצת לפי סוג — הסוג מוצג ככותרת קבוצה, לא כשאלה נפרדת.
+   כך אי אפשר "לטעות בקטגוריה": בוחרים את הבעיה, והמשחק מלמד איך קוראים לה. */
+function buildBugSelect(){
+  const sel = document.getElementById('fBug');
+  const groups = CONFIG.types.map(t=>{
+    const inType = CONFIG.bugs.filter(b=>b.type===t);
+    if(!inType.length) return '';
+    return `<optgroup label="${t}">` +
+      inType.map(b=>`<option value="${b.id}">${b.symptom}</option>`).join("") +
+      `</optgroup>`;
+  }).join("");
+  sel.innerHTML = `<option value="">בחרו את הבעיה שראיתם...</option>` + groups +
+    `<option value="other">${CONFIG.otherLabel}</option>`;
+}
+
+function onBugPick(){
+  const id = document.getElementById('fBug').value;
+  const hint = document.getElementById('fTypeHint');
+  if(!id){ hint.textContent=''; return; }
+  if(id==='other'){
+    hint.textContent = 'ממצא עצמאי — ייחשב כ"עין חדה". תארו אותו היטב בשדות הבאים.';
+    return;
+  }
+  const b = CONFIG.bugs.find(x=>x.id===id);
+  hint.textContent = b ? `סוג הבעיה: ${b.type} — ${CONFIG.typeHints[b.type]||''}` : '';
 }
 
 function startTimer(){
@@ -665,16 +706,20 @@ function updateTimerUI(){
 
 function logFinding(){
   const screen = document.getElementById('fScreen').value;
-  const type = document.getElementById('fType').value;
+  const bugId = document.getElementById('fBug').value;
   const what = document.getElementById('fWhat').value.trim();
   const fix = document.getElementById('fFix').value.trim();
   const warn = document.getElementById('logWarn');
-  if(!type){ warn.textContent='בחרו סוג בעיה.'; return; }
-  if(!what){ warn.textContent='כתבו מה לא בסדר.'; return; }
+  if(!bugId){ warn.textContent='בחרו מה מצאתם.'; return; }
+  if(bugId!=='other' && state.findings.some(f=>f.bugId===bugId)){
+    warn.textContent='כבר תיעדתם את הבעיה הזאת.'; return;
+  }
+  if(!what){ warn.textContent='כתבו איפה בדיוק ומה ציפיתם שיקרה.'; return; }
   if(!fix){ warn.textContent='חובה למלא "מה הייתם משנים" — אין שיפור, אין ממצא.'; return; }
   warn.textContent='';
-  state.findings.push({screen, type, what, fix});
-  document.getElementById('fType').value='';
+  state.findings.push({screen, bugId, what, fix});
+  document.getElementById('fBug').value='';
+  document.getElementById('fTypeHint').textContent='';
   document.getElementById('fWhat').value='';
   document.getElementById('fFix').value='';
   document.getElementById('findCount').textContent = state.findings.length;
@@ -684,12 +729,16 @@ function logFinding(){
 function renderFindings(){
   const list = document.getElementById('findingsList');
   if(!state.findings.length){ list.innerHTML=''; return; }
-  list.innerHTML = state.findings.map((f,i)=>`
+  list.innerHTML = state.findings.map((f,i)=>{
+    const b = f.bugId==='other' ? null : CONFIG.bugs.find(x=>x.id===f.bugId);
+    const label = b ? b.symptom : CONFIG.otherLabel;
+    return `
     <div class="finding-item">
       <button class="fdel" onclick="delFinding(${i})" title="מחק">×</button>
-      <div><span class="ftype">${f.type}</span> <span class="floc">· ${screenTitle(f.screen)}</span></div>
-      <div style="margin-top:3px">${f.what}</div>
-    </div>`).join("");
+      <div><span class="ftype">${label}</span> <span class="floc">· ${screenTitle(f.screen)}</span></div>
+      <div style="margin-top:3px">${escapeHtml(f.what)}</div>
+    </div>`;
+  }).join("");
 }
 function delFinding(i){ state.findings.splice(i,1); document.getElementById('findCount').textContent=state.findings.length; renderFindings(); }
 
@@ -703,36 +752,27 @@ function finishHunt(){
 }
 
 /* ============================================================
-   MATCHING & REVEAL — generous: match by screen + type
+   MATCHING & REVEAL — הצוות בוחר את הבאג עצמו, אז ההתאמה ודאית.
+   המסך נרשם לצורך למידה בלבד ולא משפיע על הזיכוי.
    ============================================================ */
 function computeReveal(){
-  const bugs = CONFIG.bugs.map(b=>({...b, found:false}));
-  const usedFindings = new Array(state.findings.length).fill(false);
+  const bugs = CONFIG.bugs.map(b=>({...b, found:false, evidence:null}));
+  const sharp = [];
 
-  // match each finding to an unmatched bug on same screen+type (generous)
-  state.findings.forEach((f,fi)=>{
-    const bi = bugs.findIndex(b=>!b.found && b.screen===f.screen && b.type===f.type);
-    if(bi>=0){ bugs[bi].found=true; usedFindings[fi]=true; }
-  });
-
-  // second pass — generous: same screen (right area, close enough) counts too,
-  // but cap at ONE pass-two credit per screen so a team spamming one screen
-  // with mistyped logs can't inflate its score against bugs it never saw.
-  const passTwoUsedScreen = new Set();
-  state.findings.forEach((f,fi)=>{
-    if(usedFindings[fi]) return;
-    if(passTwoUsedScreen.has(f.screen)) return;
-    const bi = bugs.findIndex(b=>!b.found && b.screen===f.screen);
-    if(bi>=0){ bugs[bi].found=true; usedFindings[fi]=true; passTwoUsedScreen.add(f.screen); }
+  state.findings.forEach(f=>{
+    if(f.bugId==='other'){ sharp.push(f); return; }
+    const bug = bugs.find(b=>b.id===f.bugId);
+    if(!bug){ sharp.push(f); return; }
+    if(!bug.found){ bug.found=true; bug.evidence=f; }
   });
 
   const found = bugs.filter(b=>b.found);
   const missed = bugs.filter(b=>!b.found);
-  const sharp = state.findings.filter((f,i)=>!usedFindings[i]);
 
   // score
   let score = 0;
   found.forEach(b=> score += CONFIG.scoring[b.severity]||0);
+  score += sharp.length * (CONFIG.sharpPoints||0);
 
   document.getElementById('scoreNum').textContent = score;
   document.getElementById('stFound').textContent = found.length;
@@ -742,7 +782,7 @@ function computeReveal(){
   renderTypeMap(bugs);
   renderSharp(sharp);
   renderBugList(bugs);
-  fillDebrief(missed);
+  fillHandoff();
 }
 
 function renderTypeMap(bugs){
@@ -770,7 +810,7 @@ function renderSharp(sharp){
   if(!sharp.length){ box.classList.add('hidden'); return; }
   box.classList.remove('hidden');
   document.getElementById('sharpList').innerHTML = sharp.map(f=>
-    `<div class="si"><b>${f.type}</b> · ${screenTitle(f.screen)} — ${f.what} <span style="color:var(--muted)">(השינוי שהצעתם: ${f.fix})</span></div>`
+    `<div class="si"><b>${screenTitle(f.screen)}</b> — ${escapeHtml(f.what)} <span style="color:var(--muted)">(השינוי שהצעתם: ${escapeHtml(f.fix)})</span></div>`
   ).join("");
 }
 
@@ -790,19 +830,21 @@ function renderBugList(bugs){
       <div class="btype">${b.type} · ${screenTitle(b.screen)}</div>
       <div class="bwhy">${b.whyItHurts}</div>
       <div class="bfix"><b>שיפור:</b> ${b.betterVersion}</div>
+      ${b.evidence?`<div class="bmine"><b>מה שכתבתם:</b> ${escapeHtml(b.evidence.what)}<br><b>מה שהצעתם:</b> ${escapeHtml(b.evidence.fix)}</div>`:''}
     </div>`).join("");
 }
 
-function fillDebrief(missed){
-  document.getElementById('dq1').textContent = CONFIG.debrief.q1;
-  document.getElementById('dq2').textContent = CONFIG.debrief.q2;
+function fillHandoff(){
   document.getElementById('handoffText').textContent = CONFIG.handoff;
 }
 
 /* ============================================================
    BOARD MODE FLOW
    ============================================================ */
-let boardIdx = 0;
+// המסך המוצג הוא מקור האמת (state.currentScreen), כדי שניווט בתוך האפליקציה
+// לא ייצור פער בין מה שרואים על המסך לבין מה שייחשף.
+let boardRevealed = new Set();
+
 function startBoard(){
   document.getElementById('bbName').textContent = CONFIG.app.name;
   document.getElementById('bbPurpose').textContent = CONFIG.app.purpose;
@@ -813,22 +855,30 @@ function startBoard(){
   show('viewBoard');
 }
 function boardStart(){
-  boardIdx = 0;
+  boardRevealed = new Set();
   document.getElementById('boardBrief').classList.add('hidden');
   document.getElementById('boardWalk').classList.remove('hidden');
-  boardShow();
+  boardShow(CONFIG.app.screens[0].id);
 }
-function boardShow(){
-  const scr = CONFIG.app.screens[boardIdx];
-  renderScreen(scr.id, document.getElementById('boardApp'));
-  document.getElementById('boardScreenName').textContent = scr.title;
-  document.getElementById('boardProg').textContent = `מסך ${boardIdx+1} מתוך ${CONFIG.app.screens.length} — שחקו עם המסך ונסו למצוא את כל הבאגים, ואז חשפו`;
+function boardShow(id){
+  renderScreen(id, document.getElementById('boardApp'));
+  boardSync();
+}
+// מרענן את מסגרת המסלול לפי המסך שמוצג בפועל — נקרא גם אחרי ניווט בתוך האפליקציה
+function boardSync(){
+  const n = CONFIG.app.screens.length;
+  const idx = CONFIG.app.screens.findIndex(s=>s.id===state.currentScreen);
+  syncTabs();
+  document.getElementById('boardScreenName').textContent = screenTitle(state.currentScreen);
+  document.getElementById('boardProg').textContent =
+    `מסך ${idx+1} מתוך ${n} · נחשפו ${boardRevealed.size} מתוך ${n} — שחקו עם המסך ונסו למצוא את כל הבאגים, ואז חשפו`;
   document.getElementById('boardRevealBox').classList.add('hidden');
   document.getElementById('boardRevealBtn').classList.remove('hidden');
   document.getElementById('boardNextBtn').classList.add('hidden');
 }
 function boardReveal(){
-  const scr = CONFIG.app.screens[boardIdx];
+  const scr = { id: state.currentScreen };
+  boardRevealed.add(scr.id);
   const bugs = CONFIG.bugs.filter(b=>b.screen===scr.id).sort((a,b)=>b.severity-a.severity);
   document.getElementById('boardBugs').innerHTML = bugs.map(b=>`
     <div class="bug s${b.severity}">
@@ -840,10 +890,14 @@ function boardReveal(){
   document.getElementById('boardRevealBox').classList.remove('hidden');
   document.getElementById('boardRevealBtn').classList.add('hidden');
   document.getElementById('boardNextBtn').classList.remove('hidden');
-  document.getElementById('boardNextBtn').textContent = boardIdx < CONFIG.app.screens.length-1 ? 'המסך הבא' : 'לסיכום';
+  document.getElementById('boardNextBtn').textContent = boardPending().length ? 'המסך הבא' : 'לסיכום';
 }
+// מסכים שעוד לא נחשפו — כך אפשר לנווט חופשי בלי לדלג על מסך
+function boardPending(){ return CONFIG.app.screens.filter(s=>!boardRevealed.has(s.id)); }
+
 function boardNext(){
-  if(boardIdx < CONFIG.app.screens.length-1){ boardIdx++; boardShow(); }
+  const pending = boardPending();
+  if(pending.length){ boardShow(pending[0].id); }
   else {
     document.getElementById('boardWalk').classList.add('hidden');
     document.getElementById('boardEnd').classList.remove('hidden');
@@ -861,6 +915,7 @@ function restart(){
 }
 document.getElementById('topTitle').textContent = CONFIG.meta.title;
 document.title = CONFIG.meta.title;
+document.getElementById('scoreLegend').textContent = `נקודות (חוסם ${CONFIG.scoring[3]} · מבלבל ${CONFIG.scoring[2]} · קוסמטי ${CONFIG.scoring[1]} · עין חדה ${CONFIG.sharpPoints})`;
 show('viewStart');
 </script>
 </body>
