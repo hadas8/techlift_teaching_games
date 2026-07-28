@@ -62,19 +62,117 @@ p.lead{color:var(--muted);font-size:16px;line-height:1.6;margin:6px 0 18px}
 /* Briefing */
 .brief-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
 .brief-item{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:16px}
-.brief-item .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;gap:7px}
+.brief-item .k{font-size:12px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:7px}
 .brief-item .v{font-size:17px;font-weight:600;line-height:1.5}
 .audience{grid-column:1/-1;border-color:var(--accent)}
 .audience .v{color:var(--accent)}
-.typelist{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.typechip{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-size:13px}
+/* Team briefing — tiered hierarchy */
+.brief-rule{display:flex;gap:14px;align-items:flex-start;margin:18px 0 16px;padding:18px 20px;border-radius:16px;
+  border:1px solid var(--accent);background:linear-gradient(135deg,rgba(255,204,51,.13),rgba(255,122,89,.07))}
+.brief-rule>svg{flex:0 0 auto;color:var(--accent);margin-top:2px}
+.brief-rule .rule-k{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:5px}
+.brief-rule .rule-v{font-size:19px;font-weight:700;line-height:1.5}
+.brief-rule .rule-sub{font-size:13px;color:var(--muted);line-height:1.5;margin-top:6px}
+.brief-item .brief-sub{font-size:13.5px;color:var(--muted);line-height:1.5;margin-top:5px}
+.brief-combo{border-color:var(--accent);margin-bottom:4px}
+.brief-combo .brief-divider{height:1px;background:var(--line);margin:15px 0}
+.brief-combo .aud{color:var(--accent);font-size:19px}
+#viewBrief .audience .v{font-size:19px}
 
-/* Hunt layout */
-.hunt{display:grid;grid-template-columns:340px 1fr;gap:26px;align-items:start}
-@media(max-width:900px){.hunt{grid-template-columns:1fr}}
+/* Hunt layout — single centered column */
+.hunt-intro{margin-bottom:22px}
+.hunt-steps{display:flex;flex-direction:column;gap:11px}
+.hstep{display:flex;gap:11px;align-items:flex-start;font-size:14.5px;line-height:1.55}
+.hstep>svg{flex:0 0 auto;color:var(--accent);margin-top:2px}
+.hunt-stage{display:flex;flex-direction:column;align-items:center;gap:16px}
+.hunt-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center;margin-top:4px}
+#viewHunt .findings-list{width:100%;max-width:560px;max-height:none;overflow:visible}
+
+/* Pinpoint (report) mode */
+.pinpoint-hint{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center;
+  background:linear-gradient(135deg,rgba(255,204,51,.16),rgba(255,122,89,.1));border:1px solid var(--accent);
+  border-radius:12px;padding:8px 14px;font-size:14px;font-weight:700;color:var(--ink)}
+.pinpoint-hint .btn{padding:6px 14px;font-size:13px}
+.phone.pinpoint{box-shadow:0 0 0 3px var(--accent),0 20px 60px rgba(0,0,0,.5)}
+.phone.pinpoint .screen-scroll{cursor:crosshair}
+.phone.pinpoint [data-bugs]{cursor:crosshair;border-radius:8px;transition:box-shadow .1s,background .1s}
+.phone.pinpoint [data-bugs] *{pointer-events:none}
+.phone.pinpoint [data-bugs]:hover{box-shadow:0 0 0 3px var(--accent2);background:rgba(255,122,89,.12)}
+#reportBtn.active{filter:brightness(.92);box-shadow:0 0 0 3px rgba(255,204,51,.4)}
+
+/* Reveal — Part 1 (severity legend + found findings) */
+.sev-legend{display:flex;flex-direction:column;gap:9px;background:var(--panel2);border:1px solid var(--line);
+  border-radius:14px;padding:14px 16px;margin:18px 0}
+.sev-legend .sl-item{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.5}
+.sev-legend .sev-badge{flex:0 0 auto;margin-top:1px}
+.found-list{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.rev-find{display:flex;gap:14px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);
+  border-inline-start-width:5px;border-radius:14px;padding:14px}
+.rev-find.s3{border-inline-start-color:var(--sev3)} .rev-find.s2{border-inline-start-color:var(--sev2)} .rev-find.s1{border-inline-start-color:var(--sev1)}
+.rev-el{position:relative;flex:0 0 auto;width:170px;min-height:52px;background:var(--phone);color:var(--phoneink);
+  border-radius:14px;padding:12px;box-shadow:0 0 0 3px var(--accent2);overflow:hidden;font-family:var(--font);font-size:14px}
+.rev-el *{pointer-events:none}
+.rev-el .fa-tiny-search,.rev-el .fa-logo-overlap{position:static}
+.rev-body{flex:1;min-width:0}
+.rev-find .rev-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.rev-find .bwhere{font-weight:700;font-size:15px}
+.rev-find .btype{font-size:12px;color:var(--muted);margin-top:4px}
+.rev-find .bmine{font-size:13px;margin-top:8px;border-inline-start:3px solid var(--good);padding:2px 10px;color:var(--muted);line-height:1.6}
+.rev-find .bmine b{color:var(--ink)}
+@media(max-width:560px){.rev-find{flex-direction:column}.rev-el{width:100%}}
+
+/* Reveal — per-screen bug rows (both paths): element chip + hover tooltip */
+.bugrow{position:relative;display:flex;gap:12px;align-items:center;text-align:right;background:var(--panel);
+  border:1px solid var(--line);border-inline-start-width:5px;border-radius:14px;padding:12px;cursor:help;outline:none}
+.bugrow.s3{border-inline-start-color:var(--sev3)} .bugrow.s2{border-inline-start-color:var(--sev2)} .bugrow.s1{border-inline-start-color:var(--sev1)}
+.bugrow:hover,.bugrow:focus-within{border-color:var(--accent)}
+.bugrow .rev-el{width:130px;min-height:46px}
+.bugrow-main{flex:1;min-width:0}
+.bugrow .bug-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.bugrow .bwhere{font-weight:700;font-size:15px}
+.bugrow .btype{font-size:12px;color:var(--muted);margin-top:4px}
+.bugrow .tip-cue{margin-inline-start:auto;color:var(--muted);font-size:15px;cursor:help}
+.bugtip{display:none;position:absolute;z-index:30;top:calc(100% + 6px);inset-inline-start:12px;inset-inline-end:12px;
+  background:var(--panel2);border:1px solid var(--accent);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
+.bugrow:hover .bugtip,.bugrow:focus .bugtip,.bugrow:focus-within .bugtip{display:block}
+.bugtip .bwhy{font-size:14px;color:var(--ink);line-height:1.55}
+.bugtip .bfix{font-size:13px;margin-top:8px;background:var(--panel);border-radius:9px;padding:8px 11px}
+.bugtip .bfix b{color:var(--good)}
+@media(max-width:560px){.bugrow{flex-direction:column;align-items:stretch}.bugrow .rev-el{width:100%}}
+
+/* Summary page (both paths) */
+.summary-emoji{font-size:52px;text-align:center;animation:pop .5s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes pop{from{transform:scale(0);opacity:0}}
+#revealSummary,#boardSummary{text-align:center}
+.summary-lead{color:var(--muted);font-size:16px;line-height:1.6;margin:6px auto 0;max-width:560px}
+.summary-legend{max-width:480px;margin:16px auto;text-align:right}
+.summary-feedback{font-size:15px;line-height:1.6;margin:14px auto 0;max-width:560px}
+
+/* Safari background decor — animals + paw trails, vary per screen, gently moving */
+.safari-decor{position:fixed;inset:0;pointer-events:none;z-index:-1;overflow:hidden}
+.deco{position:absolute;line-height:1;will-change:transform}
+@keyframes decoBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes decoSway{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+@keyframes decoFloat{0%,100%{transform:translate(0,0)}50%{transform:translate(10px,-10px)}}
+@keyframes pawWalk{0%,100%{opacity:.15}50%{opacity:.8}}
+@media(max-width:760px){.deco.paw{display:none}}
+
+/* Confetti */
+.confetti-layer{position:fixed;inset:0;pointer-events:none;z-index:200;overflow:hidden}
+.confetti-layer i{position:absolute;top:-14px;width:9px;height:14px;border-radius:2px;opacity:.92;
+  animation:confettiFall linear forwards}
+@keyframes confettiFall{to{transform:translateY(110vh) rotate(720deg)}}
+
+/* Report modal */
+.modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(8,10,24,.72);backdrop-filter:blur(3px);
+  display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
+.modal-card{position:relative;max-width:460px;width:100%}
+.modal-card h3{display:flex;align-items:center;gap:8px}
+.modal-close{position:absolute;inset-inline-start:16px;top:14px;background:none;border:none;color:var(--muted);
+  font-size:26px;line-height:1;cursor:pointer;padding:2px 6px}
+.modal-close:hover{color:var(--ink)}
 
 /* Phone frame */
-.phone-wrap{position:sticky;top:16px;display:flex;flex-direction:column;align-items:center;gap:14px}
 .phone{width:320px;height:600px;background:#0b0d1c;border-radius:38px;padding:12px;box-shadow:0 20px 60px rgba(0,0,0,.5),inset 0 0 0 2px #2a2f5e;position:relative}
 .phone::before{content:"";position:absolute;top:20px;left:50%;transform:translateX(-50%);width:90px;height:6px;background:#2a2f5e;border-radius:99px}
 .screen{position:absolute;inset:12px;top:34px;background:var(--phone);border-radius:26px;overflow:hidden;color:var(--phoneink);display:flex;flex-direction:column}
@@ -186,6 +284,8 @@ select optgroup option{color:var(--ink);font-weight:400}
 </style>
 </head>
 <body>
+<!-- רקע ספארי — חיות ועקבות שמשתנות בין המסכים, מאחורי התוכן -->
+<div id="safariDecor" class="safari-decor" aria-hidden="true"></div>
 <div class="wrap">
   <div class="topbar">
     <div class="brand">
@@ -233,25 +333,26 @@ select optgroup option{color:var(--ink);font-weight:400}
   <!-- ============ BRIEFING ============ -->
   <div id="viewBrief" class="view hidden">
     <div class="card">
-      <h2>התדריך לפני הכניסה</h2>
-      <p class="lead">שפטו את האפליקציה לפי <b>הקהל שלה</b> — לא לפי מה שנוח לכם. חלק מהבאגים הם באגים <b>רק</b> בשביל הקהל הזה.</p>
-      <div class="brief-grid">
-        <div class="brief-item">
-          <div class="k"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M9 8h6M9 12h6"/></svg>שם האפליקציה</div>
-          <div class="v" id="brName"></div>
-        </div>
-        <div class="brief-item">
-          <div class="k"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg>למה היא נועדה</div>
-          <div class="v" id="brPurpose"></div>
-        </div>
-        <div class="brief-item audience">
-          <div class="k"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M4 20c0-3 2.5-5 5-5s5 2 5 5M14.5 20c0-2 1-3.5 2.5-3.5s2.5 1.5 2.5 3.5"/></svg>קהל היעד — שפטו בשבילם</div>
-          <div class="v" id="brAudience"></div>
+      <h2>חפשו את כל הבאגים באפליקציה</h2>
+
+      <div class="brief-rule">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V4M4 4h13l-2 3 2 3H4"/></svg>
+        <div>
+          <div class="rule-k">הכלל הכי חשוב</div>
+          <div class="rule-v">שפטו כל מסך מנקודת המבט של <b>קהל היעד</b>.</div>
+          <div class="rule-sub">חלק מהבאגים הם בעיה רק בשביל הקהל הזה.</div>
         </div>
       </div>
-      <h3 class="mt">סוגי הבעיות שמחפשים</h3>
-      <p style="color:var(--muted);font-size:13px;margin:0 0 4px">אלה הקטגוריות. כשתמצאו בעיה, תשייכו אותה לאחת מהן.</p>
-      <div class="typelist" id="brTypes"></div>
+
+      <div class="brief-item brief-combo">
+        <div class="k"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M9 8h6M9 12h6"/></svg>האפליקציה</div>
+        <div class="v" id="brName"></div>
+        <div class="brief-sub" id="brPurpose"></div>
+        <div class="brief-divider"></div>
+        <div class="k"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M4 20c0-3 2.5-5 5-5s5 2 5 5M14.5 20c0-2 1-3.5 2.5-3.5s2.5 1.5 2.5 3.5"/></svg>קהל היעד — שפטו בשבילם</div>
+        <div class="v aud" id="brAudience"></div>
+      </div>
+
       <div class="actions">
         <button class="btn primary big" onclick="beginHunt()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M16 16l4 4"/></svg>
@@ -264,45 +365,74 @@ select optgroup option{color:var(--ink);font-weight:400}
 
   <!-- ============ HUNT ============ -->
   <div id="viewHunt" class="view hidden">
-    <div class="hunt">
-      <div class="phone-wrap">
-        <div class="screentabs" id="screenTabs"></div>
-        <div class="phone"><div class="screen"><div class="screen-scroll" id="fakeApp"></div></div></div>
-        <div class="nav-hint">טפו על אלמנטים באפליקציה — חלקם מנווטים בין מסכים</div>
-      </div>
-      <div class="log-panel">
-        <div class="card">
-          <h3>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
-            תיעוד ממצא
-            <span class="counter" style="margin-inline-start:auto">נמצאו: <span id="findCount">0</span></span>
-          </h3>
-          <div class="field">
-            <label>באיזה מסך?</label>
-            <select id="fScreen"></select>
-          </div>
-          <div class="field">
-            <label>מה מצאתם? <span class="req">*</span></label>
-            <select id="fBug" onchange="onBugPick()"><option value="">בחרו את הבעיה שראיתם...</option></select>
-            <div class="hint" id="fTypeHint"></div>
-          </div>
-          <div class="field">
-            <label>איפה בדיוק, ומה ציפיתם שיקרה? <span class="req">*</span></label>
-            <textarea id="fWhat" placeholder="למשל: לחצנו על הכרטיס של 'רובוטיקה' וציפינו שייפתחו פרטים..."></textarea>
-          </div>
-          <div class="field">
-            <label>מה הייתם משנים? <span class="req">*</span></label>
-            <textarea id="fFix" placeholder="חובה! ממצא בלי הצעת שיפור לא נספר."></textarea>
-            <div class="hint">בבדיקה טובה תמיד באים גם עם פתרון, לא רק עם תלונה.</div>
-          </div>
-          <div class="warnmsg" id="logWarn"></div>
-          <button class="btn primary" style="width:100%" onclick="logFinding()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-            הוסיפו ממצא
-          </button>
-          <div class="findings-list" id="findingsList"></div>
-          <button class="btn ghost mt" style="width:100%" onclick="confirmFinish()">סיימנו — לחשיפה</button>
+    <div class="card hunt-intro">
+      <h2>הציד התחיל</h2>
+      <p class="lead" style="margin-bottom:14px">שחקו עם האפליקציה כמו המשתמשים שלה, ותעדו כל דבר שנראה לכם כמו באג.</p>
+      <div class="hunt-steps">
+        <div class="hstep">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          <span>עובדים נגד השעון — הזמן שנותר מופיע למעלה. כשהוא נגמר, עוברים לחשיפה.</span>
         </div>
+        <div class="hstep">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M16 16l4 4"/></svg>
+          <span>עברו בין המסכים ולחצו על כפתורים, שדות וכרטיסים — חלק מהבאגים מתגלים רק כשמתנסים.</span>
+        </div>
+        <div class="hstep">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
+          <span>מצאתם משהו שנראה לא תקין? לחצו על <b>דווח על באג</b> ותעדו אותו.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hunt-stage">
+      <div class="screentabs" id="screenTabs"></div>
+      <div id="pinpointHint" class="pinpoint-hint hidden">
+        <span>לחצו על המקום במסך שבו ראיתם בעיה</span>
+        <button class="btn ghost" onclick="disarmPinpoint()">ביטול</button>
+      </div>
+      <div class="phone"><div class="screen"><div class="screen-scroll" id="fakeApp"></div></div></div>
+      <div class="hunt-actions">
+        <button class="btn primary big" id="reportBtn" onclick="startReport()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
+          דווח על באג
+        </button>
+        <span class="counter">נמצאו: <span id="findCount">0</span></span>
+        <button class="btn ghost" onclick="confirmFinish()">סיימנו — לחשיפה</button>
+      </div>
+      <div class="findings-list" id="findingsList"></div>
+    </div>
+
+    <!-- report modal -->
+    <div id="reportModal" class="modal-overlay hidden" onclick="if(event.target===this)closeReport()">
+      <div class="modal-card card">
+        <button class="modal-close" onclick="closeReport()" title="סגור">×</button>
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
+          תיעוד ממצא
+        </h3>
+        <div class="field">
+          <label>באיזה מסך?</label>
+          <select id="fScreen"></select>
+        </div>
+        <div class="field">
+          <label>מה מצאתם? <span class="req">*</span></label>
+          <select id="fBug" onchange="onBugPick()"><option value="">בחרו את הבעיה שראיתם...</option></select>
+          <div class="hint" id="fTypeHint"></div>
+        </div>
+        <div class="field">
+          <label>איפה בדיוק, ומה ציפיתם שיקרה? <span class="req">*</span></label>
+          <textarea id="fWhat" placeholder="למשל: לחצנו על הכרטיס של 'רובוטיקה' וציפינו שייפתחו פרטים..."></textarea>
+        </div>
+        <div class="field">
+          <label>מה הייתם משנים? <span class="req">*</span></label>
+          <textarea id="fFix" placeholder="חובה! ממצא בלי הצעת שיפור לא נספר."></textarea>
+          <div class="hint">בבדיקה טובה תמיד באים גם עם פתרון, לא רק עם תלונה.</div>
+        </div>
+        <div class="warnmsg" id="logWarn"></div>
+        <button class="btn primary" style="width:100%" onclick="logFinding()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          הוסיפו ממצא
+        </button>
       </div>
     </div>
   </div>
@@ -310,40 +440,64 @@ select optgroup option{color:var(--ink);font-weight:400}
   <!-- ============ REVEAL / SCORE ============ -->
   <div id="viewReveal" class="view hidden">
     <div class="card">
-      <div class="score-hero">
-        <div>
-          <div class="score-num" id="scoreNum">0</div>
-          <div style="color:var(--muted);font-size:13px" id="scoreLegend"></div>
+
+      <!-- PART 1 — הבאגים שמצאתם + ניקוד -->
+      <div id="revealScore">
+        <div class="score-hero">
+          <div>
+            <div class="score-num" id="scoreNum">0</div>
+            <div style="color:var(--muted);font-size:13px" id="scoreLegend"></div>
+          </div>
+          <div style="flex:1;min-width:200px">
+            <h2 style="margin-bottom:4px">הבאגים שמצאתם</h2>
+            <p class="lead" style="margin:0">אלה הממצאים שתיעדתם, עם דירוג החומרה של כל אחד.</p>
+          </div>
         </div>
-        <div style="flex:1;min-width:200px">
-          <h2 style="margin-bottom:4px">החשיפה</h2>
+        <div class="stat-row">
+          <div class="stat found"><div class="n" id="stFound">0</div><div class="l">נמצא</div></div>
+          <div class="stat miss"><div class="n" id="stMiss">0</div><div class="l">פוספס</div></div>
+          <div class="stat sharp"><div class="n" id="stSharp">0</div><div class="l">עין חדה</div></div>
+        </div>
+
+        <div class="sev-legend">
+          <div class="sl-item"><span class="sev-badge s3">חוסם</span><span>האפליקציה לא עובדת כמו שצריך בגלל הבעיה.</span></div>
+          <div class="sl-item"><span class="sev-badge s2">מבלבל</span><span>אפשר להשתמש, אבל הקהל לא מבין או עלול להשתמש לא נכון.</span></div>
+          <div class="sl-item"><span class="sev-badge s1">קוסמטי</span><span>חשוב לליטוש, אבל לא שובר את השימוש.</span></div>
+        </div>
+
+        <div class="found-list" id="foundList"></div>
+
+        <div id="sharpBox" class="sharp-box hidden">
+          <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px"><circle cx="12" cy="12" r="3.5"/><path d="M12 4v3M12 17v3M4 12h3M17 12h3"/></svg> עין חדה</h3>
+          <p style="font-size:14px;margin:6px 0 10px;color:var(--muted)">מצאתם דברים שאנחנו לא שתלנו — בבדיקות אמיתיות אין רשימה סודית. אם זה מפריע למשתמש, זה ממצא לכל דבר. כל הכבוד.</p>
+          <div id="sharpList"></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary big" onclick="showRevealWalk()">המשך — כל הבאגים ששתלנו</button>
         </div>
       </div>
-      <div class="stat-row">
-        <div class="stat found"><div class="n" id="stFound">0</div><div class="l">נמצא</div></div>
-        <div class="stat miss"><div class="n" id="stMiss">0</div><div class="l">פוספס</div></div>
-        <div class="stat sharp"><div class="n" id="stSharp">0</div><div class="l">עין חדה</div></div>
+
+      <!-- PART 2 — כל הבאגים, מסך אחרי מסך -->
+      <div id="revealWalk" class="hidden board-stage">
+        <h2>כל הבאגים ששתלנו</h2>
+        <div class="board-progress" id="revProg"></div>
+        <div class="phone" style="margin:0 auto 18px"><div class="screen"><div class="screen-scroll" id="revApp"></div></div></div>
+        <h3 id="revScreenName" style="text-align:center"></h3>
+        <div class="buglist" id="revBugs" style="text-align:right;max-width:640px;margin-inline:auto"></div>
+        <div class="actions" style="justify-content:center">
+          <button class="btn primary" id="revNextBtn" onclick="revealNext()">המסך הבא</button>
+        </div>
       </div>
 
-      <div class="typemap">
-        <h3>מפת סוגי הבעיות — איפה חידדתם ואיפה פספסתם</h3>
-        <div id="typeMap"></div>
+      <!-- PART 3 — סיכום -->
+      <div id="revealEnd" class="hidden board-stage">
+        <div id="revealSummary"></div>
+        <div class="actions" style="justify-content:center">
+          <button class="btn ghost" onclick="restart()">התחלה מחדש</button>
+        </div>
       </div>
 
-      <div id="sharpBox" class="sharp-box hidden">
-        <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px"><circle cx="12" cy="12" r="3.5"/><path d="M12 4v3M12 17v3M4 12h3M17 12h3"/></svg> עין חדה</h3>
-        <p style="font-size:14px;margin:6px 0 10px;color:var(--muted)">מצאתם דברים שאנחנו לא שתלנו — בבדיקות אמיתיות אין רשימה סודית. אם זה מפריע למשתמש, זה ממצא לכל דבר. כל הכבוד.</p>
-        <div id="sharpList"></div>
-      </div>
-
-      <h3 class="mt">כל מה ששתלנו</h3>
-      <div class="buglist" id="bugList"></div>
-
-      <div class="handoff" id="handoffText"></div>
-
-      <div class="actions">
-        <button class="btn ghost" onclick="restart()">התחלה מחדש</button>
-      </div>
     </div>
   </div>
 
@@ -351,7 +505,7 @@ select optgroup option{color:var(--ink);font-weight:400}
   <div id="viewBoard" class="view hidden">
     <div class="card board-stage">
       <div id="boardBrief">
-        <h2>מסלול לוח — למנחה</h2>
+        <h2>מסלול לוח</h2>
         <p class="lead" style="max-width:640px;margin-inline:auto">נעבור מסך‑מסך. בכל מסך, <b>שחקו עם האפליקציה</b> — לחצו על כפתורים, נסו למלא ולנווט — כי חלק מהבאגים מתגלים רק כשמתנסים בהם. תנו לכיתה דקה לקרוא בקול את כל הבעיות שהם מוצאים (הצבעת ידיים), ואז חשפו את מה ששתלנו. אין שעון ואין תיעוד.</p>
         <div class="brief-grid" style="max-width:640px;margin-inline:auto;text-align:right">
           <div class="brief-item"><div class="k">האפליקציה</div><div class="v" id="bbName"></div></div>
@@ -380,9 +534,7 @@ select optgroup option{color:var(--ink);font-weight:400}
       </div>
 
       <div id="boardEnd" class="hidden">
-        <h2>סיכום</h2>
-        <p class="lead" style="max-width:640px;margin-inline:auto">עברנו על כל הבאגים. עכשיו הכיתה יודעת מה לחפש.</p>
-        <div class="handoff" id="boardHandoff" style="max-width:680px;margin-inline:auto;text-align:right"></div>
+        <div id="boardSummary"></div>
         <div class="actions" style="justify-content:center"><button class="btn ghost" onclick="restart()">התחלה מחדש</button></div>
       </div>
     </div>
@@ -533,7 +685,59 @@ function show(id){
   const showTimer = id==='viewHunt';
   document.getElementById('topRight').classList.toggle('hidden', !showTimer);
   boardMode = (id==='viewBoard');
+  decorate(id);
   window.scrollTo(0,0);
+}
+
+/* ============================================================
+   SAFARI DECOR — חיות ועקבות שמשתנות בין המסכים, זזות בעדינות
+   ============================================================ */
+function paw(side, i, baseBottom){
+  return {e:'🐾', paw:true, pos:`${side}:${17+i*6}%;bottom:${baseBottom+i*8}%`, s:42,
+          anim:`pawWalk 2.8s ease-in-out ${i*0.3}s infinite`};
+}
+const DECOR = {
+  viewStart: [
+    {e:'🦁', pos:'left:3%;bottom:8%',  s:70, o:.6,  anim:'decoBob 5s ease-in-out infinite'},
+    {e:'🦒', pos:'right:4%;bottom:5%', s:88, o:.55, anim:'decoSway 7s ease-in-out infinite'},
+    {e:'🐘', pos:'right:15%;top:15%',  s:54, o:.4,  anim:'decoFloat 9s ease-in-out infinite'},
+    {e:'🦓', pos:'left:13%;top:22%',   s:48, o:.4,  anim:'decoSway 6s ease-in-out infinite'},
+    paw('left',0,20), paw('left',1,20), paw('left',2,20),
+  ],
+  viewBrief: [
+    {e:'🐆', pos:'right:5%;top:24%',   s:64, o:.5,  anim:'decoBob 6s ease-in-out infinite'},
+    {e:'🦜', pos:'left:6%;top:14%',    s:46, o:.6,  anim:'decoFloat 8s ease-in-out infinite'},
+    paw('right',0,14), paw('right',1,14),
+  ],
+  viewHunt: [
+    {e:'🐒', pos:'left:2%;top:46%',    s:52, o:.32, anim:'decoBob 5s ease-in-out infinite'},
+    {e:'🦜', pos:'right:2%;top:28%',   s:42, o:.3,  anim:'decoFloat 9s ease-in-out infinite'},
+    paw('right',0,10), paw('right',1,10), paw('right',2,10),
+  ],
+  viewReveal: [
+    {e:'🦁', pos:'left:4%;bottom:11%', s:64, o:.5,  anim:'decoBob 5s ease-in-out infinite'},
+    {e:'🦒', pos:'right:5%;top:18%',   s:70, o:.45, anim:'decoSway 7s ease-in-out infinite'},
+    {e:'🐘', pos:'left:9%;top:14%',    s:50, o:.4,  anim:'decoFloat 9s ease-in-out infinite'},
+  ],
+  viewBoard: [
+    {e:'🦓', pos:'left:3%;bottom:8%',  s:66, o:.5,  anim:'decoSway 6s ease-in-out infinite'},
+    {e:'🐘', pos:'right:4%;bottom:6%', s:78, o:.5,  anim:'decoBob 6.5s ease-in-out infinite'},
+    {e:'🦜', pos:'right:14%;top:16%',  s:44, o:.5,  anim:'decoFloat 8s ease-in-out infinite'},
+    paw('left',0,22), paw('left',1,22),
+  ],
+};
+function decorate(id){
+  const layer = document.getElementById('safariDecor');
+  if(!layer) return;
+  layer.innerHTML = '';
+  (DECOR[id] || []).forEach(it=>{
+    const s = document.createElement('span');
+    s.className = 'deco' + (it.paw ? ' paw' : '');
+    s.textContent = it.e;
+    s.style.cssText = `${it.pos};font-size:${it.s}px` + (it.o!=null?`;opacity:${it.o}`:'');
+    if(it.anim) s.style.animation = it.anim;
+    layer.appendChild(s);
+  });
 }
 
 /* ============================================================
@@ -547,29 +751,35 @@ function renderScreen(id, container){
   if(id==="home"){
     html = `
       <div class="fa-head">
-        <svg class="fa-logo fa-logo-overlap" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.5 5 5.5.8-4 3.9 1 5.5L12 14.5 7 17.2l1-5.5-4-3.9L9.5 7z"/></svg>
+        <svg class="fa-logo fa-logo-overlap" viewBox="0 0 24 24" fill="currentColor" data-bugs="logo-overlap" data-loc="הלוגו בראש המסך"><path d="M12 2l2.5 5 5.5.8-4 3.9 1 5.5L12 14.5 7 17.2l1-5.5-4-3.9L9.5 7z"/></svg>
         <div class="fa-title">מצא‑חוג</div>
       </div>
-      <div class="fa-tagline">פלטפורמה לאיתור פעילויות העשרה חוץ‑בית‑ספריות</div>
+      <div class="fa-tagline" data-bugs="tagline-hard" data-loc="משפט התיאור מתחת לכותרת">פלטפורמה לאיתור פעילויות העשרה חוץ‑בית‑ספריות</div>
       <div style="height:8px"></div>
-      <button class="fa-btn" onclick="faNav('search')">התחל</button>
+      <button class="fa-btn" onclick="faNav('search')" data-bugs="start-label" data-loc="כפתור 'התחל'">התחל</button>
       <button class="fa-btn sec" onclick="faNav('results')">חוגים פופולריים</button>
     `;
   }
   else if(id==="search"){
     html = `
       <div class="fa-head" style="justify-content:space-between">
-        <button class="fa-back fa-tiny-search" onclick="faNav('results')" title="חפש">
+        <button class="fa-back fa-tiny-search" onclick="faNav('results')" title="חפש" data-bugs="hidden-search" data-loc="כפתור החיפוש (אייקון זעיר בפינה)">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M16 16l4 4"/></svg>
         </button>
         <div class="fa-title" style="margin-inline-start:auto">חיפוש חוג</div>
       </div>
-      <label class="fa-label">תחום</label>
-      <select class="fa-select"><option>ספורט</option><option>מוזיקה</option><option>אמנות</option></select>
-      <label class="fa-label">קטגוריה</label>
-      <select class="fa-select"><option>ספורט</option><option>מוזיקה</option><option>אמנות</option></select>
-      <label class="fa-label">גיל</label>
-      <select class="fa-select"><option selected>מבוגרים</option><option>נוער</option><option>ילדים 10–12</option></select>
+      <div data-bugs="dup-filter" data-loc="המסנן 'תחום'">
+        <label class="fa-label">תחום</label>
+        <select class="fa-select"><option>ספורט</option><option>מוזיקה</option><option>אמנות</option></select>
+      </div>
+      <div data-bugs="dup-filter" data-loc="המסנן 'קטגוריה'">
+        <label class="fa-label">קטגוריה</label>
+        <select class="fa-select"><option>ספורט</option><option>מוזיקה</option><option>אמנות</option></select>
+      </div>
+      <div data-bugs="age-default" data-loc="מסנן הגיל">
+        <label class="fa-label">גיל</label>
+        <select class="fa-select"><option selected>מבוגרים</option><option>נוער</option><option>ילדים 10–12</option></select>
+      </div>
       <div style="height:6px"></div>
       <button class="fa-btn sec" onclick="faNav('results')">הצג חוגים</button>
     `;
@@ -584,7 +794,7 @@ function renderScreen(id, container){
     html = `
       <div class="fa-head"><div class="fa-title">תוצאות</div></div>
       ${cards.map(c=>`
-        <div class="fa-card" style="min-height:${c.h}px" onclick="faDeadEnd()">
+        <div class="fa-card" style="min-height:${c.h}px" onclick="faDeadEnd()" data-bugs="dead-result,missing-info,card-heights" data-loc="כרטיס התוצאה '${c.t}'">
           <div class="rtitle">${c.t}</div>
           <div class="rmeta">חוג שבועי · לפרטים לחצו</div>
         </div>`).join("")}
@@ -595,13 +805,13 @@ function renderScreen(id, container){
   else if(id==="register"){
     html = `
       <div class="fa-head" style="justify-content:space-between">
-        <button onclick="faNav('results')" style="background:#ff7a59;color:#fff;border:none;border-radius:20px;padding:6px 14px;cursor:pointer;font-weight:800;font-size:13px">‹ חזרה</button>
+        <button onclick="faNav('results')" style="background:#ff7a59;color:#fff;border:none;border-radius:20px;padding:6px 14px;cursor:pointer;font-weight:800;font-size:13px" data-bugs="back-inconsistent" data-loc="כפתור 'חזרה'">‹ חזרה</button>
         <div class="fa-title" style="margin-inline-start:auto">הרשמה</div>
       </div>
       <div class="fa-field"><label class="fa-label">שם מלא</label><input class="fa-input" placeholder="שם"></div>
-      <div class="fa-field"><label class="fa-label">מספר טלפון</label><input class="fa-input" placeholder="טלפון"></div>
+      <div class="fa-field" data-bugs="phone-why" data-loc="שדה מספר הטלפון"><label class="fa-label">מספר טלפון</label><input class="fa-input" placeholder="טלפון"></div>
       <div class="fa-field"><label class="fa-label">חוג</label><input class="fa-input" placeholder="שם החוג"></div>
-      <button class="fa-btn" onclick="faSubmit(event)">שלח</button>
+      <button class="fa-btn" onclick="faSubmit(event)" data-bugs="lying-submit" data-loc="כפתור 'שלח'">שלח</button>
     `;
   }
   container.innerHTML = html;
@@ -639,7 +849,6 @@ function startTeam(){
   document.getElementById('brName').textContent = CONFIG.app.name;
   document.getElementById('brPurpose').textContent = CONFIG.app.purpose;
   document.getElementById('brAudience').textContent = CONFIG.app.audience;
-  document.getElementById('brTypes').innerHTML = CONFIG.types.map(t=>`<span class="typechip" title="${CONFIG.typeHints[t]||''}">${t}</span>`).join("");
   show('viewBrief');
 }
 
@@ -656,17 +865,60 @@ function beginHunt(){
   buildBugSelect();
   document.getElementById('fTypeHint').textContent = '';
 
+  disarmPinpoint();
+  closeReport();
   faNav('home');
   show('viewHunt');
   startTimer();
 }
 
+/* דיווח = מצביעים על המסך. "דווח על באג" מפעיל מצב סימון (pinpoint):
+   לוחצים על אלמנט בטלפון, והטופס נפתח מסונן לבאג(ים) שקשורים לאלמנט הזה. */
+let pinpointArmed = false;
+
+function startReport(){
+  if(pinpointArmed){ disarmPinpoint(); return; }
+  pinpointArmed = true;
+  document.querySelector('#viewHunt .phone').classList.add('pinpoint');
+  document.getElementById('pinpointHint').classList.remove('hidden');
+  document.getElementById('reportBtn').classList.add('active');
+}
+function disarmPinpoint(){
+  pinpointArmed = false;
+  const ph = document.querySelector('#viewHunt .phone');
+  if(ph) ph.classList.remove('pinpoint');
+  document.getElementById('pinpointHint').classList.add('hidden');
+  document.getElementById('reportBtn').classList.remove('active');
+}
+// לחיצה על אלמנט במצב סימון — מיירטים לפני ה-onclick של האפליקציה
+function onScreenPick(e){
+  if(!pinpointArmed) return;
+  e.preventDefault(); e.stopPropagation();
+  const el = e.target.closest('[data-bugs]');
+  const bugIds = el ? el.getAttribute('data-bugs').split(',') : [];
+  openReportForm(bugIds);
+}
+function openReportForm(bugIds){
+  disarmPinpoint();
+  document.getElementById('logWarn').textContent = '';
+  buildBugSelect(bugIds);
+  document.getElementById('fScreen').value = state.currentScreen;
+  const fBug = document.getElementById('fBug');
+  fBug.value = (bugIds && bugIds.length===1) ? bugIds[0] : '';
+  onBugPick();
+  document.getElementById('reportModal').classList.remove('hidden');
+}
+function closeReport(){
+  document.getElementById('reportModal').classList.add('hidden');
+}
+
 /* הרשימה מקובצת לפי סוג — הסוג מוצג ככותרת קבוצה, לא כשאלה נפרדת.
-   כך אי אפשר "לטעות בקטגוריה": בוחרים את הבעיה, והמשחק מלמד איך קוראים לה. */
-function buildBugSelect(){
+   כך אי אפשר "לטעות בקטגוריה": בוחרים את הבעיה, והמשחק מלמד איך קוראים לה.
+   onlyIds (אופציונלי) מסנן את הרשימה לבאגים שקשורים לאלמנט שנלחץ. */
+function buildBugSelect(onlyIds){
   const sel = document.getElementById('fBug');
   const groups = CONFIG.types.map(t=>{
-    const inType = CONFIG.bugs.filter(b=>b.type===t);
+    const inType = CONFIG.bugs.filter(b=>b.type===t && (!onlyIds || onlyIds.includes(b.id)));
     if(!inType.length) return '';
     return `<optgroup label="${t}">` +
       inType.map(b=>`<option value="${b.id}">${b.symptom}</option>`).join("") +
@@ -724,6 +976,7 @@ function logFinding(){
   document.getElementById('fFix').value='';
   document.getElementById('findCount').textContent = state.findings.length;
   renderFindings();
+  closeReport();
 }
 
 function renderFindings(){
@@ -755,6 +1008,9 @@ function finishHunt(){
    MATCHING & REVEAL — הצוות בוחר את הבאג עצמו, אז ההתאמה ודאית.
    המסך נרשם לצורך למידה בלבד ולא משפיע על הזיכוי.
    ============================================================ */
+let revealBugs = [];
+let revealIdx = 0;
+
 function computeReveal(){
   const bugs = CONFIG.bugs.map(b=>({...b, found:false, evidence:null}));
   const sharp = [];
@@ -779,30 +1035,136 @@ function computeReveal(){
   document.getElementById('stMiss').textContent = missed.length;
   document.getElementById('stSharp').textContent = sharp.length;
 
-  renderTypeMap(bugs);
+  revealBugs = bugs;
+  renderFoundList(bugs);
   renderSharp(sharp);
-  renderBugList(bugs);
-  fillHandoff();
+
+  // תמיד מתחילים מחלק 1
+  document.getElementById('revealScore').classList.remove('hidden');
+  document.getElementById('revealWalk').classList.add('hidden');
+  document.getElementById('revealEnd').classList.add('hidden');
 }
 
-function renderTypeMap(bugs){
-  const byType = {};
-  CONFIG.types.forEach(t=> byType[t]={total:0,found:0});
-  bugs.forEach(b=>{ if(!byType[b.type]) byType[b.type]={total:0,found:0}; byType[b.type].total++; if(b.found) byType[b.type].found++; });
-  const rows = Object.entries(byType).filter(([_,v])=>v.total>0);
-  // sort: blind spots (0 found) first
-  rows.sort((a,b)=> (a[1].found/a[1].total) - (b[1].found/b[1].total));
-  document.getElementById('typeMap').innerHTML = rows.map(([type,v])=>{
-    const pct = Math.round(v.found/v.total*100);
-    const blind = v.found===0;
-    return `<div class="typemap-row ${blind?'tm-blind':''}">
-      <div>
-        <div class="tm-name">${type}</div>
-        <div class="tm-bar"><div class="tm-fill" style="width:${pct}%"></div></div>
+/* Part 1 — הממצאים שהצוות מצא, עם תג חומרה והאלמנט שסומן */
+function renderFoundList(bugs){
+  const order = CONFIG.app.screens.map(s=>s.id);
+  const found = bugs.filter(b=>b.found)
+    .sort((a,b)=> order.indexOf(a.screen)-order.indexOf(b.screen) || b.severity-a.severity);
+  const list = document.getElementById('foundList');
+  if(!found.length){
+    list.innerHTML = `<p class="lead" style="margin:0">לא תיעדתם באגים מהרשימה הפעם.</p>`;
+    return;
+  }
+  list.innerHTML = found.map(b=>`
+    <div class="rev-find s${b.severity}">
+      <div class="rev-el">${bugElementHTML(b)}</div>
+      <div class="rev-body">
+        <div class="rev-top"><span class="sev-badge s${b.severity}">${SEV_NAME[b.severity]}</span><span class="bwhere">${b.where}</span></div>
+        <div class="btype">${b.type} · ${screenTitle(b.screen)}</div>
+        ${b.evidence?`<div class="bmine"><b>מה שכתבתם:</b> ${escapeHtml(b.evidence.what)}<br><b>מה שהצעתם:</b> ${escapeHtml(b.evidence.fix)}</div>`:''}
       </div>
-      <div class="tm-frac">${v.found}/${v.total}</div>
-    </div>`;
-  }).join("");
+    </div>`).join("");
+}
+
+/* מחזיר את ה-HTML של האלמנט שסומן עבור באג — לתצוגה חזותית ליד הממצא */
+function bugElementHTML(bug){
+  const saved = state.currentScreen;
+  const tmp = document.createElement('div');
+  renderScreen(bug.screen, tmp);
+  state.currentScreen = saved;
+  let el = null;
+  tmp.querySelectorAll('[data-bugs]').forEach(node=>{
+    if(!el && node.getAttribute('data-bugs').split(',').includes(bug.id)) el = node;
+  });
+  if(!el) return '';
+  el = el.cloneNode(true);
+  el.removeAttribute('onclick');
+  el.querySelectorAll('[onclick]').forEach(n=>n.removeAttribute('onclick'));
+  return el.outerHTML;
+}
+
+/* שורת באג משותפת לשני המסלולים: אלמנט חזותי + תג, וההסבר (מה הבאג ואיך לתקן)
+   מופיע רק בריחוף מעל השורה. showStat=נמצא/פוספס (רק במסלול צוות). */
+function bugRowHTML(b, showStat){
+  const stat = showStat ? `<span class="bstat ${b.found?'found':'miss'}">${b.found?'נמצא':'פוספס'}</span>` : '';
+  return `
+  <div class="bugrow s${b.severity}" tabindex="0">
+    <div class="rev-el">${bugElementHTML(b)}</div>
+    <div class="bugrow-main">
+      <div class="bug-top">
+        <span class="bwhere">${b.where}</span>
+        <span class="sev-badge s${b.severity}">${SEV_NAME[b.severity]}</span>
+        ${stat}
+        <span class="tip-cue" title="רחפו לפרטים">ⓘ</span>
+      </div>
+      <div class="btype">${b.type}</div>
+    </div>
+    <div class="bugtip">
+      <div class="bwhy">${b.whyItHurts}</div>
+      <div class="bfix"><b>שיפור:</b> ${b.betterVersion}</div>
+    </div>
+  </div>`;
+}
+
+/* עמוד הסיכום — משותף לשני המסלולים */
+function summaryHTML(){
+  return `
+    <div class="summary-emoji">🎉</div>
+    <h2>כל הכבוד!</h2>
+    <p class="summary-lead">סיימתם את הציד והכרתם שלושה סוגי חומרה של באגים:</p>
+    <div class="sev-legend summary-legend">
+      <div class="sl-item"><span class="sev-badge s3">חוסם</span><span>משהו באפליקציה פשוט לא עובד.</span></div>
+      <div class="sl-item"><span class="sev-badge s2">מבלבל</span><span>אפשר להשתמש, אבל הקהל לא בטוח מה לעשות.</span></div>
+      <div class="sl-item"><span class="sev-badge s1">קוסמטי</span><span>נראה לא מוקפד, אבל השימוש עצמו עובד.</span></div>
+    </div>
+    <p class="summary-feedback">משוב הוא דבר חשוב. כשמוצאים באג ואומרים גם איך לתקן אותו, עוזרים למוצר להשתפר.</p>
+  `;
+}
+
+/* קונפטי קטן לחגיגה בעמוד הסיכום */
+function celebrate(){
+  const colors = ['#ffcc33','#ff7a59','#3ddc97','#7aa2ff','#ff6b6b'];
+  const layer = document.createElement('div');
+  layer.className = 'confetti-layer';
+  for(let i=0;i<90;i++){
+    const p = document.createElement('i');
+    p.style.left = (Math.random()*100) + '%';
+    p.style.background = colors[i % colors.length];
+    p.style.animationDelay = (Math.random()*0.7) + 's';
+    p.style.animationDuration = (2.4 + Math.random()*1.8) + 's';
+    layer.appendChild(p);
+  }
+  document.body.appendChild(layer);
+  setTimeout(()=>layer.remove(), 4600);
+}
+
+/* Part 2 — כל הבאגים, מסך אחרי מסך (בדומה למסלול לוח) */
+function showRevealWalk(){
+  document.getElementById('revealScore').classList.add('hidden');
+  document.getElementById('revealEnd').classList.add('hidden');
+  document.getElementById('revealWalk').classList.remove('hidden');
+  revealIdx = 0;
+  renderRevealScreen();
+  window.scrollTo(0,0);
+}
+function renderRevealScreen(){
+  const n = CONFIG.app.screens.length;
+  const scr = CONFIG.app.screens[revealIdx];
+  renderScreen(scr.id, document.getElementById('revApp'));
+  document.getElementById('revScreenName').textContent = scr.title;
+  document.getElementById('revProg').textContent = `מסך ${revealIdx+1} מתוך ${n}`;
+  const bugs = revealBugs.filter(b=>b.screen===scr.id).sort((a,b)=>b.severity-a.severity);
+  document.getElementById('revBugs').innerHTML = bugs.map(b=>bugRowHTML(b,true)).join("");
+  document.getElementById('revNextBtn').textContent = (revealIdx < n-1) ? 'המסך הבא' : 'לסיכום';
+}
+function revealNext(){
+  const n = CONFIG.app.screens.length;
+  if(revealIdx < n-1){ revealIdx++; renderRevealScreen(); window.scrollTo(0,0); return; }
+  document.getElementById('revealWalk').classList.add('hidden');
+  document.getElementById('revealEnd').classList.remove('hidden');
+  document.getElementById('revealSummary').innerHTML = summaryHTML();
+  window.scrollTo(0,0);
+  celebrate();
 }
 
 function renderSharp(sharp){
@@ -812,30 +1174,6 @@ function renderSharp(sharp){
   document.getElementById('sharpList').innerHTML = sharp.map(f=>
     `<div class="si"><b>${screenTitle(f.screen)}</b> — ${escapeHtml(f.what)} <span style="color:var(--muted)">(השינוי שהצעתם: ${escapeHtml(f.fix)})</span></div>`
   ).join("");
-}
-
-function renderBugList(bugs){
-  // order by screen then severity desc
-  const order = CONFIG.app.screens.map(s=>s.id);
-  const sorted = [...bugs].sort((a,b)=> order.indexOf(a.screen)-order.indexOf(b.screen) || b.severity-a.severity);
-  document.getElementById('bugList').innerHTML = sorted.map(b=>`
-    <div class="bug s${b.severity}">
-      <div class="bug-top">
-        <div>
-          <span class="bwhere">${b.where}</span>
-          <span class="sev-badge s${b.severity}">${SEV_NAME[b.severity]}</span>
-        </div>
-        <span class="bstat ${b.found?'found':'miss'}">${b.found?'נמצא':'פוספס'}</span>
-      </div>
-      <div class="btype">${b.type} · ${screenTitle(b.screen)}</div>
-      <div class="bwhy">${b.whyItHurts}</div>
-      <div class="bfix"><b>שיפור:</b> ${b.betterVersion}</div>
-      ${b.evidence?`<div class="bmine"><b>מה שכתבתם:</b> ${escapeHtml(b.evidence.what)}<br><b>מה שהצעתם:</b> ${escapeHtml(b.evidence.fix)}</div>`:''}
-    </div>`).join("");
-}
-
-function fillHandoff(){
-  document.getElementById('handoffText').textContent = CONFIG.handoff;
 }
 
 /* ============================================================
@@ -880,13 +1218,7 @@ function boardReveal(){
   const scr = { id: state.currentScreen };
   boardRevealed.add(scr.id);
   const bugs = CONFIG.bugs.filter(b=>b.screen===scr.id).sort((a,b)=>b.severity-a.severity);
-  document.getElementById('boardBugs').innerHTML = bugs.map(b=>`
-    <div class="bug s${b.severity}">
-      <div class="bug-top"><div><span class="bwhere">${b.where}</span> <span class="sev-badge s${b.severity}">${SEV_NAME[b.severity]}</span></div></div>
-      <div class="btype">${b.type}</div>
-      <div class="bwhy">${b.whyItHurts}</div>
-      <div class="bfix"><b>שיפור:</b> ${b.betterVersion}</div>
-    </div>`).join("");
+  document.getElementById('boardBugs').innerHTML = bugs.map(b=>bugRowHTML(b,false)).join("");
   document.getElementById('boardRevealBox').classList.remove('hidden');
   document.getElementById('boardRevealBtn').classList.add('hidden');
   document.getElementById('boardNextBtn').classList.remove('hidden');
@@ -901,7 +1233,8 @@ function boardNext(){
   else {
     document.getElementById('boardWalk').classList.add('hidden');
     document.getElementById('boardEnd').classList.remove('hidden');
-    document.getElementById('boardHandoff').textContent = CONFIG.handoff;
+    document.getElementById('boardSummary').innerHTML = summaryHTML();
+    celebrate();
   }
 }
 
@@ -913,6 +1246,8 @@ function restart(){
   state.findings=[];
   show('viewStart');
 }
+// מיירט לחיצות על הטלפון במצב סימון — capture כדי לרוץ לפני ה-onclick של האפליקציה
+document.getElementById('fakeApp').addEventListener('click', onScreenPick, true);
 document.getElementById('topTitle').textContent = CONFIG.meta.title;
 document.title = CONFIG.meta.title;
 document.getElementById('scoreLegend').textContent = `נקודות (חוסם ${CONFIG.scoring[3]} · מבלבל ${CONFIG.scoring[2]} · קוסמטי ${CONFIG.scoring[1]} · עין חדה ${CONFIG.sharpPoints})`;
