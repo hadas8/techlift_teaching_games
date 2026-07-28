@@ -154,7 +154,21 @@ button{font-family:inherit}
 .goal-chip .icon{color:var(--green);font-size:17px;flex:none}
 .goal-chip .gl{font-size:11px;color:var(--muted-2);font-weight:700}
 .goal-chip .gt{font-size:13.5px;font-weight:700;line-height:1.2}
-.turns-chip{display:flex;align-items:center;gap:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:7px 8px 7px 14px}
+.turns-chip{display:flex;align-items:center;gap:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:7px 8px 7px 14px;position:relative}
+.turns-chip.spent{animation:turnPulse .5s ease}
+@keyframes turnPulse{0%,100%{transform:scale(1)}30%{transform:scale(1.12)}}
+.turn-float{position:fixed;z-index:9999;pointer-events:none;white-space:nowrap;
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:26px;font-weight:900;color:var(--amber);
+  background:rgba(15,18,32,.9);border:1px solid rgba(255,181,71,.5);border-radius:999px;
+  padding:8px 16px;box-shadow:0 10px 30px rgba(0,0,0,.5);
+  animation:turnFloat 1.15s cubic-bezier(.2,.7,.3,1) forwards}
+.turn-float .tf-n{font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+@keyframes turnFloat{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}
+  18%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}
+  30%{transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-150%) scale(1.1)}}
 .turns-num{font-size:28px;font-weight:900;line-height:1;min-width:34px;text-align:center;color:var(--text);font-variant-numeric:tabular-nums}
 .turns-chip.low .turns-num{color:var(--amber)}
 .turns-chip.crit .turns-num{color:var(--red)}
@@ -299,6 +313,9 @@ body.board .vote-badge{
    END SCREEN
    ============================================================ */
 .end{max-width:900px;margin:0 auto}
+.end-app{display:flex;flex-direction:column;align-items:center;gap:12px;margin:6px 0 22px}
+.end-app-cap{font-size:15px;font-weight:800;color:var(--muted)}
+.end-app .phone{max-width:340px}
 .end-head{text-align:center;padding:16px 10px 4px}
 .end-head .rico{width:74px;height:74px;border-radius:22px;display:inline-grid;place-items:center;font-size:38px;margin-bottom:6px}
 .end-head.win .rico{background:var(--green-dim);color:var(--green)}
@@ -418,6 +435,7 @@ const CONFIG = {
     costTurn:"תור",
     winTitle:"הגעתם למסך ראשון עובד!",
     winSub:"בניתם אפליקציה שעובדת — צעד אחר צעד.",
+    endAppWin:"האפליקציה שבניתם", endAppLose:"זה מה שהספקתם לבנות",
     loseTitle:"לא הספקתם הפעם", loseSub:"נגמרו התורים — אבל תראו כמה הייתם קרובים, ואיפה דלפו התורים.",
     mapTitle:"מפת התורים", mapSub:"כל תור שעשיתם — ירוק=התקדמות, אדום=תיקון/בזבוז. כאן רואים איפה דלפו התורים.",
     progTitle:"כמה התקרבתם למטרה",
@@ -1141,7 +1159,7 @@ const G = {
   scenario:null, statesById:{}, stateId:null,
   turns:0, history:[], mode:"team",
   comicSpent:false, order:{}, revealHTML:"", revealType:"placeholder",
-  animate:false, ended:false
+  animate:false, ended:false, spentCost:0, spentAt:null
 };
 
 /* ---------- choice normalization ----------
@@ -1283,11 +1301,12 @@ function record(kind, label, cost, from, to){
 }
 
 /* ---------- apply a scripted prompt choice ---------- */
-function pickChoice(idx){
+function pickChoice(idx, el){
   if(G.ended) return;
   const st = curState();
   const ch = st.choices[idx];
   if(!ch) return;
+  if(el){ const r=el.getBoundingClientRect(); G.spentAt={x:r.left+r.width/2, y:r.top+r.height*0.28}; }
   const cost = ch.cost==null?1:ch.cost;
   const outcome = normChoice(ch).outcome;
 
@@ -1304,6 +1323,7 @@ function pickChoice(idx){
   const toP = target ? (target.progress||0) : fromP;
 
   G.turns -= cost;
+  G.spentCost = cost;
   record(outcome, ch.label, cost, fromP, toP);
   G.stateId = ch.to;
   G.revealType = outcome;
@@ -1372,7 +1392,6 @@ function renderGame(){
               <div class="card-top"><span class="tag ${m.cls}">${ic(m.icon)} ${m.label}</span>
                 <span class="cost">${ic('bolt')} ${c.cost==null?1:c.cost} ${esc(CONFIG.ui.costTurn)}</span></div>
               <div class="promptline"><span class="qico">${ic('q')}</span><span class="lbl">${esc(c.label)}</span></div>
-              <div class="asks">${ic('info')} ${esc(asksLine(c))}</div>
               <span class="vote-badge">${ic('hand')} ${esc(ui.voteHint)}</span>
             </button>`;}).join('')}
         </div>
@@ -1381,8 +1400,24 @@ function renderGame(){
     <div class="foot">${esc(CONFIG.meta.golden)}</div>
   </div>`;
 
-  root.querySelectorAll('.card').forEach(b=>b.onclick=()=>pickChoice(+b.dataset.i));
+  root.querySelectorAll('.card').forEach(b=>b.onclick=()=>pickChoice(+b.dataset.i, b));
   document.getElementById('quitBtn').onclick=()=>{document.body.classList.remove('board');renderStart();};
+
+  if(G.spentCost){
+    const chip = root.querySelector('.turns-chip');
+    if(chip) chip.classList.add('spent');
+    if(G.spentAt){
+      const f = document.createElement('div');
+      f.className='turn-float';
+      f.dir='rtl';
+      f.innerHTML='<span class="tf-n" dir="ltr">−'+G.spentCost+'</span> '+esc(CONFIG.ui.costTurn);
+      f.style.left=G.spentAt.x+'px';
+      f.style.top=G.spentAt.y+'px';
+      document.body.appendChild(f);
+      setTimeout(()=>f.remove(),1200);
+    }
+    G.spentCost=0; G.spentAt=null;
+  }
   G.animate=false;
 }
 
@@ -1401,6 +1436,18 @@ function renderEnd(win){
   document.body.classList.remove('board');
   root.innerHTML = `
   <div class="screen end">
+    <!-- FINISHED APP FIRST -->
+    <div class="end-app">
+      <div class="end-app-cap">${esc(win?ui.endAppWin:ui.endAppLose)}</div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen-frame animating">
+          <div class="screen-tick"><span>${esc(scen.appName)}</span><span>9:41</span></div>
+          <div class="app-screen">${curState().mock}</div>
+        </div>
+      </div>
+    </div>
+
     <div class="end-head ${win?'win':'lose'}">
       <div class="rico">${ic(win?'flag':'clock')}</div>
       <h1>${esc(win?ui.winTitle:ui.loseTitle)}</h1>
