@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Newsroom</title>
+<style>
+  :root{
+    --bg:#0f1220;
+    --bg2:#161a2e;
+    --card:#1d2238;
+    --card-border:#2c3356;
+    --ink:#f1f3fb;
+    --ink-dim:#a9aed0;
+    --accent:#ffb347;
+    --accent2:#5ee6c8;
+    --real:#4ade80;
+    --fake:#f87171;
+    --mislead:#facc15;
+    --danger:#ef4444;
+    --radius:18px;
+    font-family:"Segoe UI","Heebo",Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; min-height:100%;
+    background:radial-gradient(circle at 20% 0%, #23294a 0%, var(--bg) 55%);
+    color:var(--ink);
+  }
+  body{
+    display:flex; flex-direction:column; align-items:center;
+    min-height:100vh; padding:24px 16px 60px;
+  }
+  .wrap{width:100%; max-width:900px;}
+  h1,h2,h3{margin:0 0 8px;}
+  h1{font-size:2rem;}
+  h2{font-size:1.4rem;}
+  p{line-height:1.6;}
+  .muted{color:var(--ink-dim);}
+  .center{text-align:center;}
+  .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center;}
+  .row.center{justify-content:center;}
+  .btn{
+    border:none; cursor:pointer; border-radius:14px;
+    padding:14px 22px; font-size:1rem; font-weight:700;
+    background:var(--accent); color:#241a04;
+    transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+    box-shadow:0 4px 0 rgba(0,0,0,.25);
+  }
+  .btn:hover{transform:translateY(-2px);}
+  .btn:active{transform:translateY(1px); box-shadow:0 2px 0 rgba(0,0,0,.25);}
+  .btn.secondary{background:var(--card); color:var(--ink); border:1px solid var(--card-border); box-shadow:none;}
+  .btn.ghost{background:transparent; color:var(--ink-dim); box-shadow:none; border:1px dashed var(--card-border);}
+  .btn:disabled{opacity:.4; cursor:not-allowed; transform:none;}
+  .btn.real{background:var(--real); color:#052e12;}
+  .btn.fake{background:var(--fake); color:#3a0a0a;}
+  .btn.mislead{background:var(--mislead); color:#3a2e00;}
+
+  .card{
+    background:linear-gradient(180deg, var(--card), var(--bg2));
+    border:1px solid var(--card-border);
+    border-radius:var(--radius);
+    padding:24px;
+    margin:16px 0;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  .badge{
+    display:inline-flex; align-items:center; gap:6px;
+    background:rgba(255,255,255,.08); border:1px solid var(--card-border);
+    border-radius:999px; padding:4px 12px; font-size:.8rem; color:var(--ink-dim);
+    margin-bottom:10px;
+  }
+  .badge svg{width:14px; height:14px;}
+
+  .item-image-caption{
+    display:flex; gap:10px; align-items:center;
+    background:rgba(255,255,255,.05);
+    border:1px dashed var(--card-border);
+    border-radius:12px; padding:10px 14px; margin:12px 0;
+    color:var(--ink-dim); font-size:.9rem; font-style:italic;
+  }
+  .item-image-caption svg{flex-shrink:0; width:28px; height:28px; opacity:.7;}
+
+  .headline{font-size:1.3rem; font-weight:800; margin-bottom:10px; line-height:1.4;}
+  .body-text{font-size:1.02rem; line-height:1.75;}
+  .body-text mark.tellmark{
+    background:rgba(248,113,113,.28); color:var(--ink);
+    border-bottom:2px solid var(--fake); border-radius:4px; padding:1px 3px;
+    cursor:help; position:relative;
+  }
+  .body-text mark.tellmark.mislead-mark{
+    background:rgba(250,204,21,.25); border-bottom-color:var(--mislead);
+  }
+
+  .tell-note{
+    display:flex; gap:10px; align-items:flex-start;
+    background:rgba(255,179,71,.08); border:1px solid rgba(255,179,71,.35);
+    border-radius:12px; padding:10px 14px; margin-top:8px; font-size:.92rem;
+  }
+  .tell-note b{color:var(--accent);}
+  .tell-note svg{flex-shrink:0; width:20px; height:20px; margin-top:2px; color:var(--accent);}
+
+  .verdict-banner{
+    border-radius:12px; padding:12px 16px; font-weight:800; margin:14px 0;
+    display:flex; align-items:center; gap:10px;
+  }
+  .verdict-banner.correct{background:rgba(74,222,128,.15); color:var(--real); border:1px solid rgba(74,222,128,.4);}
+  .verdict-banner.wrong{background:rgba(248,113,113,.15); color:var(--fake); border:1px solid rgba(248,113,113,.4);}
+
+  .progress{display:flex; gap:6px; margin-bottom:18px;}
+  .progress .dot{
+    flex:1; height:6px; border-radius:3px; background:var(--card-border);
+  }
+  .progress .dot.done{background:var(--accent2);}
+  .progress .dot.current{background:var(--accent);}
+
+  .score-strip{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:10px; font-size:.9rem; color:var(--ink-dim);
+  }
+  .score-strip b{color:var(--accent2); font-size:1.1rem;}
+
+  textarea{
+    width:100%; min-height:120px; border-radius:12px; border:1px solid var(--card-border);
+    background:rgba(255,255,255,.04); color:var(--ink); padding:12px; font-size:1rem;
+    font-family:inherit; resize:vertical;
+  }
+  input[type=text]{
+    width:100%; border-radius:12px; border:1px solid var(--card-border);
+    background:rgba(255,255,255,.04); color:var(--ink); padding:12px; font-size:1rem;
+    font-family:inherit;
+  }
+  label{display:block; margin:12px 0 6px; font-weight:700; color:var(--ink-dim); font-size:.9rem;}
+
+  .checklist{list-style:none; padding:0; margin:0;}
+  .checklist li{
+    display:flex; gap:10px; align-items:center;
+    background:rgba(255,255,255,.04); border:1px solid var(--card-border);
+    border-radius:10px; padding:10px 12px; margin-bottom:8px; cursor:pointer;
+    transition:background .15s ease;
+  }
+  .checklist li:hover{background:rgba(255,255,255,.08);}
+  .checklist li.checked{background:rgba(94,230,200,.12); border-color:rgba(94,230,200,.4);}
+  .checklist li input{width:20px; height:20px; flex-shrink:0;}
+  .checklist li svg{width:20px; height:20px; flex-shrink:0; color:var(--accent2);}
+
+  .timer{
+    font-size:2.4rem; font-weight:900; text-align:center; color:var(--accent);
+    font-variant-numeric:tabular-nums;
+  }
+  .timer.low{color:var(--danger); animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:.5;}}
+
+  .tellmap{display:grid; grid-template-columns:1fr; gap:10px;}
+  .tellmap .row-item{
+    display:flex; align-items:center; gap:12px;
+    background:rgba(255,255,255,.04); border:1px solid var(--card-border);
+    border-radius:12px; padding:10px 14px;
+  }
+  .tellmap .row-item svg{width:22px; height:22px; flex-shrink:0;}
+  .tellmap .row-item.good svg{color:var(--real);}
+  .tellmap .row-item.bad svg{color:var(--fake);}
+  .tellmap .row-item .stat{margin-inline-start:auto; font-weight:700; color:var(--ink-dim); font-size:.85rem;}
+
+  .mode-select{display:flex; gap:16px; flex-wrap:wrap; justify-content:center;}
+  .mode-card{
+    flex:1; min-width:220px; max-width:320px;
+    background:var(--card); border:1px solid var(--card-border); border-radius:var(--radius);
+    padding:22px; text-align:center; cursor:pointer; transition:transform .15s ease, border-color .15s;
+  }
+  .mode-card:hover{transform:translateY(-4px); border-color:var(--accent);}
+  .mode-card svg{width:48px; height:48px; color:var(--accent); margin-bottom:10px;}
+
+  .team-setup input{margin-bottom:10px;}
+  .team-chip{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--card); border:1px solid var(--card-border);
+    border-radius:999px; padding:6px 14px; margin:4px;
+  }
+  .team-chip button{
+    background:none; border:none; color:var(--fake); cursor:pointer; font-size:1rem; font-weight:900; padding:0;
+  }
+
+  .footer-note{margin-top:30px; font-size:.85rem; color:var(--ink-dim); text-align:center;}
+  .swap-block{
+    border:1px solid var(--card-border); border-radius:12px; padding:16px; margin-bottom:14px;
+    background:rgba(255,255,255,.03);
+  }
+  .kicker{color:var(--accent2); font-weight:800; font-size:.85rem; letter-spacing:.5px; text-transform:uppercase; margin-bottom:6px;}
+  hr.sep{border:none; border-top:1px solid var(--card-border); margin:20px 0;}
+  .icon-inline{width:1em; height:1em; vertical-align:-0.15em; display:inline-block;}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+/* =========================================================
+   CONFIG — everything a facilitator would ever want to edit
+   ========================================================= */
+const CONFIG = {
+  meta: {
+    title: "The Newsroom",
+    subtitle: "A fake news detection game",
+    intro: "Every news outlet has one room where they check whether a story is true before it goes out into the world. Now that's your job.",
+    debriefPrompt: "Which mistake surprised you the most — and what will you check from now on before you share something?",
+    handoff: "Soon you'll build an app that other people will use. Whoever builds a product is also a publisher — now you know how to spot manipulation, and how not to create it."
+  },
+
+  tells: [
+    { id: "no-source",   name: "No source",              explain: "Who published this? No name, no website, no date" },
+    { id: "no-name-expert", name: '"Experts say"',       explain: "An expert without a name is not a source" },
+    { id: "emotion",     name: "Emotional pressure",     explain: "Anger, fear or urgency — \"Share now! Before it gets deleted!\"" },
+    { id: "no-origin-number", name: "Number without a source", explain: "A precise figure that comes from nowhere — who measured it?" },
+    { id: "too-perfect", name: "Too perfect / too shocking", explain: "If it sounds too extreme to be true — check it" },
+    { id: "headline-mismatch", name: "Headline doesn't match the body", explain: "The headline shouts, the text mumbles" },
+    { id: "old-as-new",  name: "Old news sold as new",   explain: "A real event, but with a wrong or hidden date" },
+    { id: "correlation", name: "Correlation sold as cause", explain: "Two things happened together — that doesn't mean one caused the other" },
+    { id: "unrelated-image", name: "Unrelated image",    explain: "The image is from a completely different place or time" }
+  ],
+
+  rounds: [
+    /* ---------------- ROUND 1 — easy, binary ---------------- */
+    {
+      id: 1,
+      title: "Round 1 — Real or Fake?",
+      instructions: "Read each news item and vote: real or fake. After the vote, we'll reveal the answer and what you should have noticed.",
+      verdicts: ["Real", "Fake"],
+      items: [
+        {
+          headline: "Scientists from a secret lab: drinking orchid juice turns students into geniuses in two days",
+          body: "Experts say that students who drank the new beverage improved their memory by 400%. Don't wait — supplies are limited, and anyone who doesn't drink it today will miss the chance of a lifetime! Share before this information gets deleted from the internet.",
+          image: "A photo of a glass of yellow juice against a cartoon brain glowing green",
+          verdict: "Fake",
+          highlights: [
+            { text: "Experts say", tell: "no-name-expert" },
+            { text: "improved their memory by 400%", tell: "no-origin-number" },
+            { text: "Don't wait", tell: "emotion" },
+            { text: "Share before this information gets deleted from the internet", tell: "emotion" }
+          ],
+          headlineHighlights: [
+            { text: "turns students into geniuses in two days", tell: "too-perfect" }
+          ],
+          revealNote: "No expert is named, the number has no source, and there's classic urgency pressure. When something promises a quick miracle — that's a red flag."
+        },
+        {
+          headline: "Karmei-Dan Municipality: new bike path opens on HaDekel Street",
+          body: "Karmei-Dan Municipality spokesperson Ronit Sagi announced that the new bike path on HaDekel Street opened last Monday. The path is about 800 meters long and connects the elementary school to the central park. Residents are invited to try out the path during daytime hours.",
+          image: "A photo of a new asphalt path with white lane markings",
+          verdict: "Real",
+          highlights: [],
+          revealNote: "The spokesperson has a full name and title, there's a clear date, and a boring, precise detail (800 meters). This is exactly what a real news item looks like — a little boring."
+        },
+        {
+          headline: "Panic in town: the \"Studyfy\" app steals all the photos from your phone",
+          body: "According to unidentified sources, the new app that all the teens are downloading scans every photo on the device and sends them to a secret server. No one knows where the server is. A security expert said it's a \"catastrophe.\" Delete the app immediately before it's too late!",
+          image: "No image attached",
+          verdict: "Fake",
+          highlights: [
+            { text: "unidentified sources", tell: "no-source" },
+            { text: "A security expert said", tell: "no-name-expert" },
+            { text: "No one knows where the server is", tell: "too-perfect" },
+            { text: "Delete the app immediately before it's too late", tell: "emotion" }
+          ],
+          revealNote: "\"Unidentified sources\" and an unnamed \"expert\" are the same trick, used twice. And if nobody knows anything, why would anyone be sure it's a catastrophe?"
+        },
+        {
+          headline: "Galil-Yam High School student council approves budget for annual trip up north",
+          body: "At a meeting held on Wednesday, the student council approved a budget of 42,000 shekels for the annual trip, which will leave on May 14. Student council president Omer Levi said the full details will be posted in the class group chat next week.",
+          image: "A photo of a school bulletin board with a printed notice",
+          verdict: "Real",
+          highlights: [],
+          revealNote: "A full name, an exact date, a specific amount, and a reference to another source (the class group chat). This is a story you can check — and that's the best sign of reliability."
+        },
+        {
+          headline: "Shocking discovery: 14-year-old student invents a device that turns air into fuel — and the government is hiding it!",
+          body: "The revolutionary invention that will wipe out the global energy crisis already exists, but 'certain interested parties' don't want you to know about it. The student, whose name is being kept secret for security reasons, built the device in his grandfather's garage. Share so the truth comes out!",
+          image: "A blurry photo of a metal box connected to pipes",
+          verdict: "Fake",
+          highlights: [
+            { text: "certain interested parties", tell: "no-source" },
+            { text: "whose name is being kept secret for security reasons", tell: "no-source" },
+            { text: "Share so the truth comes out", tell: "emotion" },
+            { text: "wipe out the global energy crisis", tell: "too-perfect" }
+          ],
+          revealNote: "The student has no name, the \"interested parties\" have no name, and there's a huge conspiracy claim with no way to check it. The bigger the promise, the more proof you need — and here there's none."
+        }
+      ]
+    },
+
+    /* ---------------- ROUND 2 — the grey zone ---------------- */
+    {
+      id: 2,
+      title: "Round 2 — The Grey Zone",
+      instructions: "Now there are three options: Real, Misleading or Fake. There are real stories here, completely made-up stories — and in between, misleading stories: the fact is true, but the way it's presented is deceptive. Read carefully before you vote — not everything is misleading.",
+      verdicts: ["Real", "Misleading", "Fake"],
+      items: [
+        {
+          headline: "New study: 90% of students in Karmei-Dan use the \"Chatly\" app",
+          body: "The study, conducted by the app company itself, surveyed 20 students from one class in one school. The company is promoting the figure as proof that \"all teens in Israel\" use its product.",
+          image: "A photo of a blue pie chart with the number 90% in bold",
+          verdict: "Misleading",
+          highlights: [
+            { text: "surveyed 20 students from one class in one school", tell: "no-origin-number", cls: "mislead-mark" },
+            { text: "all teens in Israel", tell: "too-perfect", cls: "mislead-mark" }
+          ],
+          revealNote: "The 90% figure is technically true — within its tiny sample. The problem is the generalization: 20 students are not \"all teens in Israel.\" This is cherry-picking a number to make it look like a national study."
+        },
+        {
+          headline: "Galil-Yam High School ranked Israel's top school for artificial intelligence studies",
+          body: "According to sources in the education field, the school jumped to first place in the national ranking with a score of 98 out of 100. The ranking, whose details were not published, is based on data collected from a source that cannot be disclosed. The school has not yet responded.",
+          image: "A photo of a school sign that reads \"First Place\"",
+          verdict: "Fake",
+          highlights: [
+            { text: "According to sources in the education field", tell: "no-name-expert" },
+            { text: "a score of 98 out of 100", tell: "no-origin-number" },
+            { text: "whose details were not published", tell: "no-source" },
+            { text: "from a source that cannot be disclosed", tell: "no-source" }
+          ],
+          revealNote: "The story sounds official, but if you check — every source in it is anonymous: \"sources in the field,\" a ranking with no details, and a number that can't be verified. When nothing can be verified, it's not real news — it's fake dressed up as official."
+        },
+        {
+          headline: "The \"Young Voice\" nonprofit opens a new youth center in the Flowers neighborhood",
+          body: "At a ceremony held last night, the new youth center run by the nonprofit was officially opened. The center will offer music, robotics and art clubs, and will be open Sunday to Thursday from 16:00 to 20:00. The head of the nonprofit, Shira Ben-David, said registration will open next week.",
+          image: "A photo of an activity room with music equipment neatly arranged on shelves",
+          verdict: "Real",
+          highlights: [],
+          revealNote: "A full name and title, exact opening hours, and a clear next step (registration next week). There's no attempt here to exaggerate or distort — just clean reporting. Even in the hard round, there are real stories."
+        },
+        {
+          headline: "Shock: high school student causes total collapse of the school's system",
+          body: "A student at Neot-Shaked High School forgot to close a window during computer class, which caused one computer to overheat and shut down temporarily. The air conditioning in the computer wing was back to normal within ten minutes.",
+          image: "A photo of an empty computer lab",
+          verdict: "Misleading",
+          highlights: [
+            { text: "one computer to overheat and shut down temporarily", tell: "headline-mismatch", cls: "mislead-mark" }
+          ],
+          headlineHighlights: [
+            { text: "Shock: high school student causes total collapse of the school's system", tell: "headline-mismatch" }
+          ],
+          revealNote: "The headline talks about a \"total collapse\" — but the body describes one computer that shut down for ten minutes because of an open window. The details are true, but the headline blows them up. When the headline is way more dramatic than the content, that's a warning sign."
+        },
+        {
+          headline: "The \"Learnly\" app will pay 500 shekels to every student who passes a test — offer ends tomorrow",
+          body: "According to a message circulated in group chats, the new app offers payment for high grades. The app has no company details, address or contact person. \"The offer is valid until tomorrow only,\" the message said, \"sign up before it closes.\"",
+          image: "No image attached",
+          verdict: "Fake",
+          highlights: [
+            { text: "According to a message circulated in group chats", tell: "no-source" },
+            { text: "no company details, address or contact person", tell: "no-source" },
+            { text: "sign up before it closes", tell: "emotion" }
+          ],
+          headlineHighlights: [
+            { text: "500 shekels to every student who passes a test", tell: "too-perfect" }
+          ],
+          revealNote: "A tempting promise (money for grades), urgency (\"until tomorrow\"), and zero details about who's behind it. A real app doesn't hide without a name, address or contact person."
+        },
+        {
+          headline: "Orot HaNegev school wins regional robotics competition",
+          body: "The school's robotics team, coached by teacher Dana Carmeli, won first place in the regional competition held at the city's sports hall. The team members, ages 15-16, worked on the robot for four months. The next competition will take place in three weeks.",
+          image: "A photo of a group of students holding a trophy next to a metal robot",
+          verdict: "Real",
+          highlights: [],
+          revealNote: "The teacher's name, a clear location, a realistic timeframe, and a date for what happens next. Notice: there's a \"first place\" here just like in the fake AI story — but here there's a name, a place and a date you can check. The difference is the source."
+        },
+        {
+          headline: "City Hall: ice cream sales at the central kiosk up 30% since a new statue was placed in the square",
+          body: "The owner of the local kiosk reports that ice cream sales have gone up since a new statue was placed in the nearby square a month ago. The article suggests that the statue is the \"cause\" of the rise in sales, without mentioning that the rise began exactly at the start of summer vacation and the heat wave of midsummer.",
+          image: "A photo of an ice cream kiosk in a city square",
+          verdict: "Misleading",
+          highlights: [
+            { text: "the statue is the \"cause\" of the rise in sales", tell: "correlation", cls: "mislead-mark" },
+            { text: "without mentioning that the rise began exactly at the start of summer vacation and the heat wave", tell: "correlation", cls: "mislead-mark" }
+          ],
+          revealNote: "Two things happened at the same time — the statue was put up, and sales went up. But there's a much more likely explanation (heat and vacation) that the article doesn't even mention. Correlation is not causation."
+        }
+      ]
+    }
+  ]
+};
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const STATE = {
+  mode: null,          // 'team' (single device, no roster) | 'board' (shared, multi-team roster)
+  teams: [],            // board mode only
+  screen: 'welcome',
+  roundIdx: 0,
+  itemIdx: 0,
+  revealed: false,
+  currentVote: null,    // team mode: this device's vote on the current item
+  currentVotes: {},     // board mode: teamName -> verdict on the current item
+  soloScore: 0,          // team mode score
+  scores: {},           // board mode: teamName -> score
+  tellStats: {}         // tellId -> {seen, caught}
+};
+
+function initTellStats(){
+  CONFIG.tells.forEach(t=>{ STATE.tellStats[t.id] = {seen:0, caught:0}; });
+}
+initTellStats();
+
+/* =========================================================
+   ICONS (inline SVG, no emojis)
+   ========================================================= */
+const ICONS = {
+  newspaper: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h13a2 2 0 0 1 2 2v13a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2V4Z"/><path d="M19 8h1a1 1 0 0 1 1 1v10a2 2 0 0 1-2 2H7"/><path d="M7 8h8M7 12h8M7 16h5"/></svg>`,
+  users: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14c2.7.2 4.9 2.3 5 5.6"/></svg>`,
+  monitor: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>`,
+  search: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>`,
+  image: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.7"/><path d="m4 17 5-5 4 4 3-3 4 4"/></svg>`,
+  check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>`,
+  x: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg>`,
+  warn: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4"/><circle cx="12" cy="17" r=".6" fill="currentColor" stroke="none"/></svg>`,
+  clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`,
+  pencil: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m4 20 1-4L16 5l3 3L8 19l-4 1Z"/></svg>`,
+  swap: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg>`,
+  map: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 4 4 6v14l5-2 6 2 5-2V4l-5 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg>`,
+  target: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".7" fill="currentColor" stroke="none"/></svg>`
+};
+
+function icon(name, cls=""){ return `<span class="${cls}" style="display:inline-flex">${ICONS[name]||""}</span>`; }
+
+/* =========================================================
+   RENDER ROOT
+   ========================================================= */
+const app = document.getElementById('app');
+function render(){
+  switch(STATE.screen){
+    case 'welcome': return renderWelcome();
+    case 'teamSetup': return renderTeamSetup();
+    case 'roundIntro': return renderRoundIntro();
+    case 'item': return renderItem();
+    case 'roundEnd': return renderRoundEnd();
+    case 'end': return renderEnd();
+    default: app.innerHTML = '<p>Screen not found</p>';
+  }
+}
+
+/* ---------------- WELCOME ---------------- */
+function renderWelcome(){
+  app.innerHTML = `
+    <div class="center" style="margin-bottom:20px;">
+      <div class="badge">${icon('newspaper')} Media Literacy</div>
+      <h1>${CONFIG.meta.title}</h1>
+      <p class="muted">${CONFIG.meta.subtitle}</p>
+    </div>
+    <div class="card">
+      <p>${CONFIG.meta.intro}</p>
+    </div>
+    <h2 class="center" style="margin-top:26px;">How do you want to play?</h2>
+    <div class="mode-select">
+      <div class="mode-card" id="mode-team">
+        ${icon('monitor')}
+        <h3>Team mode</h3>
+        <p class="muted">This computer is your team. Play at your own pace, no names needed.</p>
+      </div>
+      <div class="mode-card" id="mode-board">
+        ${icon('users')}
+        <h3>Class / Board mode</h3>
+        <p class="muted">Projected on the board, with several teams around the same screen. Each team votes separately before the answer is revealed.</p>
+      </div>
+    </div>
+  `;
+  document.getElementById('mode-team').onclick = ()=>{
+    STATE.mode='team';
+    STATE.teams=[];
+    STATE.soloScore=0;
+    STATE.roundIdx=0; STATE.itemIdx=0; STATE.revealed=false; STATE.currentVote=null;
+    STATE.screen='roundIntro';
+    render();
+  };
+  document.getElementById('mode-board').onclick = ()=>{ STATE.mode='board'; STATE.screen='teamSetup'; render(); };
+}
+
+/* ---------------- TEAM SETUP ---------------- */
+function renderTeamSetup(){
+  app.innerHTML = `
+    <div class="card team-setup">
+      <h2>${icon('users')} Who's playing?</h2>
+      <p class="muted">Add the names of the teams playing around the board. For each news item, every team votes separately, and the answer is revealed only after all of them have voted.</p>
+      <div class="row">
+        <input type="text" id="team-name-input" placeholder="Team name, e.g. The Sharks">
+        <button class="btn secondary" id="add-team-btn">Add</button>
+      </div>
+      <div id="team-chips" style="margin-top:12px;"></div>
+      <div class="row" style="margin-top:20px;">
+        <button class="btn" id="start-game-btn">Let's start</button>
+        <button class="btn ghost" id="back-btn">Back</button>
+      </div>
+    </div>
+  `;
+  function refreshChips(){
+    const box = document.getElementById('team-chips');
+    box.innerHTML = STATE.teams.map((t,i)=>`
+      <span class="team-chip">${t}<button data-i="${i}">${'×'}</button></span>
+    `).join('') || '<span class="muted">No teams added yet</span>';
+    box.querySelectorAll('button[data-i]').forEach(b=>{
+      b.onclick = ()=>{ STATE.teams.splice(+b.dataset.i,1); refreshChips(); };
+    });
+  }
+  refreshChips();
+  const input = document.getElementById('team-name-input');
+  function addTeam(){
+    const v = input.value.trim();
+    if(!v) return;
+    STATE.teams.push(v);
+    STATE.scores[v] = 0;
+    input.value='';
+    refreshChips();
+  }
+  document.getElementById('add-team-btn').onclick = addTeam;
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); addTeam(); } });
+  document.getElementById('start-game-btn').onclick = ()=>{
+    if(STATE.teams.length===0){ STATE.teams.push('Team 1'); STATE.scores['Team 1']=0; }
+    STATE.roundIdx = 0; STATE.itemIdx = 0; STATE.revealed=false; STATE.currentVotes={};
+    STATE.screen='roundIntro';
+    render();
+  };
+  document.getElementById('back-btn').onclick = ()=>{ STATE.screen='welcome'; render(); };
+}
+
+/* ---------------- ROUND INTRO ---------------- */
+function renderRoundIntro(){
+  const round = CONFIG.rounds[STATE.roundIdx];
+  app.innerHTML = `
+    <div class="card center">
+      <div class="badge">${icon('search')} Round ${round.id} of ${CONFIG.rounds.length}</div>
+      <h2>${round.title}</h2>
+      <p>${round.instructions}</p>
+      <div class="row center" style="margin-top:16px;">
+        ${round.verdicts.map(v=>`<span class="badge">${v}</span>`).join('')}
+      </div>
+      <div style="margin-top:22px;">
+        <button class="btn" id="begin-round-btn">Start</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('begin-round-btn').onclick = ()=>{
+    STATE.itemIdx = 0; STATE.revealed=false; STATE.currentVote=null; STATE.currentVotes={};
+    STATE.screen='item'; render();
+  };
+}
+
+/* ---------------- ITEM (vote + reveal) ---------------- */
+function markUp(text, highlights){
+  if(!highlights || highlights.length===0) return escapeHtml(text);
+  let html = escapeHtml(text);
+  highlights.forEach(h=>{
+    const esc = escapeHtml(h.text);
+    const cls = h.cls ? h.cls : '';
+    const safeIdx = html.indexOf(esc);
+    if(safeIdx>=0){
+      html = html.slice(0,safeIdx) + `<mark class="tellmark ${cls}" data-tell="${h.tell}">${esc}</mark>` + html.slice(safeIdx+esc.length);
+    }
+  });
+  return html;
+}
+function highlightBody(item){ return markUp(item.body, item.highlights); }
+function highlightHeadline(item){ return markUp(item.headline, item.headlineHighlights); }
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function tellById(id){ return CONFIG.tells.find(t=>t.id===id); }
+
+function tellNoteHtml(item){
+  if(!((item.highlights && item.highlights.length) || (item.headlineHighlights && item.headlineHighlights.length))) return '';
+  const all = [...(item.headlineHighlights||[]), ...(item.highlights||[])];
+  const seenTells = new Set();
+  const rows = all.filter(h=>{
+    if(seenTells.has(h.tell)) return false;
+    seenTells.add(h.tell); return true;
+  }).map(h=>{
+    const t = tellById(h.tell);
+    return `<div style="margin-bottom:6px;"><b>${t.name}</b> — ${t.explain}</div>`;
+  }).join('');
+  return `
+    <div class="tell-note">
+      ${icon('warn')}
+      <div>${rows}</div>
+    </div>
+  `;
+}
+
+function scoreLineHtml(){
+  if(STATE.mode==='team'){
+    return `<div class="score-strip"><span>Score</span><span><b>${STATE.soloScore||0}</b></span></div>`;
+  }
+  return `<div class="score-strip"><span>Total score</span>
+    <span>${STATE.teams.map(t=>`${escapeHtml(t)}: <b>${STATE.scores[t]||0}</b>`).join(' &nbsp;|&nbsp; ')}</span></div>`;
+}
+
+function verdictBtnClass(v){
+  return v==='Real' ? 'real' : (v==='Fake' ? 'fake' : 'mislead');
+}
+
+function renderItem(){
+  const round = CONFIG.rounds[STATE.roundIdx];
+  const item = round.items[STATE.itemIdx];
+  const totalItems = round.items.length;
+
+  const progressDots = round.items.map((_,i)=>{
+    let cls = 'dot';
+    if(i < STATE.itemIdx) cls += ' done';
+    else if(i === STATE.itemIdx) cls += ' current';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+
+  let bodyHtml = STATE.mode==='team' ? renderItemSolo(round, item, totalItems) : renderItemBoard(round, item, totalItems);
+
+  app.innerHTML = `
+    <div class="row" style="justify-content:space-between; align-items:center;">
+      <h2 style="margin:0;">${round.title}</h2>
+    </div>
+    <div class="progress">${progressDots}</div>
+    ${scoreLineHtml()}
+    ${bodyHtml}
+  `;
+
+  if(STATE.mode==='team') wireItemSolo(round, item, totalItems);
+  else wireItemBoard(round, item, totalItems);
+}
+
+/* ---- team (solo) mode: one vote, immediate reveal ---- */
+function renderItemSolo(round, item, totalItems){
+  if(!STATE.revealed){
+    return `
+      <div class="card">
+        <div class="badge">${icon('newspaper')} Story ${STATE.itemIdx+1} of ${totalItems}</div>
+        <div class="headline">${escapeHtml(item.headline)}</div>
+        <p class="body-text">${escapeHtml(item.body)}</p>
+        ${item.image ? `<div class="item-image-caption">${icon('image')}<span>${escapeHtml(item.image)}</span></div>` : ''}
+        <hr class="sep">
+        <p class="muted center">What's your vote?</p>
+        <div class="row center" id="vote-buttons">
+          ${round.verdicts.map(v=>`<button class="btn ${verdictBtnClass(v)}" data-verdict="${v}">${v}</button>`).join('')}
+        </div>
+      </div>
+    `;
+  }
+  const correct = STATE.currentVote === item.verdict;
+  return `
+    <div class="card">
+      <div class="badge">${icon('newspaper')} Story ${STATE.itemIdx+1} of ${totalItems}</div>
+      <div class="headline">${highlightHeadline(item)}</div>
+      <p class="body-text">${highlightBody(item)}</p>
+      ${item.image ? `<div class="item-image-caption">${icon('image')}<span>${escapeHtml(item.image)}</span></div>` : ''}
+      <div class="verdict-banner ${correct?'correct':'wrong'}">
+        ${icon(correct?'check':'x')}
+        <span>Your vote: ${STATE.currentVote} — The correct answer: <span class="badge">${item.verdict}</span> ${correct? '(Correct!)':'(Not this time)'}</span>
+      </div>
+      ${tellNoteHtml(item)}
+      <hr class="sep">
+      <p>${escapeHtml(item.revealNote)}</p>
+      <div class="row center" style="margin-top:16px;">
+        <button class="btn" id="next-item-btn">${STATE.itemIdx+1 < totalItems ? 'Next story' : 'Finish round'}</button>
+      </div>
+    </div>
+  `;
+}
+
+function wireItemSolo(round, item, totalItems){
+  if(!STATE.revealed){
+    document.querySelectorAll('#vote-buttons button').forEach(b=>{
+      b.onclick = ()=>{
+        STATE.currentVote = b.dataset.verdict;
+        applyScoreSolo(item);
+        STATE.revealed = true;
+        render();
+      };
+    });
+  } else {
+    document.getElementById('next-item-btn').onclick = ()=>{
+      if(STATE.itemIdx+1 < totalItems){
+        STATE.itemIdx++; STATE.revealed=false; STATE.currentVote=null;
+        render();
+      } else {
+        STATE.screen='roundEnd'; render();
+      }
+    };
+  }
+}
+
+function applyScoreSolo(item){
+  const correct = STATE.currentVote === item.verdict;
+  const points = item.verdict === 'Misleading' ? 2 : 1;
+  if(correct) STATE.soloScore = (STATE.soloScore||0) + points;
+  const tellIdsInItem = new Set();
+  (item.highlights||[]).forEach(h=> tellIdsInItem.add(h.tell));
+  (item.headlineHighlights||[]).forEach(h=> tellIdsInItem.add(h.tell));
+  tellIdsInItem.forEach(id=>{
+    STATE.tellStats[id].seen++;
+    if(correct) STATE.tellStats[id].caught++;
+  });
+}
+
+/* ---- board mode: every team votes independently before reveal ---- */
+function renderItemBoard(round, item, totalItems){
+  if(!STATE.revealed){
+    const allVoted = STATE.teams.length>0 && STATE.teams.every(t=> STATE.currentVotes[t] !== undefined);
+    const rows = STATE.teams.map((t,i)=>{
+      const currentVote = STATE.currentVotes[t];
+      return `
+        <div class="swap-block">
+          <div class="kicker">${escapeHtml(t)}${currentVote ? ' — voted: ' + currentVote : ' — not voted yet'}</div>
+          <div class="row" data-team-idx="${i}">
+            ${round.verdicts.map(v=>{
+              const selected = currentVote===v;
+              return `<button class="btn ${verdictBtnClass(v)}" data-team-idx="${i}" data-verdict="${v}" style="${selected?'outline:3px solid #fff; outline-offset:2px;':''}">${v}</button>`;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }).join('');
+    return `
+      <div class="card">
+        <div class="badge">${icon('newspaper')} Story ${STATE.itemIdx+1} of ${totalItems}</div>
+        <div class="headline">${escapeHtml(item.headline)}</div>
+        <p class="body-text">${escapeHtml(item.body)}</p>
+        ${item.image ? `<div class="item-image-caption">${icon('image')}<span>${escapeHtml(item.image)}</span></div>` : ''}
+        <hr class="sep">
+        <p class="muted center">Each team votes separately:</p>
+        <div id="team-vote-rows">${rows}</div>
+        <div class="row center" style="margin-top:16px;">
+          <button class="btn" id="reveal-btn" ${allVoted?'':'disabled'}>Reveal the answer</button>
+          ${allVoted ? '' : `<button class="btn ghost" id="force-reveal-btn">Reveal anyway (not everyone voted)</button>`}
+        </div>
+      </div>
+    `;
+  }
+  const points = item.verdict === 'Misleading' ? 2 : 1;
+  const teamRows = STATE.teams.map(t=>{
+    const v = STATE.currentVotes[t];
+    if(v===undefined) return `<div class="row-item">${icon('warn')}<span>${escapeHtml(t)} — didn't vote</span></div>`;
+    const correct = v===item.verdict;
+    return `<div class="row-item ${correct?'good':'bad'}">${icon(correct?'check':'x')}<span>${escapeHtml(t)}: ${v}</span><span class="stat">${correct? '+'+points+' pts' : '+0'}</span></div>`;
+  }).join('');
+  return `
+    <div class="card">
+      <div class="badge">${icon('newspaper')} Story ${STATE.itemIdx+1} of ${totalItems}</div>
+      <div class="headline">${highlightHeadline(item)}</div>
+      <p class="body-text">${highlightBody(item)}</p>
+      ${item.image ? `<div class="item-image-caption">${icon('image')}<span>${escapeHtml(item.image)}</span></div>` : ''}
+      <div class="badge">The correct answer: ${item.verdict}</div>
+      <div class="tellmap">${teamRows}</div>
+      ${tellNoteHtml(item)}
+      <hr class="sep">
+      <p>${escapeHtml(item.revealNote)}</p>
+      <div class="row center" style="margin-top:16px;">
+        <button class="btn" id="next-item-btn">${STATE.itemIdx+1 < totalItems ? 'Next story' : 'Finish round'}</button>
+      </div>
+    </div>
+  `;
+}
+
+function wireItemBoard(round, item, totalItems){
+  if(!STATE.revealed){
+    document.querySelectorAll('#team-vote-rows button').forEach(b=>{
+      b.onclick = ()=>{
+        const team = STATE.teams[+b.dataset.teamIdx];
+        STATE.currentVotes[team] = b.dataset.verdict;
+        render();
+      };
+    });
+    const revealBtn = document.getElementById('reveal-btn');
+    if(revealBtn) revealBtn.onclick = ()=>{ applyScoreBoard(item); STATE.revealed=true; render(); };
+    const forceBtn = document.getElementById('force-reveal-btn');
+    if(forceBtn) forceBtn.onclick = ()=>{ applyScoreBoard(item); STATE.revealed=true; render(); };
+  } else {
+    document.getElementById('next-item-btn').onclick = ()=>{
+      if(STATE.itemIdx+1 < totalItems){
+        STATE.itemIdx++; STATE.revealed=false; STATE.currentVotes={};
+        render();
+      } else {
+        STATE.screen='roundEnd'; render();
+      }
+    };
+  }
+}
+
+function applyScoreBoard(item){
+  const points = item.verdict === 'Misleading' ? 2 : 1;
+  const tellIdsInItem = new Set();
+  (item.highlights||[]).forEach(h=> tellIdsInItem.add(h.tell));
+  (item.headlineHighlights||[]).forEach(h=> tellIdsInItem.add(h.tell));
+  STATE.teams.forEach(t=>{
+    const vote = STATE.currentVotes[t];
+    if(vote===undefined) return;
+    const correct = vote===item.verdict;
+    if(correct) STATE.scores[t] = (STATE.scores[t]||0) + points;
+    tellIdsInItem.forEach(id=>{
+      STATE.tellStats[id].seen++;
+      if(correct) STATE.tellStats[id].caught++;
+    });
+  });
+}
+
+/* ---------------- ROUND END ---------------- */
+function renderRoundEnd(){
+  const round = CONFIG.rounds[STATE.roundIdx];
+  const isLast = STATE.roundIdx+1 >= CONFIG.rounds.length;
+  app.innerHTML = `
+    <div class="card center">
+      <div class="badge">${icon('check')} End of ${round.title}</div>
+      <h2>Well done!</h2>
+      <div class="score-strip" style="justify-content:center; gap:20px;">
+        ${STATE.mode==='team'
+          ? `<span>Score: <b>${STATE.soloScore||0}</b></span>`
+          : STATE.teams.map(t=>`<span>${escapeHtml(t)}: <b>${STATE.scores[t]||0}</b></span>`).join('')}
+      </div>
+      <div style="margin-top:18px;">
+        <button class="btn" id="continue-btn">${isLast ? 'To the summary and trick map' : 'Next round'}</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('continue-btn').onclick = ()=>{
+    if(isLast){
+      STATE.screen='end';
+    } else {
+      STATE.roundIdx++;
+      STATE.screen='roundIntro';
+    }
+    render();
+  };
+}
+
+/* ---------------- END SCREEN ---------------- */
+function renderEnd(){
+  const entries = Object.entries(STATE.tellStats)
+    .filter(([id,s])=> s.seen>0)
+    .map(([id,s])=>({id, name: tellById(id).name, ratio: s.caught/s.seen, seen:s.seen, caught:s.caught}));
+  entries.sort((a,b)=> b.ratio - a.ratio);
+  const good = entries.filter(e=>e.ratio>=0.5);
+  const bad = entries.filter(e=>e.ratio<0.5);
+
+  app.innerHTML = `
+    <div class="card center">
+      <div class="badge">${icon('map')} Your trick map</div>
+      <h2>You finished The Newsroom</h2>
+      <div class="score-strip" style="justify-content:center; gap:20px;">
+        ${STATE.mode==='team'
+          ? `<span>Score: <b>${STATE.soloScore||0}</b> points</span>`
+          : STATE.teams.map(t=>`<span>${escapeHtml(t)}: <b>${STATE.scores[t]||0}</b> points</span>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <h3>${icon('check','icon-inline')} Tricks you're already great at catching</h3>
+      <div class="tellmap">
+        ${good.length ? good.map(e=>`
+          <div class="row-item good">${icon('check')}<span>${e.name}</span><span class="stat">${e.caught}/${e.seen}</span></div>
+        `).join('') : '<p class="muted">Not enough data yet — that\'s okay, keep practicing.</p>'}
+      </div>
+    </div>
+    <div class="card">
+      <h3>${icon('warn','icon-inline')} Tricks worth practicing more</h3>
+      <div class="tellmap">
+        ${bad.length ? bad.map(e=>`
+          <div class="row-item bad">${icon('warn')}<span>${e.name}</span><span class="stat">${e.caught}/${e.seen}</span></div>
+        `).join('') : '<p class="muted">Well done — there\'s not much left to catch!</p>'}
+      </div>
+    </div>
+    <div class="card">
+      <h3>To wrap up — a short discussion</h3>
+      <p style="font-size:1.1rem;">${CONFIG.meta.debriefPrompt}</p>
+      <hr class="sep">
+      <p class="muted">${CONFIG.meta.handoff}</p>
+    </div>
+    <div class="row center" style="margin-top:10px;">
+      <button class="btn secondary" id="restart-btn">New game</button>
+    </div>
+  `;
+  document.getElementById('restart-btn').onclick = ()=>{
+    STATE.mode=null; STATE.teams=[]; STATE.screen='welcome';
+    STATE.roundIdx=0; STATE.itemIdx=0; STATE.revealed=false; STATE.currentVote=null;
+    STATE.currentVotes={}; STATE.soloScore=0; STATE.scores={};
+    initTellStats();
+    render();
+  };
+}
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+render();
+</script>
+</body>
+</html>
