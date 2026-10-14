@@ -75,6 +75,7 @@ button{font-family:inherit}
 /* prompt-category tags — neutral, describe SCOPE not correctness */
 .tag.broad{background:var(--indigo-dim);color:var(--indigo)}
 .tag.focused{background:var(--teal-dim);color:var(--teal)}
+.tag.reco{background:var(--amber-dim);color:var(--amber);font-size:10.5px;padding:2px 8px;vertical-align:middle;margin-inline-start:6px}
 
 /* ============================================================
    START SCREEN
@@ -153,7 +154,21 @@ button{font-family:inherit}
 .goal-chip .icon{color:var(--green);font-size:17px;flex:none}
 .goal-chip .gl{font-size:11px;color:var(--muted-2);font-weight:700}
 .goal-chip .gt{font-size:13.5px;font-weight:700;line-height:1.2}
-.turns-chip{display:flex;align-items:center;gap:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:7px 14px 7px 8px}
+.turns-chip{display:flex;align-items:center;gap:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:7px 14px 7px 8px;position:relative}
+.turns-chip.spent{animation:turnPulse .5s ease}
+@keyframes turnPulse{0%,100%{transform:scale(1)}30%{transform:scale(1.12)}}
+.turn-float{position:fixed;z-index:9999;pointer-events:none;white-space:nowrap;
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:26px;font-weight:900;color:var(--amber);
+  background:rgba(15,18,32,.9);border:1px solid rgba(255,181,71,.5);border-radius:999px;
+  padding:8px 16px;box-shadow:0 10px 30px rgba(0,0,0,.5);
+  animation:turnFloat 1.15s cubic-bezier(.2,.7,.3,1) forwards}
+.turn-float .tf-n{font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+@keyframes turnFloat{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}
+  18%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}
+  30%{transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-150%) scale(1.1)}}
 .turns-num{font-size:28px;font-weight:900;line-height:1;min-width:34px;text-align:center;color:var(--text);font-variant-numeric:tabular-nums}
 .turns-chip.low .turns-num{color:var(--amber)}
 .turns-chip.crit .turns-num{color:var(--red)}
@@ -197,32 +212,6 @@ body.board .board-banner{display:flex}
 .screen-tick{height:30px;background:#fff;display:flex;align-items:center;justify-content:space-between;
   padding:0 16px;font-size:12px;color:#6b7591;border-bottom:1px solid #eef0f6;font-weight:700}
 .app-screen{flex:1;overflow:auto;display:flex;flex-direction:column}
-.tested-flag{
-  position:absolute;top:38px;inset-inline-start:10px;z-index:5;
-  background:var(--red);color:#fff;font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;
-  display:none;align-items:center;gap:5px;box-shadow:0 6px 16px rgba(255,92,108,.4)
-}
-.screen-frame.show-test .tested-flag{display:inline-flex}
-
-/* discipline bar under phone */
-.disc-bar{margin:14px auto 0;max-width:360px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.disc-btn{
-  cursor:pointer;background:var(--panel);border:1.5px solid var(--line);border-radius:12px;
-  padding:11px 6px 9px;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:5px;transition:.15s;text-align:center
-}
-.disc-btn:hover:not(:disabled){border-color:var(--blue);background:var(--blue-dim);transform:translateY(-2px)}
-.disc-btn:disabled{opacity:.4;cursor:not-allowed}
-.disc-btn .icon{font-size:20px;color:var(--blue)}
-.disc-btn b{font-size:13px}
-.disc-btn small{font-size:10.5px;color:var(--muted-2);font-weight:700}
-.save-slot{
-  margin:12px auto 0;max-width:360px;background:var(--panel-2);border:1px dashed var(--line);
-  border-radius:12px;padding:10px 13px;display:flex;align-items:center;gap:11px;font-size:13px
-}
-.save-slot .sico{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:var(--panel);border:1px solid var(--line);color:var(--muted-2)}
-.save-slot.has .sico{color:var(--blue);border-color:rgba(74,168,255,.5);background:var(--blue-dim)}
-.save-slot .sl{color:var(--muted-2);font-weight:700;font-size:11px}
-.save-slot .sn{font-weight:800}
 
 /* ---------- prompt pane ---------- */
 .prompt-head{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
@@ -237,7 +226,6 @@ body.board .board-banner{display:flex}
 /* reveals are AFTER the choice — coloring by outcome here is fine (not a pre-choice tell) */
 .reveal.advance{border-color:rgba(53,208,127,.4)}.reveal.advance .ric{background:var(--green-dim);color:var(--green)}
 .reveal.setback{border-color:rgba(255,92,108,.45)}.reveal.setback .ric{background:var(--red-dim);color:var(--red)}
-.reveal.discipline{border-color:rgba(74,168,255,.42)}.reveal.discipline .ric{background:var(--blue-dim);color:var(--blue)}
 .reveal .rtxt{font-size:14.5px;line-height:1.5}
 .reveal .rtxt .lesson{display:block;margin-top:6px;color:var(--muted);font-size:13px;font-style:italic}
 .reveal.placeholder{border-style:dashed;color:var(--muted-2)}
@@ -325,6 +313,9 @@ body.board .vote-badge{
    END SCREEN
    ============================================================ */
 .end{max-width:900px;margin:0 auto}
+.end-app{display:flex;flex-direction:column;align-items:center;gap:12px;margin:6px 0 22px}
+.end-app-cap{font-size:15px;font-weight:800;color:var(--muted)}
+.end-app .phone{max-width:340px}
 .end-head{text-align:center;padding:16px 10px 4px}
 .end-head .rico{width:74px;height:74px;border-radius:22px;display:inline-grid;place-items:center;font-size:38px;margin-bottom:6px}
 .end-head.win .rico{background:var(--green-dim);color:var(--green)}
@@ -345,20 +336,19 @@ body.board .vote-badge{
 .map .step .n{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font-size:12px;font-weight:900;flex:none;color:#08122b}
 .map .step.advance{border-color:rgba(53,208,127,.4)} .map .step.advance .n{background:var(--green)}
 .map .step.setback{border-color:rgba(255,92,108,.4)} .map .step.setback .n{background:var(--red)}
-.map .step.discipline{border-color:rgba(74,168,255,.4)} .map .step.discipline .n{background:var(--blue)}
 .map .step .delta{font-weight:900;font-size:11px;margin-inline-start:6px}
-.map .step.advance .delta{color:var(--green)} .map .step.setback .delta{color:var(--red)} .map .step.discipline .delta{color:var(--muted-2)}
+.map .step.advance .delta{color:var(--green)} .map .step.setback .delta{color:var(--red)}
 .map .step .st{font-size:12px;font-weight:700;line-height:1.3}
 .map .step .sc{font-size:10.5px;color:var(--muted-2);font-weight:800;margin-top:3px}
 .map-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12.5px;color:var(--muted)}
 .map-legend span{display:inline-flex;align-items:center;gap:6px}
 .map-legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
-.map-legend .g{background:var(--green)}.map-legend .r{background:var(--red)}.map-legend .b{background:var(--blue)}
+.map-legend .g{background:var(--green)}.map-legend .r{background:var(--red)}
 
 .tally{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
 .tally .t{flex:1 1 120px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .tally .t .num{font-size:26px;font-weight:900;line-height:1}
-.tally .t.g .num{color:var(--green)}.tally .t.r .num{color:var(--red)}.tally .t.b .num{color:var(--blue)}
+.tally .t.g .num{color:var(--green)}.tally .t.r .num{color:var(--red)}
 .tally .t .lb{color:var(--muted);font-size:12.5px;font-weight:700;margin-top:3px}
 
 .progbar{height:14px;border-radius:999px;background:var(--panel-3);overflow:hidden;margin-top:6px;border:1px solid var(--line)}
@@ -370,8 +360,6 @@ body.board .vote-badge{
 .debrief-list{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:10px}
 .debrief-list li{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:13px 15px;font-size:14.5px;display:flex;gap:11px;align-items:flex-start}
 .debrief-list li .qm{color:var(--purple);font-weight:900;font-size:18px;flex:none;line-height:1.2}
-.handoff{background:linear-gradient(120deg,var(--blue-dim),transparent);border:1px solid rgba(74,168,255,.4);text-align:center;font-size:16px;line-height:1.55;font-weight:600}
-.handoff .icon{color:var(--blue)}
 .end-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:22px 0 4px}
 
 .hidden{display:none !important}
@@ -422,58 +410,45 @@ function ic(id){return '<svg class="icon" aria-hidden="true"><use href="#i-'+id+
    To make a new scenario: add an object to CONFIG.scenarios.
    Engine below never needs to change.
    ------------------------------------------------------------
-   state:  { id, name, progress(0-100), looksFine, mock(HTML),
-             testReveal, choices:[...] }
+   state:  { id, name, progress(0-100), mock(HTML), choices:[...] }
    choice: { label, type:'small'|'greedy'|'vague',
              to, cost=1, reveal, lesson?, comicBeat?, outcome? }
      outcome (for the end-screen map) is inferred from type when
      omitted: small->advance, greedy/vague->repair. Set it
      explicitly for "small repair" steps (untangling) => 'repair'.
-   Discipline moves (save / test / restore) are engine-level and
-   available every turn from the bar under the phone.
    ============================================================ */
 const CONFIG = {
   meta:{
     title:"Build Simulator",
     kicker:"Entrepreneurship Camp · Building with AI",
     lead:"You're a team building an app with AI. Each turn you pick the next prompt — and the screen changes based on what you asked for. The goal: reach a working first screen before you run out of turns.",
-    golden:"The golden rule: at the start — give full context all at once. Once something works — a focused step, a test, a save.",
-    turns:9,
-    disciplineCost:1
+    golden:"The golden rule: at the start, give full context all at once. Once something works, switch to a focused step.",
+    turns:9
   },
   ui:{
     turnsLabel:"turns left", goalLabel:"Goal",
-    save:"Save version", saveSub:"Save current state",
-    test:"Test what works", testSub:"Expose hidden bugs",
-    restore:"Restore version", restoreSub:"Go back to saved state",
-    slotEmpty:"No saved version", slotLabel:"Saved version",
     promptTitle:"What's your next prompt?",
     promptHint:"Read and decide — the right choice depends on the build stage, not on the card type. Every choice costs a turn.",
     revealPlaceholder:"Pick a prompt and the AI will build. What happens will show up here.",
     boardBanner:"Class / Board mode — the class votes by show of hands, the facilitator clicks the winning card.",
     voteHint:"Vote by raising hands",
     costTurn:"turn",
-    testGenericFine:"You tested — everything seems to work. Sometimes a test just confirms you're on track. It still cost one turn.",
-    saveDone:"Saved. One turn now — insurance for everything that comes next. If something breaks, you can come back here in one turn.",
-    restoreDone:"You went back to the saved version. Everything that broke since then — gone. One turn, not three.",
-    restoreNone:"There's no saved version to go back to. Saving is what turns 'broken' into one turn instead of three.",
     winTitle:"You reached a working first screen!",
     winSub:"You built an app that works — step by step.",
+    endAppWin:"The app you built", endAppLose:"Here's what you managed to build",
     loseTitle:"Not this time", loseSub:"You ran out of turns — but look how close you got, and where your turns leaked away.",
-    mapTitle:"Turn Map", mapSub:"Every turn you took — green=progress, red=repair/waste, blue=discipline. This is where you can see where your turns leaked.",
+    mapTitle:"Turn Map", mapSub:"Every turn you took — green=progress, red=repair/waste. This is where you can see where your turns leaked.",
     progTitle:"How close you got to the goal",
     payoffTitle:"What you did",
-    payoff:"You worked like a team building with AI — full context at the start, then a focused step, a test and a save. You learned that the right prompt depends on the stage: what wins at the start breaks things at the end. That's exactly the process you'll use in a moment on your own real app.",
-    debriefTitle:"Wrap-up discussion (out loud, no typing)",
+    payoff:"You worked like a team building with AI: full context at the start, then a focused, precise step. You learned that the right prompt depends on the stage: what wins at the start breaks things at the end. That's exactly the process you'll use in a moment on your own real app.",
+    debriefTitle:"Wrap-up discussion",
     debrief:[
       "When is it worth asking for a lot at once — and when is one small, focused step better?",
       "Which choice cost you the most — and what will you do differently in the real build?",
-      "When is it worth 'wasting' a turn on saving or testing?"
+      "What made you decide it was time to switch from a broad prompt to a focused step?"
     ],
-    handoffTitle:"The next step — for real",
-    handoff:"Now we open the real tool. Same rules: at the start, give full context and ask for a lot; once something works — a focused step, test, save.",
     replay:"Play again", switchScenario:"Another scenario", newGame:"New game",
-    turnsUsed:"Turns used", advances:"Progress", repairs:"Repairs/waste", discipline:"Discipline moves"
+    turnsUsed:"Turns used", advances:"Progress", repairs:"Repairs/waste"
   },
 
   scenarios:[
@@ -492,15 +467,14 @@ const CONFIG = {
         /* ---------- SCAFFOLD PHASE: broad+specified is the fast, correct move;
              broad+vague is the trap; focused works but is slower ---------- */
         {
-          id:"empty", name:"Empty screen", progress:0, looksFine:true,
-          testReveal:"Nothing to test yet — the screen is empty. But it's a good habit. Cost one turn.",
+          id:"empty", name:"Empty screen", progress:0,
           mock:`<div class="a-empty"><div class="big">${ic('screen')}</div><b>Empty screen</b><span>You haven't asked the AI for anything yet</span></div>`,
           choices:[
             {scope:"broad", style:"specified", outcome:"advance", to:"scaffold-rich",
              label:"Build a complete first screen: a 'CoolSpot' title, a sample list of activities, and a 'Suggest an activity' button that opens a form to add one — all on one screen.",
              asksFor:"Asks for: a full screen, with details of what each part does",
              reveal:"A rich, clear first prompt — and in one turn the AI built an almost complete screen. At the start, when there's nothing to break yet, the more context you give, the more you get at once.",
-             lesson:"At the start of a build — full context is your biggest advantage. A lot got built just now; it's also worth testing that it all really works."},
+             lesson:"At the start of a build — full context is your biggest advantage. A lot got built just now; it's also worth checking that it all really works."},
             {scope:"broad", style:"vague", outcome:"setback", to:"everything-half", comicBeat:true,
              label:"Build the whole app: home, list, profile and chat — everything, however you like.",
              asksFor:"Asks for: 4 screens, without saying what each one does",
@@ -520,8 +494,7 @@ const CONFIG = {
           ]
         },
         {
-          id:"home-title", name:"Home — title", progress:15, looksFine:true,
-          testReveal:"You tested: the title displays nicely, the screen loads. Everything's fine here. Cost one turn.",
+          id:"home-title", name:"Home — title", progress:15,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>CoolSpot</div><div class="a-sub">Recommend free leisure activities in your neighborhood</div></div>
                 <div class="a-empty"><div class="big">${ic('heart')}</div><b>No recommendations yet</b><span>A button to suggest an activity is coming soon</span></div>`,
           choices:[
@@ -543,8 +516,7 @@ const CONFIG = {
           ]
         },
         {
-          id:"home-button", name:"Home — button", progress:30, looksFine:true,
-          testReveal:"You tested: you clicked 'Suggest an activity' — the button responds and highlights. It doesn't open anything yet, because you didn't start on that. All as expected. Cost one turn.",
+          id:"home-button", name:"Home — button", progress:30,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>CoolSpot</div><div class="a-sub">Recommend free leisure activities in your neighborhood</div></div>
                 <div class="a-pad" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px">
                   <div class="a-empty" style="padding:10px"><div class="big">${ic('heart')}</div><b>No recommendations yet</b><span>Be the first to suggest an activity</span></div>
@@ -570,8 +542,7 @@ const CONFIG = {
         },
         {
           /* HIDDEN BREAKAGE: pretty form, submits nowhere. Only test reveals it. */
-          id:"home-form", name:"Home — form", progress:45, looksFine:false,
-          testReveal:"The test exposed a hidden bug: you filled in the form, clicked 'Send' — and nothing happened. The form looks nice but isn't connected to anything. Good thing you tested now, before building on top of it. Cost one turn.",
+          id:"home-form", name:"Home — form", progress:45,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>CoolSpot</div></div>
                 <div class="a-pad"><div class="a-label">Activity name</div><div class="a-field">e.g. Basketball in the park</div>
                 <div class="a-label">Where?</div><div class="a-field">Place name / address</div>
@@ -585,7 +556,7 @@ const CONFIG = {
             {scope:"focused", style:"specified", outcome:"setback", to:"list-cosmetic-broken",
              label:"Add more sample activities to the list so the screen looks full and impressive.",
              asksFor:"Asks for: one thing, clearly defined",
-             reveal:"Looks like progress — but you added content on top of a form that doesn't save anything. Now the list is full of fake activities, and you can't really add to them.",
+             reveal:"Looks like progress — but you added content on top of a form that doesn't save anything. Now the list is full of fake activities that you can't really add to.",
              lesson:"A test would have shown the form was dead — and saved you from building on top of it."},
             {scope:"broad", style:"specified", outcome:"advance", to:"core-working",
              label:"Connect everything: the form saves, the list shows what was saved, and a confirmation appears — with details of what happens at each step.",
@@ -601,8 +572,7 @@ const CONFIG = {
         },
         {
           /* FAST-PATH LANDING: rich scaffold built in one broad turn — but same hidden dead form */
-          id:"scaffold-rich", name:"Rich scaffold", progress:55, looksFine:false,
-          testReveal:"The test exposed a hidden bug: the screen looks full and impressive — title, list, button — but when you fill in the form and click 'Send', nothing is saved. The form isn't connected. The AI built a lot, fast, and some of it doesn't really work. Good thing you tested. Cost one turn.",
+          id:"scaffold-rich", name:"Rich scaffold", progress:55,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>CoolSpot</div><div class="a-sub">Hot picks in the neighborhood</div></div>
                 <div class="a-pad" style="flex:1">
                   <div class="a-card"><div class="t">Basketball in the park</div><div class="d">Riverside Park · Free</div></div>
@@ -634,8 +604,7 @@ const CONFIG = {
         },
         {
           /* CONVERGENCE + PHASE FLIP: a working core action exists. Now surgical wins, broad breaks. */
-          id:"core-working", name:"Working action", progress:75, looksFine:true,
-          testReveal:"You tested: you suggested an activity, got a confirmation, and it appeared in the list. This time everything is connected and works. Just polish left. Cost one turn.",
+          id:"core-working", name:"Working action", progress:75,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>CoolSpot</div><div class="a-sub">Hot picks in the neighborhood</div></div>
                 <div class="a-toast">${ic('check')} Activity added!</div>
                 <div class="a-pad" style="flex:1">
@@ -661,7 +630,7 @@ const CONFIG = {
              lesson:"This is the heart of it: the same broadness that won on turn 1 breaks things on this turn. The phase decides, not the size."},
             {scope:"focused", style:"vague", outcome:"setback", to:"vague-moved",
              label:"Make it look nicer.",
-             asksFor:"Asks for: 'nice', without details",
+             asksFor:"Asks for: 'pretty', without details",
              reveal:"The AI guessed what 'nice' means and moved the button and the list. On a screen that worked, that just put what was ready at risk.",
              lesson:"The further you get, the riskier vague becomes — there's more to break."}
           ]
@@ -669,7 +638,7 @@ const CONFIG = {
 
         /* ---------- GOAL ---------- */
         {
-          id:"first-screen-working", name:"Working first screen", progress:100, looksFine:true, goal:true,
+          id:"first-screen-working", name:"Working first screen", progress:100, goal:true,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>CoolSpot</div><div class="a-sub">Hot picks in your neighborhood</div></div>
                 <div class="a-pad" style="flex:1">
                   <div class="a-card"><div class="t">Basketball in the park</div><div class="d">Riverside Park · Free · Every afternoon</div></div>
@@ -683,8 +652,7 @@ const CONFIG = {
 
         /* ---------- SETBACK / RECOVERY (never a dead end; the cost is the lesson) ---------- */
         {
-          id:"everything-half", name:"Everything-half-done", progress:12, looksFine:false,
-          testReveal:"The test confirms the mess: of the three 'Send' buttons, one sends, one deletes and the third doesn't respond. The profile opens inside the chat. No screen is complete.",
+          id:"everything-half", name:"Everything-half-done", progress:12,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>CoolSpot</div><div class="a-sub" style="color:#c23b48">Home · List · Profile · Chat — all at once</div></div>
                 <div class="a-pad a-messy" style="flex:1">
                   <div class="a-card a-broken"><div class="t">Profile (accidentally opens inside the chat)</div><div class="d">Buttons that don't work</div></div>
@@ -707,8 +675,7 @@ const CONFIG = {
           ]
         },
         {
-          id:"everything-worse", name:"Everything-even-worse", progress:8, looksFine:false,
-          testReveal:"Four 'Send' buttons, two of which delete things. The mess grew. You need to take it apart manually.",
+          id:"everything-worse", name:"Everything-even-worse", progress:8,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>CoolSpot</div><div class="a-sub" style="color:#c23b48">Status: even messier</div></div>
                 <div class="a-pad a-messy" style="flex:1">
                   <div class="a-card a-broken"><div class="t">Four 'Send' buttons</div><div class="d">Two delete instead of sending</div></div>
@@ -725,8 +692,7 @@ const CONFIG = {
           ]
         },
         {
-          id:"untangle-1", name:"Clean base", progress:26, looksFine:true,
-          testReveal:"You tested: a clean home screen with a title is left. The mess is gone. You can continue from here. Cost one turn.",
+          id:"untangle-1", name:"Clean base", progress:26,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>CoolSpot</div><div class="a-sub">Back to a clean base</div></div>
                 <div class="a-warn">${ic('warn')} We cleaned up the mess. From here, we continue carefully.</div>
                 <div class="a-empty" style="padding:20px"><div class="big">${ic('heart')}</div><b>Clean home screen</b><span>Now we build carefully</span></div>`,
@@ -744,8 +710,7 @@ const CONFIG = {
           ]
         },
         {
-          id:"list-cosmetic-broken", name:"Content on a dead form", progress:50, looksFine:false,
-          testReveal:"The test confirms it: the list is full of nice-looking fake activities — but the form's 'Send' button doesn't add a single one. You built a display on top of a foundation that isn't connected.",
+          id:"list-cosmetic-broken", name:"Content on a dead form", progress:50,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>CoolSpot</div></div>
                 <div class="a-pad" style="flex:1">
                   <div class="a-card"><div class="t">Fake activity 1</div><div class="d">Looks good — but wasn't really added</div></div>
@@ -761,8 +726,7 @@ const CONFIG = {
           ]
         },
         {
-          id:"list-cosmetic-fix", name:"Fixing the foundation", progress:62, looksFine:true,
-          testReveal:"You tested: the fake content is gone, the form is on its own and ready to connect. Cost one turn.",
+          id:"list-cosmetic-fix", name:"Fixing the foundation", progress:62,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>CoolSpot</div></div>
                 <div class="a-warn">${ic('warn')} We removed the fake activities. Now we're connecting the form properly.</div>
                 <div class="a-pad"><div class="a-label">Activity name</div><div class="a-field">Basketball in the park</div>
@@ -776,8 +740,7 @@ const CONFIG = {
           ]
         },
         {
-          id:"overbuilt", name:"Overbuilt", progress:40, looksFine:false,
-          testReveal:"The test confirms it: the profile, chat and map took over the screen, and the list that worked got pushed aside and broke. The 'Suggest an activity' button is hidden. Too much at once broke what worked.",
+          id:"overbuilt", name:"Overbuilt", progress:40,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>CoolSpot</div><div class="a-sub" style="color:#c23b48">Profile · Chat · Map · Notifications — crammed onto the screen that worked</div></div>
                 <div class="a-pad a-messy" style="flex:1">
                   <div class="a-card a-broken"><div class="t">Chat that opens over the list</div><div class="d">The list that worked got pushed aside and broke</div></div>
@@ -787,13 +750,12 @@ const CONFIG = {
             {scope:"focused", style:"specified", outcome:"setback", to:"untangle-2",
              label:"Undo the profile, chat and map. Go back to the screen that worked.",
              asksFor:"Asks for: remove the add-ons, precisely",
-             reveal:"You started removing what you crammed in. If you had saved a version first — 'Restore version' would have brought you back in one turn instead of two.",
-             lesson:"Saving before a broad move = a one-turn lifeline."}
+             reveal:"You started removing what you crammed in. It costs a turn to take it apart, and another turn to reconnect what worked.",
+             lesson:"Going broad at the wrong moment costs several turns to fix."}
           ]
         },
         {
-          id:"untangle-2", name:"Cleaning up add-ons", progress:58, looksFine:true,
-          testReveal:"You tested: the add-ons are removed, the screen is clean again, and the action just needs reconnecting. Cost one turn.",
+          id:"untangle-2", name:"Cleaning up add-ons", progress:58,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>CoolSpot</div><div class="a-sub">Back to a clean screen</div></div>
                 <div class="a-warn">${ic('warn')} We removed the profile, chat and map. Now we're bringing back the action that worked.</div>
                 <div class="a-pad"><div class="a-card"><div class="t">Basketball in the park</div><div class="d">Riverside Park · Free</div></div>
@@ -802,13 +764,12 @@ const CONFIG = {
             {scope:"focused", style:"specified", outcome:"advance", to:"core-working",
              label:"Reconnect: the form saves an activity and it appears in the list.",
              asksFor:"Asks for: one precise fix",
-             reveal:"You're back to a working screen. The greedy phase cost you two turns — exactly what a saved version would have saved you.",
+             reveal:"You're back to a working screen, after two turns spent on fixing.",
              lesson:"Broad at the wrong time was expensive. Focused brought you back."}
           ]
         },
         {
-          id:"pretty-mess", name:"Vague 'nice'", progress:6, looksFine:true,
-          testReveal:"You tested: the screen is covered in pink stripes, a giant title, and still no content. Nice isn't useful. Cost one turn.",
+          id:"pretty-mess", name:"Vague 'nice'", progress:6,
           mock:`<div class="a-head a-ugly"><div class="a-logo" style="font-size:26px">CoolSpot!!!</div></div>
                 <div class="a-ugly" style="flex:1;display:flex;align-items:center;justify-content:center;color:#c26bd1;font-weight:800;text-align:center;padding:20px">
                   Pink stripes and a giant title — but nothing actually does anything
@@ -827,8 +788,7 @@ const CONFIG = {
           ]
         },
         {
-          id:"vague-moved", name:"'Improvement' that moved things", progress:24, looksFine:false,
-          testReveal:"The test exposed it: the 'improvement' moved an element that worked and hid part of it. You need to put it back manually.",
+          id:"vague-moved", name:"'Improvement' that moved things", progress:24,
           mock:`<div class="a-pad" style="flex:1;display:flex;flex-direction:column;justify-content:space-between">
                   <button class="a-btn" style="margin-top:10px">A button that jumped to the top</button>
                   <div class="a-warn">${ic('warn')} The 'improvement' moved things that worked. Something is now hidden under a field.</div>
@@ -857,118 +817,180 @@ const CONFIG = {
       goalText:"A working home screen with one core action: mark when I'm free",
       startStateId:"p-empty",
       states:[
+        /* ---------- SCAFFOLD PHASE: broad+specified is the fast, correct move;
+             broad+vague is the trap; focused works but is slower ---------- */
         {
-          id:"p-empty", name:"Empty screen", progress:0, looksFine:true,
-          testReveal:"Nothing to test yet — the screen is empty. But it's a good habit. Cost one turn.",
+          id:"p-empty", name:"Empty screen", progress:0,
           mock:`<div class="a-empty"><div class="big">${ic('cal')}</div><b>Empty screen</b><span>You haven't asked the AI for anything yet</span></div>`,
           choices:[
-            {label:"Build a home screen with the title 'WhenFree' and a short explanation sentence", type:"small", to:"p-title",
-             reveal:"One clear step — a title and a sentence. The AI built exactly that.",
-             lesson:"Start with one clearly defined thing."},
-            {label:"Build everything: a weekly calendar, friends list, notifications and meetups", type:"greedy", to:"p-everything", comicBeat:true,
-             reveal:"You asked for everything at once — and got everything half-done. Now there are three 'Save' buttons, each saving a different day, and the friends list is open inside the calendar.",
-             lesson:"Five things in one sentence — the AI got confused, not you."},
-            {label:"Make it clean and modern", type:"vague", to:"p-pretty",
-             reveal:"'Clean and modern' isn't an instruction. The AI deleted most of the text and left a gray, empty screen that looks 'modern' but does nothing.",
-             lesson:"Vague = the AI guesses, and usually gets it wrong."}
+            {scope:"broad", style:"specified", outcome:"advance", to:"p-scaffold-rich",
+             label:"Build a complete home screen: a 'WhenFree' title, a row of days Sun–Sat you can mark as free, and a 'Save' button — all on one screen.",
+             asksFor:"Asks for: a full screen, with details of what each part does",
+             reveal:"A rich, clear first prompt — and in one turn the AI built an almost complete screen: a title, days to mark and a save button. At the start, when there's nothing to break yet, the more context you give, the more you get at once.",
+             lesson:"At the start of a build — full context is your biggest advantage. A lot got built just now; it's also worth checking that it all really works."},
+            {scope:"broad", style:"vague", outcome:"setback", to:"p-everything", comicBeat:true,
+             label:"Build the whole app: calendar, friends, notifications and meetups — everything, however you like.",
+             asksFor:"Asks for: 4 screens, without saying what each one does",
+             reveal:"Broad isn't the problem — you didn't say what each part does or how they connect, so the AI made big guesses. Now there are three 'Save' buttons, each doing something different, and the friends list opens inside the calendar.",
+             revealPlain:"Another broad prompt with no details — the AI made big guesses and everything came out half-done. Broad without context = chaos, not magic.",
+             lesson:"The difference between a winning first prompt and a messy one isn't size — it's detail."},
+            {scope:"focused", style:"specified", outcome:"advance", to:"p-title",
+             label:"Build just a 'WhenFree' title with a short explanation sentence.",
+             asksFor:"Asks for: one thing, clearly defined",
+             reveal:"It works — clean and precise. But on the first turn, when there's nothing to protect yet, you could have asked for much more at once. Small steps will really shine later, when there's something to protect.",
+             lesson:"A small step is a great tool — just not the most efficient opening move."},
+            {scope:"focused", style:"vague", outcome:"setback", to:"p-pretty",
+             label:"Make it clean and modern.",
+             asksFor:"Asks for: 'clean and modern', without saying what exactly",
+             reveal:"'Clean and modern' isn't an instruction. The AI deleted most of the text and left a gray, empty screen. Clean? Maybe. Useful? Not at all.",
+             lesson:"Vague invites the AI to guess — and usually not what you imagined."}
           ]
         },
         {
-          id:"p-title", name:"Home — title", progress:18, looksFine:true,
-          testReveal:"You tested: the title displays, the screen loads fine. Cost one turn.",
+          id:"p-title", name:"Home — title", progress:18,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>WhenFree</div><div class="a-sub">Mark when you're free and find a shared time with friends</div></div>
                 <div class="a-empty"><div class="big">${ic('cal')}</div><b>You haven't marked any times yet</b><span>A weekly calendar is coming soon</span></div>`,
           choices:[
-            {label:"Add a row of days: Sun–Sat as buttons", type:"small", to:"p-days",
-             reveal:"A clean row of days was added, Sun to Sat. You can't click them yet — one step at a time.",
-             lesson:"Structure first, behavior after."},
-            {label:"Add the calendar, the friends and the notifications too, right now", type:"greedy", to:"p-everything",
-             reveal:"All-at-once again. The calendar, friends and notifications got crammed together, and the title that worked vanished under the pile.",
-             lesson:"Every big addition gets tangled with what already worked."},
-            {label:"Improve the design", type:"vague", to:"p-vague-moved",
-             reveal:"The AI 'improved' it: moved the title to the side and added a dark background that swallows the text. What worked — moved and disappeared.",
-             lesson:"'Improve' without details = changes you didn't ask for."}
+            {scope:"broad", style:"specified", outcome:"advance", to:"p-scaffold-rich",
+             label:"Now build the rest of the screen: a row of days Sun–Sat to mark and a 'Save' button.",
+             asksFor:"Asks for: several parts together, with details",
+             reveal:"Still in the scaffold stage — and there's nothing to break. The broad, detailed prompt jumped you forward all at once. This is exactly the time to think big.",
+             lesson:"As long as you're setting up the scaffold — broad, detailed context is the fast way."},
+            {scope:"focused", style:"specified", outcome:"advance", to:"p-days",
+             label:"Add a row of days: Sun–Sat as buttons.",
+             asksFor:"Asks for: one thing, clearly defined",
+             reveal:"A clean row of days was added, Sun to Sat. You can't click them yet — one step at a time. It works, but again you spent a whole turn on a small step.",
+             lesson:"Precise always works; just think about how much you can ask for at once at this stage."},
+            {scope:"broad", style:"vague", outcome:"setback", to:"p-everything",
+             label:"Add the calendar, the friends and the notifications too, right now.",
+             asksFor:"Asks for: lots of screens, without details",
+             reveal:"Broad again with no context. The calendar, friends and notifications got crammed on top of each other, and the title that worked vanished under the pile.",
+             lesson:"Broad without details gets tangled — even with what already worked."}
           ]
         },
         {
-          id:"p-days", name:"Home — days", progress:32, looksFine:true,
-          testReveal:"You tested: the day buttons display and highlight when clicked. They don't save anything yet — because you didn't start on that. All as expected. Cost one turn.",
+          id:"p-days", name:"Home — days", progress:32,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>WhenFree</div><div class="a-sub">Which days are you free this week?</div></div>
                 <div class="a-pad">
                   <span class="a-chip">Sun</span><span class="a-chip">Mon</span><span class="a-chip">Tue</span><span class="a-chip">Wed</span><span class="a-chip">Thu</span><span class="a-chip">Fri</span><span class="a-chip">Sat</span>
                 </div>
                 <div class="a-empty" style="padding:14px"><div class="big">${ic('clock')}</div><span>Pick a day to mark that you're free</span></div>`,
           choices:[
-            {label:"Clicking a day should mark it as 'free' and highlight it", type:"small", to:"p-toggle",
-             reveal:"Now clicking a day highlights it in green as 'free'. One clear action.",
-             lesson:"One behavior at a time."},
-            {label:"Add saving, friends, sharing and calendar merging — everything", type:"greedy", to:"p-everything",
-             reveal:"A whole package in one prompt — and everything's half-done. Saving is tied to sharing, merging breaks the calendar, and the day buttons stopped responding.",
-             lesson:"Features built together in a rush break together."},
-            {label:"Make the days more colorful and fun", type:"vague", to:"p-vague-moved",
-             reveal:"The AI colored each day a different color — and also made them so big that only three fit on the screen. The rest got cut off.",
-             lesson:"Vague = you also get what you didn't ask for."}
+            {scope:"focused", style:"specified", outcome:"advance", to:"p-toggle",
+             label:"Clicking a day should mark it as 'free' and highlight it.",
+             asksFor:"Asks for: one behavior, clearly defined",
+             reveal:"Now clicking a day highlights it in green as 'free'. Exactly what you asked for.",
+             lesson:"One behavior for one button — a precise step."},
+            {scope:"broad", style:"specified", outcome:"advance", to:"p-scaffold-rich",
+             label:"Now build marking and saving together: clicking a day marks it, and a 'Save' button saves the selection.",
+             asksFor:"Asks for: two parts together, with details",
+             reveal:"Still scaffolding, still detailed — so going broad paid off. You got marking and saving at once and jumped forward.",
+             lesson:"While setting up the scaffold, you can bundle several parts into one detailed prompt."},
+            {scope:"focused", style:"vague", outcome:"setback", to:"p-vague-moved",
+             label:"Make the days stand out more and look more inviting.",
+             asksFor:"Asks for: 'stand out', without saying how",
+             reveal:"The AI guessed what 'stand out' means: it made the days bigger and colored them loudly — and along the way moved the row of days below the title. Something that worked — moved.",
+             lesson:"Vague changes things you didn't ask to change."}
           ]
         },
         {
           /* HIDDEN BREAKAGE: highlight works visually but selection isn't stored */
-          id:"p-toggle", name:"Home — marking", progress:47, looksFine:false,
-          testReveal:"The test exposed a hidden bug: the day turns green when you click it — but if you leave the screen and come back, the mark disappears. The selection isn't saved at all. Good thing you tested before building a summary on top of it. Cost one turn.",
+          id:"p-toggle", name:"Home — marking", progress:47,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>WhenFree</div><div class="a-sub">Pick your free days</div></div>
                 <div class="a-pad">
                   <span class="a-chip" style="background:#dff5e8;color:#177a4b">Sun ✓</span><span class="a-chip">Mon</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">Tue ✓</span><span class="a-chip">Wed</span><span class="a-chip">Thu</span><span class="a-chip">Fri</span><span class="a-chip">Sat</span>
                 </div>
                 <div class="a-empty" style="padding:14px"><span>The days are highlighted — but what happens when you come back to the screen?</span></div>`,
           choices:[
-            {label:"Connect the marking: the selection should be saved and stay even after leaving", type:"small", to:"p-toggle-fixed",
-             reveal:"Now the marking is really saved: leave and come back — your free days are still there. That's the step that was missing.",
-             lesson:"The boring step — saving — is usually the critical one."},
-            {label:"Already add a 'Shared time' screen that shows when everyone is free", type:"small", to:"p-summary-broken", outcome:"repair",
-             reveal:"You built a summary screen on top of marking that isn't saved. The result: 'Shared time' always shows empty, because there's no saved data. A second floor on a foundation that hasn't set.",
-             lesson:"A test would have shown that the marking isn't saved — before you built on top of it."},
-            {label:"Make this screen prettier", type:"vague", to:"p-vague-moved",
+            {scope:"focused", style:"specified", outcome:"advance", to:"p-core-working",
+             label:"Connect the marking: the selection should be saved, stay even after leaving, and show in a live summary.",
+             asksFor:"Asks for: one precise fix",
+             reveal:"Now the marking is really saved: leave and come back — your free days are still there, and a live summary shows them. That's the step that held everything together.",
+             lesson:"Now that there's a base — the focused, precise step is the winner."},
+            {scope:"focused", style:"specified", outcome:"setback", to:"p-summary-broken",
+             label:"Already add a 'Shared time' screen that shows when everyone is free.",
+             asksFor:"Asks for: one thing, clearly defined",
+             reveal:"Looks like progress — but you added a summary screen on top of marking that isn't saved. Now 'Shared time' always shows empty, because there's no saved data.",
+             lesson:"A test would have shown that the marking isn't saved — and saved you from building on top of it."},
+            {scope:"broad", style:"specified", outcome:"advance", to:"p-core-working",
+             label:"Connect everything: the marking is saved, a live summary is shown, and a confirmation appears — with details of what happens at each step.",
+             asksFor:"Asks for: several parts, with full details",
+             reveal:"Nothing was connected yet that could break, so the detailed broad prompt worked — marking, saving and the summary were wired together. This is the last time broad is safe here.",
+             lesson:"Once you have an action that works — a broad prompt starts putting it at risk."},
+            {scope:"focused", style:"vague", outcome:"setback", to:"p-vague-moved",
+             label:"Make this screen prettier.",
+             asksFor:"Asks for: 'pretty', without details",
              reveal:"The AI padded it with colors, and along the way hid some of the days behind a decorative card. Now you can't click some of them — and that's before anything is even saved.",
              lesson:"Vague on something fragile = more fragile."}
           ]
         },
         {
-          id:"p-toggle-fixed", name:"Marking saved", progress:64, looksFine:true,
-          testReveal:"You tested: you marked days, left and came back — the marks stayed. This time it really works. Cost one turn.",
-          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>WhenFree</div></div>
-                <div class="a-toast">${ic('check')} Your free days were saved!</div>
+          /* FAST-PATH LANDING: rich scaffold built in one broad turn — but same hidden dead selection */
+          id:"p-scaffold-rich", name:"Rich scaffold", progress:55,
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>WhenFree</div><div class="a-sub">Pick your free days</div></div>
                 <div class="a-pad">
-                  <span class="a-chip" style="background:#dff5e8;color:#177a4b">Sun ✓</span><span class="a-chip">Mon</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">Tue ✓</span><span class="a-chip">Wed</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">Thu ✓</span><span class="a-chip">Fri</span><span class="a-chip">Sat</span>
-                </div>`,
+                  <span class="a-chip" style="background:#dff5e8;color:#177a4b">Sun ✓</span><span class="a-chip">Mon</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">Tue ✓</span><span class="a-chip">Wed</span><span class="a-chip">Thu</span><span class="a-chip">Fri</span><span class="a-chip">Sat</span>
+                </div>
+                <div class="a-pad" style="padding-top:0"><button class="a-btn">${ic('save')} Save</button></div>`,
           choices:[
-            {label:"Show a summary below: 'You're free on: Sun, Tue, Thu'", type:"small", to:"p-summary",
-             reveal:"A live summary was added under the calendar: 'You're free on: Sun, Tue, Thu'. It updates based on what's saved. It's real, because the marking is connected.",
-             lesson:"When the foundation is set, every floor goes up smoothly."},
-            {label:"Add friends, calendar merging, chat and notifications — everything", type:"greedy", to:"p-everything",
-             reveal:"You had working marking — and then asked for four features together. Now merging deletes days, notifications break the calendar, and the marking that worked is broken.",
-             lesson:"Even on a working base, greed wrecks what worked."}
+            {scope:"focused", style:"specified", outcome:"advance", to:"p-core-working",
+             label:"Connect marking to saving: what you mark is saved and appears in the summary.",
+             asksFor:"Asks for: one precise fix",
+             reveal:"You connected the part that was disconnected. Now when you mark a day — it's really saved and shows up in the summary. The scaffold turned into a calendar that works.",
+             lesson:"After a broad prompt — the focused fix that connects the parts is gold."},
+            {scope:"focused", style:"specified", outcome:"setback", to:"p-summary-broken",
+             label:"Go ahead and add a 'Shared time' screen that shows when everyone's free.",
+             asksFor:"Asks for: one thing, clearly defined",
+             reveal:"You added a summary screen — but the marking still isn't saved. Now there's a 'Shared time' screen that's always empty, and the real problem just got hidden.",
+             lesson:"Without testing, it's easy to keep adding on top of something broken without knowing."},
+            {scope:"broad", style:"specified", outcome:"setback", to:"p-overbuilt",
+             label:"Now add friends, notifications, a map and chat — everything.",
+             asksFor:"Asks for: 4 features at once",
+             reveal:"You already have a scaffold now — and a broad prompt put it at risk. The friends list opened over the calendar, the notifications broke the marking. The phase is changing: from here on, broad breaks things.",
+             lesson:"Once there's something to protect — broad stops being your friend."},
+            {scope:"focused", style:"vague", outcome:"setback", to:"p-vague-moved",
+             label:"Improve the screen so it looks more professional.",
+             asksFor:"Asks for: 'improve', without details",
+             reveal:"The AI 'improved' it: moved the row of days to the top of the screen and shrank the title. Something that worked — moved out of place.",
+             lesson:"'Improve' without details = changes you didn't ask for."}
           ]
         },
         {
-          id:"p-summary", name:"Live summary", progress:84, looksFine:true,
-          testReveal:"You tested: the summary updates based on the days you marked, everything is connected and saved. Just a final polish left. Cost one turn.",
+          /* CONVERGENCE + PHASE FLIP: a working core action exists. Now surgical wins, broad breaks. */
+          id:"p-core-working", name:"Working action", progress:78,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>WhenFree</div><div class="a-sub">Your free times this week</div></div>
+                <div class="a-toast">${ic('check')} Your free days were saved!</div>
                 <div class="a-pad">
                   <span class="a-chip" style="background:#dff5e8;color:#177a4b">Sun ✓</span><span class="a-chip">Mon</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">Tue ✓</span><span class="a-chip">Wed</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">Thu ✓</span><span class="a-chip">Fri</span><span class="a-chip">Sat</span>
                   <div class="a-card" style="margin-top:8px"><div class="t">${ic('check')} You're free on: Sun, Tue, Thu</div><div class="d">Share to find a shared time</div></div>
                 </div>`,
           choices:[
-            {label:"Final polish: a clear title, a tidy calendar, a fixed 'Save' button", type:"small", to:"panuy-goal",
-             reveal:"A working first screen: a weekly calendar, marking that's saved, and a live summary of your free times. One core action — complete.",
-             lesson:"That's a 'working first screen'. One thing, complete."},
-            {label:"Now add friends, a map, chat and notifications", type:"greedy", to:"p-everything",
-             reveal:"You had an almost-ready screen — and asked for four more things. Everything got crammed, the calendar that worked broke, and you're back to a half-built pile.",
-             lesson:"One second before the finish, greed throws you backwards."}
+            {scope:"focused", style:"specified", outcome:"advance", to:"panuy-goal",
+             label:"Final polish: a clear title, a tidy row of days, and a 'Save' button fixed at the bottom.",
+             asksFor:"Asks for: one precise polish",
+             reveal:"A working first screen: a calendar of days, marking that's saved, and a live summary of your free times. One core action — complete.",
+             lesson:"At this stage every focused step adds without risk. That's a 'working first screen'."},
+            {scope:"focused", style:"specified", outcome:"advance", to:"panuy-goal",
+             label:"Rewrite the explanation sentence so it's clear and inviting — without touching anything else.",
+             asksFor:"Asks for: one limited text change",
+             reveal:"You changed exactly one thing — the sentence — and nothing else moved. The screen is ready and working. There are several right ways to finish, and they're all focused.",
+             lesson:"A focused, limited prompt makes it clear exactly what's allowed to change."},
+            {scope:"broad", style:"specified", outcome:"setback", to:"p-overbuilt",
+             label:"Now add friends, a map, chat and notifications — all together.",
+             asksFor:"Asks for: 4 features at once",
+             reveal:"At the start, 'going big' worked for you — but now there's a working calendar, and a broad prompt put it at risk. The marking broke, the save button disappeared. One second before the finish, you went backwards.",
+             lesson:"This is the heart of it: the same broadness that won on turn 1 breaks things on this turn. The phase decides, not the size."},
+            {scope:"focused", style:"vague", outcome:"setback", to:"p-vague-moved",
+             label:"Make it look nicer.",
+             asksFor:"Asks for: 'pretty', without details",
+             reveal:"The AI guessed what 'nice' means and moved the row of days and the save button. On a calendar that worked, that just put what was ready at risk.",
+             lesson:"The further you get, the riskier vague becomes — there's more to break."}
           ]
         },
 
         /* ---------- GOAL ---------- */
         {
-          id:"panuy-goal", name:"Working first screen", progress:100, looksFine:true, goal:true,
+          id:"panuy-goal", name:"Working first screen", progress:100, goal:true,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>WhenFree</div><div class="a-sub">Your free times this week</div></div>
                 <div class="a-pad" style="flex:1">
                   <span class="a-chip" style="background:#dff5e8;color:#177a4b">Sun ✓</span><span class="a-chip">Mon</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">Tue ✓</span><span class="a-chip">Wed</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">Thu ✓</span><span class="a-chip">Fri</span><span class="a-chip">Sat</span>
@@ -979,10 +1001,9 @@ const CONFIG = {
           choices:[]
         },
 
-        /* ---------- REPAIR / SETBACK ---------- */
+        /* ---------- SETBACK / RECOVERY (never a dead end; the cost is the lesson) ---------- */
         {
-          id:"p-everything", name:"Everything-half-done", progress:22, looksFine:false,
-          testReveal:"The test confirms the mess: of the three 'Save' buttons, one saves, one deletes and the third doesn't respond. The friends list is open inside the calendar. No screen is complete.",
+          id:"p-everything", name:"Everything-half-done", progress:22,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>WhenFree</div><div class="a-sub" style="color:#c23b48">Calendar · Friends · Notifications · Meetups — all at once</div></div>
                 <div class="a-pad a-messy" style="flex:1">
                   <div class="a-card a-broken"><div class="t">Friends list (accidentally opened inside the calendar)</div><div class="d">Buttons that don't respond</div></div>
@@ -991,73 +1012,137 @@ const CONFIG = {
                   </div>
                 </div>`,
           choices:[
-            {label:"Let's take it apart: delete everything except the home screen with the title", type:"small", to:"p-untangle", outcome:"repair",
-             reveal:"You started taking it apart — deleted notifications, meetups and friends. You're left with a cleaner base, but it cost a turn, and another one is coming.",
-             lesson:"Untangling a mess takes several turns. Building clean — doesn't."},
-            {label:"Fix it so it works", type:"vague", to:"p-untangle", outcome:"repair",
-             reveal:"'Fix it' on a mess = the AI guessed again and added a fourth 'Save' button to 'unify' them. In the end you had to take it apart manually anyway.",
+            {scope:"focused", style:"specified", outcome:"setback", to:"p-untangle",
+             label:"Let's take it apart: delete everything except the home screen with the title.",
+             asksFor:"Asks for: to take it apart, a precise step",
+             reveal:"You started taking it apart — deleted notifications, meetups and friends. You're left with a cleaner base, but it cost a turn.",
+             lesson:"Untangling a mess takes turns. A detailed first prompt would have saved them."},
+            {scope:"focused", style:"vague", outcome:"setback", to:"p-everything-worse",
+             label:"Fix it so it works.",
+             asksFor:"Asks for: 'fix it', without details",
+             reveal:"'Fix it' on a mess = a bigger mess. The AI added a fourth 'Save' button to 'unify' them. It's not you — it's just guessing.",
              lesson:"Vague on something broken = more broken. You need a precise instruction."}
           ]
         },
         {
-          id:"p-untangle", name:"Taking it apart", progress:28, looksFine:true,
-          testReveal:"You tested: a clean home screen with a title is left, the mess is gone. You can continue step by step. Cost one turn.",
-          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>WhenFree</div><div class="a-sub">Back to a clean base</div></div>
-                <div class="a-warn">${ic('warn')} We cleaned up the mess. From here, we continue one step at a time.</div>
-                <div class="a-empty" style="padding:20px"><div class="big">${ic('cal')}</div><b>Clean home screen</b><span>Now we build slowly and carefully</span></div>`,
+          id:"p-everything-worse", name:"Everything-even-worse", progress:14,
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>WhenFree</div><div class="a-sub" style="color:#c23b48">Status: even messier</div></div>
+                <div class="a-pad a-messy" style="flex:1">
+                  <div class="a-card a-broken"><div class="t">Four 'Save' buttons</div><div class="d">Two delete instead of saving</div></div>
+                  <div class="a-overlap" style="display:flex;flex-direction:column;gap:8px">
+                    <button class="a-btn">Save</button><button class="a-btn">Save</button><button class="a-btn">Save</button><button class="a-btn">Save</button>
+                  </div>
+                </div>`,
           choices:[
-            {label:"Add a row of days Sun–Sat — just one step", type:"small", to:"p-days",
-             reveal:"You're back on the right path: one row of days, clearly defined. Continuing the right way — step by step.",
-             lesson:"The way out of a mess is exactly the way you should have gone from the start."}
+            {scope:"focused", style:"specified", outcome:"setback", to:"p-untangle",
+             label:"Enough guessing — delete everything except the home screen with the title.",
+             asksFor:"Asks for: to take it apart, a precise step",
+             reveal:"Finally, a precise instruction. You deleted everything except the base. You lost another turn on 'fix it' — but now you're back on track.",
+             lesson:"A precise instruction cleans up what 'fix it' only tangled."}
           ]
         },
         {
-          id:"p-summary-broken", name:"Broken summary", progress:50, looksFine:false,
-          testReveal:"The test confirms it: the 'Shared time' screen always shows empty, because the marking underneath was never saved. You built on a foundation that hadn't set.",
+          id:"p-untangle", name:"Taking it apart", progress:28,
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>WhenFree</div><div class="a-sub">Back to a clean base</div></div>
+                <div class="a-warn">${ic('warn')} We cleaned up the mess. From here, we continue carefully.</div>
+                <div class="a-empty" style="padding:20px"><div class="big">${ic('cal')}</div><b>Clean home screen</b><span>Now we build carefully</span></div>`,
+          choices:[
+            {scope:"broad", style:"specified", outcome:"advance", to:"p-scaffold-rich",
+             label:"Now that it's clean — build marking and saving together, with details of what each one does.",
+             asksFor:"Asks for: several parts, with details",
+             reveal:"You're back to a clean base, and here again there's nothing to break — so a broad, detailed prompt jumps you forward. This time with context.",
+             lesson:"Broad works when the scaffold is clean and the details are complete."},
+            {scope:"focused", style:"specified", outcome:"advance", to:"p-days",
+             label:"A safe step: add just a row of days Sun–Sat.",
+             asksFor:"Asks for: one thing, clearly defined",
+             reveal:"You're back on the safe path — one row of days, clearly defined. Continuing step by step.",
+             lesson:"After a mess, any clean way forward is good."}
+          ]
+        },
+        {
+          id:"p-summary-broken", name:"Broken summary", progress:50,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>WhenFree</div></div>
                 <div class="a-pad" style="flex:1">
                   <div class="a-card a-broken"><div class="t">${ic('warn')} Shared time: empty</div><div class="d">No saved days — the marking was never saved</div></div>
                   <div class="a-card a-dead"><div class="t">The calendar marks, but forgets</div><div class="d">Every exit resets everything</div></div>
                 </div>`,
           choices:[
-            {label:"Stop. Remove the summary screen and connect the marking first", type:"small", to:"p-summary-fix", outcome:"repair",
-             reveal:"You started fixing: you removed the summary screen that was built too early. Now you can connect the marking — but this is already the second turn spent on the fix.",
+            {scope:"focused", style:"specified", outcome:"setback", to:"p-summary-fix",
+             label:"Stop. Remove the summary screen and connect the marking first.",
+             asksFor:"Asks for: fix the foundation, precisely",
+             reveal:"You started fixing: you removed the summary screen that was built too early. Now you can connect the marking properly — but this is already the second turn spent on the fix.",
              lesson:"A floor on a shaky foundation has to be taken down before you fix the foundation."}
           ]
         },
         {
-          id:"p-summary-fix", name:"Fixing the foundation", progress:58, looksFine:true,
-          testReveal:"You tested: the summary is gone, the marking is on its own and ready to connect. Cost one turn.",
+          id:"p-summary-fix", name:"Fixing the foundation", progress:60,
           mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>WhenFree</div></div>
                 <div class="a-warn">${ic('warn')} We removed the summary. Now we're connecting the marking properly.</div>
                 <div class="a-pad"><span class="a-chip" style="background:#dff5e8;color:#177a4b">Sun ✓</span><span class="a-chip">Mon</span><span class="a-chip">Tue</span></div>`,
           choices:[
-            {label:"Now connect the marking: the selection should be saved", type:"small", to:"p-toggle-fixed",
+            {scope:"focused", style:"specified", outcome:"advance", to:"p-core-working",
+             label:"Now connect the marking: the selection should be saved and shown in the summary.",
+             asksFor:"Asks for: one precise fix",
              reveal:"You connected the marking properly. Back on the clean path — you just got here in two turns instead of one.",
-             lesson:"Exactly this: skipping a test cost you double the turns."}
+             lesson:"Exactly this: skipping a test cost you double."}
           ]
         },
         {
-          id:"p-pretty", name:"Vague 'clean'", progress:8, looksFine:true,
-          testReveal:"You tested: a gray, empty screen that looks 'modern' but has nothing in it. Clean isn't useful. Cost one turn.",
+          id:"p-overbuilt", name:"Overbuilt", progress:42,
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>WhenFree</div><div class="a-sub" style="color:#c23b48">Friends · Notifications · Map · Chat — crammed onto the calendar that worked</div></div>
+                <div class="a-pad a-messy" style="flex:1">
+                  <div class="a-card a-broken"><div class="t">Friends list that opened over the calendar</div><div class="d">The marking that worked got pushed aside and broke</div></div>
+                  <div class="a-card a-dead"><div class="t">Empty map</div><div class="d">Loading forever</div></div>
+                </div>`,
+          choices:[
+            {scope:"focused", style:"specified", outcome:"setback", to:"p-untangle-2",
+             label:"Undo the friends, notifications and map. Go back to the calendar that worked.",
+             asksFor:"Asks for: remove the add-ons, precisely",
+             reveal:"You started removing what you crammed in. It costs a turn to take it apart, and another turn to reconnect what worked.",
+             lesson:"Going broad at the wrong moment costs several turns to fix."}
+          ]
+        },
+        {
+          id:"p-untangle-2", name:"Cleaning up add-ons", progress:60,
+          mock:`<div class="a-head"><div class="a-logo"><span class="dot"></span>WhenFree</div><div class="a-sub">Back to a clean calendar</div></div>
+                <div class="a-warn">${ic('warn')} We removed the friends, notifications and map. Now we're bringing back the marking that worked.</div>
+                <div class="a-pad"><span class="a-chip" style="background:#dff5e8;color:#177a4b">Sun ✓</span><span class="a-chip">Mon</span><span class="a-chip" style="background:#dff5e8;color:#177a4b">Tue ✓</span></div>`,
+          choices:[
+            {scope:"focused", style:"specified", outcome:"advance", to:"p-core-working",
+             label:"Reconnect: the marking is saved and the summary shows it.",
+             asksFor:"Asks for: one precise fix",
+             reveal:"You're back to a working calendar, after two turns spent on fixing.",
+             lesson:"Broad at the wrong time was expensive. Focused brought you back."}
+          ]
+        },
+        {
+          id:"p-pretty", name:"Vague 'clean'", progress:8,
           mock:`<div style="flex:1;display:flex;align-items:center;justify-content:center;color:#aab2c9;font-weight:800;text-align:center;padding:24px;background:#f0f1f5">
                   A gray, 'modern' screen — and completely empty
                 </div>`,
           choices:[
-            {label:"Forget 'clean'. Build a home screen with a title and an explanation sentence", type:"small", to:"p-title", outcome:"repair",
-             reveal:"You went back to a precise instruction and got a real home screen. The vague 'clean' cost a turn.",
-             lesson:"Precise beats vague. Always."}
+            {scope:"broad", style:"specified", outcome:"advance", to:"p-scaffold-rich",
+             label:"Build a complete home screen: a title, a row of days and a 'Save' button — with details.",
+             asksFor:"Asks for: a full screen, with details",
+             reveal:"You swapped 'clean and modern' for full context — and got a rich scaffold all at once. That's what a winning first prompt looks like.",
+             lesson:"At the start: replace vague words with detailed context, not with a small step."},
+            {scope:"focused", style:"specified", outcome:"advance", to:"p-title",
+             label:"Forget 'clean'. Build a home screen with a title and a short explanation sentence.",
+             asksFor:"Asks for: one thing, clearly defined",
+             reveal:"You went back to a precise instruction — and got a real home screen. The vague 'clean' cost a turn.",
+             lesson:"Precise always beats vague. Even when it comes to 'clean'."}
           ]
         },
         {
-          id:"p-vague-moved", name:"'Improvement' that moved things", progress:26, looksFine:false,
-          testReveal:"The test exposed it: the 'improvement' moved an element that worked and hid part of it. You need to put it back manually.",
+          id:"p-vague-moved", name:"'Improvement' that moved things", progress:26,
           mock:`<div class="a-pad" style="flex:1;display:flex;flex-direction:column;justify-content:space-between">
                   <div class="a-warn" style="margin-top:10px">${ic('warn')} The 'improvement' moved things that worked — some of the days are hidden now.</div>
                   <div class="a-head" style="opacity:.5"><div class="a-logo" style="font-size:14px">WhenFree (moved to the side)</div></div>
                 </div>`,
           choices:[
-            {label:"Restore order: title at the top, the row of days back in its place", type:"small", to:"p-days", outcome:"repair",
+            {scope:"focused", style:"specified", outcome:"advance", to:"p-days",
+             label:"Restore order: title at the top, the row of days back in its place.",
+             asksFor:"Asks for: put it back, precisely",
              reveal:"You manually put back what the 'improvement' moved. Tidy again — but a turn went to fixing something that wasn't broken.",
              lesson:"'Improve' cost a turn. A precise instruction would have saved it."}
           ]
@@ -1072,21 +1157,21 @@ const CONFIG = {
    ============================================================ */
 const G = {
   scenario:null, statesById:{}, stateId:null,
-  turns:0, saved:null, history:[], mode:"team",
+  turns:0, history:[], mode:"team",
   comicSpent:false, order:{}, revealHTML:"", revealType:"placeholder",
-  showTestFlag:false, animate:false, ended:false
+  animate:false, ended:false, spentCost:0, spentAt:null
 };
 
 /* ---------- choice normalization ----------
    New model: scope('broad'|'focused') · style('specified'|'vague') ·
-   asksFor(text) · outcome('advance'|'setback'|'discipline').
+   asksFor(text) · outcome('advance'|'setback').
    Falls back to the legacy `type` so un-ported scenarios still work. */
 function normChoice(c){
   const t=c.type;
   const scope = c.scope || (t==='greedy'?'broad':'focused');
   const style = c.style || (t==='vague'?'vague':'specified');
   let outcome = c.outcome;
-  if(!outcome) outcome = (t==='small')?'advance':(t==='discipline'?'discipline':'setback');
+  if(!outcome) outcome = (t==='small')?'advance':'setback';
   if(outcome==='repair') outcome='setback';
   return {scope,style,outcome};
 }
@@ -1104,12 +1189,30 @@ function asksLine(c){
   if(n.style==='vague') return 'Asks for: a general change, no details';
   return n.scope==='broad' ? 'Asks for: several things at once' : 'Asks for: one thing, clearly defined';
 }
+function shuffleArr(arr){
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=arr[i];arr[i]=arr[j];arr[j]=t;}
+  return arr;
+}
+/* board mode: the class votes by show of hands, so cap the live ballot at 3
+   cards — trimmed to keep at least one advance and one setback when both
+   exist, so the vote is never a fake choice between near-identical cards */
+function boardPick(st, idx){
+  const advIdx = idx.filter(i=>normChoice(st.choices[i]).outcome==='advance');
+  const setIdx = idx.filter(i=>normChoice(st.choices[i]).outcome==='setback');
+  shuffleArr(advIdx); shuffleArr(setIdx);
+  const opts=[];
+  if(advIdx.length>=1 && setIdx.length>=2) opts.push([1,2]);
+  if(advIdx.length>=2 && setIdx.length>=1) opts.push([2,1]);
+  if(!opts.length) return shuffleArr(idx.slice()).slice(0,3);
+  const [a,s] = opts[Math.floor(Math.random()*opts.length)];
+  return advIdx.slice(0,a).concat(setIdx.slice(0,s));
+}
 /* shuffle the card order once per state-entry so position is never a tell */
 function displayOrder(st){
   if(!G.order[st.id]){
-    const idx = st.choices.map((_,i)=>i);
-    for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=idx[i];idx[i]=idx[j];idx[j]=t;}
-    G.order[st.id]=idx;
+    let idx = st.choices.map((_,i)=>i);
+    if(G.mode==='board' && idx.length>3) idx = boardPick(st, idx);
+    G.order[st.id]=shuffleArr(idx);
   }
   return G.order[st.id];
 }
@@ -1135,7 +1238,7 @@ function renderStart(){
     <div class="setup-grid">
       <div class="setup-card">
         <h3>${ic('screen')} Choose an app to build</h3>
-        <p class="sub">Two scenarios — each one teaches the same rules.</p>
+        <p class="sub">This is the team's decision: choose together which app to build — whichever you like.</p>
         <div id="scen-opts">
           ${scen.map(s=>`
             <button class="opt ${s.id===sel.scenarioId?'on':''}" data-scen="${s.id}">
@@ -1146,10 +1249,10 @@ function renderStart(){
       </div>
       <div class="setup-card">
         <h3>${ic('users')} Choose a game mode</h3>
-        <p class="sub">Exactly the same game — only who decides changes.</p>
+        <p class="sub">How the class will play:</p>
         <button class="opt ${sel.mode==='team'?'on':''}" data-mode="team">
           <span class="oico">${ic('users')}</span>
-          <span class="otxt"><b>Team mode</b><span>Each team on its own computer, at its own pace.</span></span>
+          <span class="otxt"><b>Team mode <span class="tag reco">Recommended</span></b><span>Each team on its own computer, at its own pace.</span></span>
         </button>
         <button class="opt ${sel.mode==='board'?'on':''}" data-mode="board">
           <span class="oico">${ic('hand')}</span>
@@ -1160,8 +1263,8 @@ function renderStart(){
     <div class="start-row">
       <button class="btn-primary" id="startBtn">${ic('rocket')} Start building</button>
     </div>
-    <p class="how">Each turn: pick a prompt → the screen changes → one line explains what happened and why. There's no fixed answer here: a broad prompt with context wins at the start, and a focused step wins once something works. Discipline moves (save, test, restore) are always available and cost a turn — until something breaks, and then they save you.</p>
-    <div class="foot">${esc(m.title)} · Static product, no server · All content is editable in CONFIG</div>
+    <p class="how">Each turn: pick a prompt -> the screen changes -> one line explains what happened and why. There's no fixed answer here: a broad prompt with context wins at the start, and a focused step wins once something works.</p>
+    <div class="foot">${esc(m.title)} · Static product, no server</div>
   </div>`;
 
   root.querySelectorAll('[data-scen]').forEach(b=>b.onclick=()=>{sel.scenarioId=b.dataset.scen;renderStart();});
@@ -1177,13 +1280,11 @@ function startGame(scenarioId, mode){
   scen.states.forEach(st=>G.statesById[st.id]=st);
   G.stateId = scen.startStateId;
   G.turns = CONFIG.meta.turns;
-  G.saved = null;
   G.history = [];
   G.comicSpent = false;
   G.order = {};
   G.mode = mode || "team";
   G.ended = false;
-  G.showTestFlag = false;
   G.revealType = "placeholder";
   G.revealHTML = CONFIG.ui.revealPlaceholder;
   G.animate = false;
@@ -1195,16 +1296,17 @@ function curState(){return G.statesById[G.stateId];}
 
 /* ---------- record a turn in history (for the map) ---------- */
 function record(kind, label, cost, from, to){
-  // kind: 'advance' | 'setback' | 'discipline'
+  // kind: 'advance' | 'setback'
   G.history.push({kind, label, cost, from, to});
 }
 
 /* ---------- apply a scripted prompt choice ---------- */
-function pickChoice(idx){
+function pickChoice(idx, el){
   if(G.ended) return;
   const st = curState();
   const ch = st.choices[idx];
   if(!ch) return;
+  if(el){ const r=el.getBoundingClientRect(); G.spentAt={x:r.left+r.width/2, y:r.top+r.height*0.28}; }
   const cost = ch.cost==null?1:ch.cost;
   const outcome = normChoice(ch).outcome;
 
@@ -1221,58 +1323,13 @@ function pickChoice(idx){
   const toP = target ? (target.progress||0) : fromP;
 
   G.turns -= cost;
+  G.spentCost = cost;
   record(outcome, ch.label, cost, fromP, toP);
   G.stateId = ch.to;
-  G.showTestFlag = false;
   G.revealType = outcome;
   G.revealHTML = revealHTML + (lessonHTML?`<span class="lesson">${esc(lessonHTML)}</span>`:'');
   G.animate = true;
 
-  checkEndOrRender();
-}
-
-/* ---------- discipline moves (engine-level) ---------- */
-function doSave(){
-  if(G.ended) return;
-  const st = curState();
-  G.saved = { id:G.stateId, name:st.name, progress:st.progress||0 };
-  G.turns -= CONFIG.meta.disciplineCost;
-  const p=st.progress||0;
-  record('discipline', CONFIG.ui.save+' — '+st.name, CONFIG.meta.disciplineCost, p, p);
-  G.revealType='discipline';
-  G.revealHTML = CONFIG.ui.saveDone;
-  G.showTestFlag=false; G.animate=false;
-  checkEndOrRender();
-}
-function doTest(){
-  if(G.ended) return;
-  const st = curState();
-  G.turns -= CONFIG.meta.disciplineCost;
-  const p=st.progress||0;
-  record('discipline', CONFIG.ui.test+' — '+st.name, CONFIG.meta.disciplineCost, p, p);
-  G.revealType='discipline';
-  G.revealHTML = st.testReveal || CONFIG.ui.testGenericFine;
-  // reveal hidden breakage visually if the state hides some
-  G.showTestFlag = (st.looksFine===false);
-  G.animate=false;
-  checkEndOrRender();
-}
-function doRestore(){
-  if(G.ended) return;
-  if(!G.saved){
-    // costs nothing — just informs
-    G.revealType='discipline';
-    G.revealHTML = CONFIG.ui.restoreNone;
-    renderGame();
-    return;
-  }
-  G.turns -= CONFIG.meta.disciplineCost;
-  const fromP=curState().progress||0;
-  record('discipline', CONFIG.ui.restore+' — '+G.saved.name, CONFIG.meta.disciplineCost, fromP, G.saved.progress||0);
-  G.stateId = G.saved.id;
-  G.revealType='discipline';
-  G.revealHTML = CONFIG.ui.restoreDone;
-  G.showTestFlag=false; G.animate=true;
   checkEndOrRender();
 }
 
@@ -1315,21 +1372,10 @@ function renderGame(){
       <div class="phone-col">
         <div class="phone">
           <div class="notch"></div>
-          <div class="screen-frame ${G.animate?'animating':''} ${G.showTestFlag?'show-test':''}">
-            <div class="tested-flag">${ic('warn')} Hidden bug exposed</div>
+          <div class="screen-frame ${G.animate?'animating':''}">
             <div class="screen-tick"><span>${esc(scen.appName)}</span><span>9:41</span></div>
             <div class="app-screen">${st.mock}</div>
           </div>
-        </div>
-
-        <div class="disc-bar">
-          <button class="disc-btn" id="saveBtn">${ic('save')}<b>${esc(ui.save)}</b><small>${esc(ui.saveSub)}</small></button>
-          <button class="disc-btn" id="testBtn">${ic('test')}<b>${esc(ui.test)}</b><small>${esc(ui.testSub)}</small></button>
-          <button class="disc-btn" id="restoreBtn" ${G.saved?'':'disabled'}>${ic('undo')}<b>${esc(ui.restore)}</b><small>${esc(ui.restoreSub)}</small></button>
-        </div>
-        <div class="save-slot ${G.saved?'has':''}">
-          <span class="sico">${ic('save')}</span>
-          <div><div class="sl">${esc(ui.slotLabel)}</div><div class="sn">${G.saved?esc(G.saved.name):esc(ui.slotEmpty)}</div></div>
         </div>
       </div>
 
@@ -1346,7 +1392,6 @@ function renderGame(){
               <div class="card-top"><span class="tag ${m.cls}">${ic(m.icon)} ${m.label}</span>
                 <span class="cost">${ic('bolt')} ${c.cost==null?1:c.cost} ${esc(CONFIG.ui.costTurn)}</span></div>
               <div class="promptline"><span class="qico">${ic('q')}</span><span class="lbl">${esc(c.label)}</span></div>
-              <div class="asks">${ic('info')} ${esc(asksLine(c))}</div>
               <span class="vote-badge">${ic('hand')} ${esc(ui.voteHint)}</span>
             </button>`;}).join('')}
         </div>
@@ -1355,16 +1400,29 @@ function renderGame(){
     <div class="foot">${esc(CONFIG.meta.golden)}</div>
   </div>`;
 
-  root.querySelectorAll('.card').forEach(b=>b.onclick=()=>pickChoice(+b.dataset.i));
-  document.getElementById('saveBtn').onclick=doSave;
-  document.getElementById('testBtn').onclick=doTest;
-  document.getElementById('restoreBtn').onclick=doRestore;
+  root.querySelectorAll('.card').forEach(b=>b.onclick=()=>pickChoice(+b.dataset.i, b));
   document.getElementById('quitBtn').onclick=()=>{document.body.classList.remove('board');renderStart();};
+
+  if(G.spentCost){
+    const chip = root.querySelector('.turns-chip');
+    if(chip) chip.classList.add('spent');
+    if(G.spentAt){
+      const f = document.createElement('div');
+      f.className='turn-float';
+      f.dir='ltr';
+      f.innerHTML='<span class="tf-n" dir="ltr">−'+G.spentCost+'</span> '+esc(CONFIG.ui.costTurn);
+      f.style.left=G.spentAt.x+'px';
+      f.style.top=G.spentAt.y+'px';
+      document.body.appendChild(f);
+      setTimeout(()=>f.remove(),1200);
+    }
+    G.spentCost=0; G.spentAt=null;
+  }
   G.animate=false;
 }
 
 function revealIcon(t){
-  return t==='advance'?'check':t==='setback'?'warn':t==='discipline'?'save':'q';
+  return t==='advance'?'check':t==='setback'?'warn':'q';
 }
 
 /* ---------- END SCREEN ---------- */
@@ -1373,12 +1431,23 @@ function renderEnd(win){
   const used = G.history.reduce((a,h)=>a+h.cost,0);
   const adv = G.history.filter(h=>h.kind==='advance').reduce((a,h)=>a+h.cost,0);
   const rep = G.history.filter(h=>h.kind==='setback').reduce((a,h)=>a+h.cost,0);
-  const dis = G.history.filter(h=>h.kind==='discipline').reduce((a,h)=>a+h.cost,0);
   const progress = curState().progress||0;
 
   document.body.classList.remove('board');
   root.innerHTML = `
   <div class="screen end">
+    <!-- FINISHED APP FIRST -->
+    <div class="end-app">
+      <div class="end-app-cap">${esc(win?ui.endAppWin:ui.endAppLose)}</div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen-frame animating">
+          <div class="screen-tick"><span>${esc(scen.appName)}</span><span>9:41</span></div>
+          <div class="app-screen">${curState().mock}</div>
+        </div>
+      </div>
+    </div>
+
     <div class="end-head ${win?'win':'lose'}">
       <div class="rico">${ic(win?'flag':'clock')}</div>
       <h1>${esc(win?ui.winTitle:ui.loseTitle)}</h1>
@@ -1400,12 +1469,11 @@ function renderEnd(win){
           </div>`;}).join('') || '<div class="psub">No turns were taken.</div>'}
       </div>
       <div class="map-legend">
-        <span><i class="g"></i>Progress</span><span><i class="r"></i>Repair / waste</span><span><i class="b"></i>Discipline (save/test/restore)</span>
+        <span><i class="g"></i>Progress</span><span><i class="r"></i>Repair / waste</span>
       </div>
       <div class="tally">
         <div class="t g"><div class="num">${adv}</div><div class="lb">${esc(ui.advances)}</div></div>
         <div class="t r"><div class="num">${rep}</div><div class="lb">${esc(ui.repairs)}</div></div>
-        <div class="t b"><div class="num">${dis}</div><div class="lb">${esc(ui.discipline)}</div></div>
         <div class="t"><div class="num">${used}</div><div class="lb">${esc(ui.turnsUsed)}</div></div>
       </div>
     </div>
@@ -1431,12 +1499,6 @@ function renderEnd(win){
       </ul>
     </div>
 
-    <!-- HANDOFF -->
-    <div class="panel handoff">
-      <h3 style="justify-content:center">${ic('arrow')} ${esc(ui.handoffTitle)}</h3>
-      <div>${esc(ui.handoff)}</div>
-    </div>
-
     <div class="end-actions">
       <button class="btn-primary green" id="replayBtn">${ic('undo')} ${esc(ui.replay)}</button>
       <button class="ghost-btn" id="menuBtn" style="padding:14px 22px;font-size:15px">${ic('layers')} ${esc(ui.newGame)}</button>
@@ -1447,7 +1509,7 @@ function renderEnd(win){
   document.getElementById('replayBtn').onclick=()=>startGame(G.scenario.id, G.mode);
   document.getElementById('menuBtn').onclick=renderStart;
 }
-function kindLabel(k){return k==='advance'?'Progress':k==='setback'?'Setback / repair':'Discipline';}
+function kindLabel(k){return k==='advance'?'Progress':'Setback / repair';}
 
 /* ---------- boot ---------- */
 renderStart();
